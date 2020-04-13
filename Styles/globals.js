@@ -4,13 +4,15 @@ import { StyleSheet } from 'react-native' ;
 export const colorCodes = {
     primary: "#573280",
     secondary:"#FAEAFF",
-    primaryLighter:"#6A3589",
+    primaryLighter:"#8A7090",
     secondaryDarker:"#FAEAFF",
     success:"#4CFF9C",
     danger:"#FF2C55",
+    warning:"#FF8D14",
     successLighter:"#BFFFDB",
     dangerLighter:"#FFCCD6", 
-    grey:"#e3e3e3"
+    grey:"#e3e3e3",
+    neutral:"#939B9B"
 }
 
 
@@ -30,6 +32,9 @@ export const globals = StyleSheet.create({
     h5:{
         fontSize:13
     },
+    h6:{
+        fontSize:10
+    },
     paragraph: {
         fontSize:10
     },
@@ -37,6 +42,12 @@ export const globals = StyleSheet.create({
         margin:20,
         padding:0,
         flex:1
+    },
+    container:{
+        padding:20,
+    },
+    paddingTop0:{
+        paddingTop:0
     },
     item:{
         margin:0,
@@ -103,6 +114,9 @@ export const colors = StyleSheet.create({
     colorSecondary:{
         color:colorCodes.secondary 
     },
+    colorPrimaryLighter:{
+        color:colorCodes.primaryLighter
+    },
     bgPrimaryLighter:{
         backgroundColor:colorCodes.primaryLighter
     },
@@ -114,6 +128,12 @@ export const colors = StyleSheet.create({
     },
     bgSuccess:{
         backgroundColor:colorCodes.success
+    }, 
+    colorWarning:{
+        color:colorCodes.warning
+    },
+    bgWarning:{
+        backgroundColor:colorCodes.warning
     }, 
     colorDanger: {
         color:colorCodes.danger
@@ -138,5 +158,11 @@ export const colors = StyleSheet.create({
     },
     bgGrey:{
         backgroundColor:colorCodes.grey
+    },
+    colorNeutral:{
+        color:colorCodes.neutral,
+    },
+    bgNeutral:{
+        backgroundColor:colorCodes.neutral
     }
 }) ; 

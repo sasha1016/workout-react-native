@@ -27,7 +27,7 @@ export default function workOutForTheDay({navigation}) {
                     ?    (
                             <List.Item  title={item.name} 
                                         button
-                                        left={() => <List.Icon icon="dumbbell" color={colorCodes.primary}/>} 
+                                        left={() => <List.Icon icon={`alpha-${item.name.slice(0,1)}-circle-outline`} color={colorCodes.primary}/>} 
                                         titleStyle={[text.capitalize,text.bold,globals.h3,colors.colorPrimary]}
                                         onPress={() => selectGroup(item.name)}
                                         style={[globals.item,styles.sbd]}
@@ -36,7 +36,7 @@ export default function workOutForTheDay({navigation}) {
                     :    (
                             <List.Item  title={item.name} 
                                         button
-                                        left={() => <List.Icon icon="dumbbell" color="#8A7090"/>} 
+                                        left={() => <List.Icon icon="alpha-a-circle-outline" color="#8A7090"/>} 
                                         onPress={() => selectGroup(item.name)}
                                         titleStyle={[text.capitalize,text.bold,globals.h3,{color:"#8A7090"}]}
                                         style={[globals.item,styles.accessory]}
@@ -45,7 +45,7 @@ export default function workOutForTheDay({navigation}) {
                     )
 
                 }} 
-                keyExtractor={item => item.id}
+                keyExtractor={item => `${item.id}`}
             />
         </View>
     )

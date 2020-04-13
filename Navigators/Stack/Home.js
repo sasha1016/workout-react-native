@@ -1,6 +1,7 @@
 import React from 'react' ;
 import { createStackNavigator } from '@react-navigation/stack' ; 
-import { NavigationContainer } from '@react-navigation/native' ; 
+
+import {IconButton} from 'react-native-paper' ;
 
 import {colorCodes} from '../../Styles/globals.js'; 
 
@@ -24,15 +25,17 @@ const headerTitleStyle = {
     color:colorCodes.secondary,
 }
 
+
 const Stack = createStackNavigator();
 
-function HomeStack() {
+function HomeStack({navigation}) {
     return (
         <Stack.Navigator
             initialRouteName="Home"
             screenOptions={{
                 headerStyle,
-                headerTitleStyle
+                headerTitleStyle,
+                headerTintColor:colorCodes.secondary
             }}
         >
             <Stack.Screen
@@ -40,6 +43,7 @@ function HomeStack() {
                 component={Home}
                 options={{
                     title:moment().format("ddd, D/MM"),
+                    headerLeft:(() => <IconButton icon="menu" color={colorCodes.secondary} onPress={() => navigation.openDrawer()}/>)
                 }}
             />
             <Stack.Screen

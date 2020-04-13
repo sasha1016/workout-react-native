@@ -3,10 +3,9 @@ import {Timer} from 'react-native-stopwatch-timer' ;
 import {StyleSheet,View} from 'react-native' ; 
 
 
-import { globals, colorCodes} from '../Styles/globals.js' ; 
+import { colorCodes} from '../Styles/globals.js' ; 
 
 export default function timer({duration=10,onFinish = () => {}}) {
-
 
     return (
         <View>

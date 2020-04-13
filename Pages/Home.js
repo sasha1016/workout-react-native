@@ -1,9 +1,9 @@
 import React from 'react' ; 
-import {Text, View,StyleSheet} from 'react-native' ; 
+import { View,StyleSheet} from 'react-native' ; 
 
 import {Button} from 'react-native-paper' ; 
 
-import  {globals,colors,text,colorCodes} from '../Styles/globals.js';
+import  {colors,colorCodes} from '../Styles/globals.js';
 
 export default function Home({navigation}) {
 

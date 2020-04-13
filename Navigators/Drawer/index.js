@@ -2,7 +2,9 @@ import React from 'react' ;
 import { createDrawerNavigator } from '@react-navigation/drawer' ; 
 import { NavigationContainer } from '@react-navigation/native' ; 
 
-import HomeStack from '../Stack/Home.js'
+import HomeStack from '../Stack/Home.js'; 
+import RoutineStack from '../Stack/Routine.js'
+import ProgramsStack from '../Stack/Programs.js'
 
 const Drawer = createDrawerNavigator() ; 
 
@@ -17,7 +19,28 @@ function RootDrawer() {
                     component={HomeStack}
                     options={
                         {
-                            title:"Home"
+                            title:"Home",
+                            drawerLabel:"Home"
+                        }
+                    }
+                />
+                <Drawer.Screen
+                    name="Routine"
+                    component={RoutineStack}
+                    options={
+                        {
+                            title:"Routine",
+                            drawerLabel:"Routine"
+                        }
+                    }
+                />
+                <Drawer.Screen
+                    name="Programs"
+                    component={ProgramsStack}
+                    options={
+                        {
+                            title:"Programs",
+                            drawerLabel:"Programs"
                         }
                     }
                 />
