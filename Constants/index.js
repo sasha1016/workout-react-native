@@ -1,0 +1,1 @@
+export const MUSCLE_GROUPS = ['back','biceps','triceps','chest','core','legs','shoulders'];

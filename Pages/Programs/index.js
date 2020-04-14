@@ -34,7 +34,7 @@ export default function Programs({navigation}) {
         axios.get(API_V1+USER.GET_PROGRAMS, {
             params:{
                 userId:"1",
-                keys:"muscleGroup programName programId lift liftName"
+                keys:"muscleGroup programName programId lift frequency liftName duration commenced workoutsCompleted"
             }
         })
         .then((response) => {

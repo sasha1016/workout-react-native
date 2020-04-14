@@ -3,18 +3,17 @@ import React,{useState,useEffect} from 'react'  ;
 import {globals,colorCodes,colors,text} from '../../../Styles/globals' ; 
 import {capitalize} from '../../../Utilities' ; 
 
+import {MUSCLE_GROUPS} from '../../../Constants' ; 
+import {API_V1,USER,PROGRAMS} from '../.././../config/index' ;
+
 import DaySetsForm from './Components/DaySetsForm' ; 
 
 import {Modal,View,Text,ScrollView,StyleSheet,FlatList} from 'react-native' ; 
 import {Picker, Item,Label,Input,List,ListItem,Body,Toast,Right,Icon, Radio} from 'native-base' ; 
 import {Title,Appbar,Chip, Button} from 'react-native-paper' ; 
 
-const programs = [
-    {title:"Smolov",lift:"squat",duration:6,frequency:2,rating:3.5,increase:3},
-    {title:"Smolov Jr.",lift:"bench",duration:6,frequency:4,rating:4,increase:10},
-    {title:"Candito",lift:"deadlift",duration:8,frequency:3,rating:3.5,increase:6},
-    {title:"Mark Bell",lift:"squat",duration:12,frequency:4,rating:3.5,increase:7},
-] ; 
+const axios = require('axios') ; 
+
 
 const input = StyleSheet.create({
     label:{
@@ -23,7 +22,7 @@ const input = StyleSheet.create({
 }) ; 
 
 
-const BasicsForm = ({onDaySelected}) => {
+const AddProgramForm = () => {
 
     const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'] ; 
 
@@ -31,13 +30,14 @@ const BasicsForm = ({onDaySelected}) => {
         name:'',
         duration:0,
         type:false,
+        lift:false,
         weightFactor:false,
         frequency:0,
         days:[],
-        selected:[] , //Array of names of all selected days
+        preferredDays:[] , //Array of names of all selected days
     }) ; 
     
-    var enabledCommonCondition = values.selected.length <= values.frequency - 1 ;
+    var enabledCommonCondition = values.preferredDays.length <= values.frequency - 1 ;
 
     const styles = StyleSheet.create({
         chip:{
@@ -83,30 +83,76 @@ const BasicsForm = ({onDaySelected}) => {
 
     const removeFromSelected = (day) => {
 
-        let newSelected = values.selected.filter((d) => {return (d===day? false : true)})
+        let newSelected = values.preferredDays.filter((d) => {return (d===day? false : true)})
         let newDays = values.days.filter((d) => {return (d.name === day ? false : true )})  ; 
-        setValues({...values,days:newDays,selected:newSelected}) ; 
+        setValues({...values,days:newDays,preferredDays:newSelected}) ; 
 
+    }
 
+    const addProgram = () => {
+        console.warn(values) ;
+        axios.post(API_V1 + PROGRAMS + '/add', {
+            ...values
+        }).then((response) => {
+            console.warn(response); 
+        }).catch((error) => {
+            console.warn(error.response) ; 
+        })
     }
 
     return (
         <View>
-            <Item floatingLabel>
+            <Item inlineLabel >
                 <Label style={[globals.h5,colors.colorPrimaryLighter,input.label]}>Name</Label>
-                <Input style={{padding:5}} onChangeText={(name) => setValues({...values,name:name})}/>
+                <Input 
+                    style={[globals.h5,colors.colorPrimary]} 
+                    onChangeText={(name) => setValues({...values,name:name})}
+                />
             </Item>
+
             <Item  style={[globals.paddingTop]}>
                 <Picker
                     mode="dropdown"
-                    onValueChange={(type) => setValues({...values,type})}
-                    selectedValue={values.type || false}
+                    onValueChange={(lift) => setValues({...values,lift})}
+                    selectedValue={values.lift || false}
                 >
-                    <Picker.Item label="Type" value={false}/>
-                    <Picker.Item label="Main Lift" value="sbd"/>
-                    <Picker.Item label="Accessory" value="accessory"/>
+                    <Picker.Item label="Lift" value={false}/>
+                    <Picker.Item label="Main Lift" value="main"/>
+                    <Picker.Item label="Accessory" value="access"/>
                 </Picker>
             </Item>
+            {
+                values.lift === "main" ?
+
+                    <Item  style={[globals.paddingTop]}>
+                        <Picker
+                            mode="dropdown"
+                            onValueChange={(liftName) => setValues({...values,liftName})}
+                            selectedValue={values.liftName || false}
+                        >
+                            <Picker.Item label="Lift" value={false}/>
+                            <Picker.Item label="Squat" value="squat"/>
+                            <Picker.Item label="Bench" value="bench"/>
+                            <Picker.Item label="Deadlift" value="deadlift"/>
+                        </Picker>
+                    </Item>
+
+                :
+                    <Item  style={[globals.paddingTop]}>
+                        <Picker
+                            mode="dropdown"
+                            onValueChange={(muscleGroup) => setValues({...values,muscleGroup})}
+                            selectedValue={values.muscleGroup || false}
+                        >
+                            <Picker.Item label="Muscle Group" value={false}/>
+                                {
+                                    MUSCLE_GROUPS.map((mg) => {
+                                        return (<Picker.Item label={capitalize(mg)} value={mg}/>)
+                                    })
+                                }
+                        </Picker>
+                    </Item>                
+            }
             <View style={[globals.flex,globals.flexRow,globals.paddingTop]}>
                 <Item inlineLabel style={[globals.flex,{borderBottomWidth:0,justifyContent:'space-between',marginRight:8}]}>
                     <Label style={[globals.h5,colors.colorPrimaryLighter,input.label]}>Percentage</Label>
@@ -127,6 +173,34 @@ const BasicsForm = ({onDaySelected}) => {
                     />
                 </Item>
             </View>
+            <View style={[globals.flex,globals.flexRow,globals.paddingTop]}>
+                <Item inlineLabel style={[globals.flex,{borderBottomWidth:0,justifyContent:'space-between',marginRight:8}]}>
+                    <Label style={[globals.h5,colors.colorPrimaryLighter,input.label]}>Strength</Label>
+                    <Radio 
+                        color={colorCodes.primaryLighter} 
+                        selectedColor={colorCodes.primary} 
+                        selected={values.type == "strength"}
+                        onPress={() => setValues({...values,type:"strength"})}
+                    />
+                </Item>
+                <Item inlineLabel  style={[globals.flex,{borderBottomWidth:0,justifyContent:'space-between',marginLeft:8}]}>
+                    <Label style={[globals.h5,colors.colorPrimaryLighter,input.label]}>Hypertrophy</Label>
+                    <Radio 
+                        color={colorCodes.primaryLighter} 
+                        selectedColor={colorCodes.primary} 
+                        onPress={() => setValues({...values,type:"hypertophy"})}
+                        selected={values.type == "hypertrophy"}
+                    />
+                </Item>
+            </View>
+            <Item inlineLabel style={[globals.paddingTop]}>
+                <Label style={[globals.h5,colors.colorPrimaryLighter,input.label]}>Duration</Label>
+                <Input 
+                    keyboardType="numeric" 
+                    style={[globals.h5,colors.colorPrimary]} 
+                    onChangeText={(duration) => setValues({...values,duration})}
+                />
+            </Item>
             <Item picker style={[globals.paddingTop]}>
                 <Picker
                     mode="dropdown"
@@ -147,7 +221,7 @@ const BasicsForm = ({onDaySelected}) => {
                 {
                     
                     days.map((day) => {
-                        let daySelected = values.selected.includes(day); 
+                        let daySelected = values.preferredDays.includes(day); 
                         var enabled =  enabledCommonCondition || daySelected;
                         return (
                             <Chip 
@@ -162,7 +236,7 @@ const BasicsForm = ({onDaySelected}) => {
                                             setValues(
                                                 {
                                                     ...values,
-                                                    selected:[...values.selected,day],
+                                                    preferredDays:[...values.preferredDays,day],
                                                     days:[
                                                         ...values.days, 
                                                         {name:day,toComplete:{}}
@@ -194,6 +268,22 @@ const BasicsForm = ({onDaySelected}) => {
                     return (<DaySetsForm day={day.name} index={index} onSetAdd={onSetAdd} toComplete={day.toComplete} key={`key-${index}`} />)
                 }) 
             }
+
+            <View style={[globals.flex,globals.flexRow,globals.paddingTop,{alignItems:'center',justifyContent:'center'}]}>
+                <Button
+                    mode="transparent"
+                    color={colorCodes.secondary}
+                    icon="plus"
+                    compact
+                    style={[globals.h5,colors.bgPrimary,{marginLeft:5}]}
+                    labelStyle={[globals.h5,colors.colorSecondary]}
+                    onPress={() => {
+                        addProgram();
+                    }}
+                >
+                    Add Program
+                </Button>
+            </View>
         </View>       
     )
 }
@@ -217,7 +307,7 @@ export default function AddProgram({visible,toggler}) {
                             </ListItem>
                             <ListItem noBorder style={[{width:"100%",marginLeft:0}]}>
                                 <Body style={{width:"100%"}}>
-                                    <BasicsForm/>
+                                    <AddProgramForm/>
                                 </Body>
                             </ListItem>
                         </List>

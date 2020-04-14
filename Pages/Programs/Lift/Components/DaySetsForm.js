@@ -88,19 +88,6 @@ export default function DaySetsForm({day,index,onSetAdd,toComplete}) {
                                     />
                                 </Item>
                             </View>
-                            <View style={[globals.flex,globals.flexRow,globals.paddingTop,{alignItems:'center',justifyContent:'center'}]}>
-                                <Button
-                                    mode="transparent"
-                                    color={colorCodes.primary}
-                                    compact
-                                    style={[globals.h5,{marginLeft:5}]}
-                                    labelStyle={[globals.h5,colors.colorPrimary]}
-                                    onPress={() => {
-                                    }}
-                                >
-                                    Submit
-                                </Button>
-                            </View>
                         </View>
                     </View>
                 </Body>

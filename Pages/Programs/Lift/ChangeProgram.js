@@ -1,4 +1,4 @@
-import React,{useEffect} from 'react'  ;
+import React,{useState,useEffect} from 'react'  ;
 
 import {globals,colorCodes,colors,text} from '../../../Styles/globals' ; 
 import {capitalize} from '../../../Utilities' ; 
@@ -6,7 +6,7 @@ import {capitalize} from '../../../Utilities' ;
 import {API_V1,GET_MAIN_LIFTS,PROGRAMS} from '../../../config/index' ; 
 
 import {Modal,View,Text,StyleSheet,Alert} from 'react-native' ; 
-import {Container,Header,Button,Body,Left,Icon,Right,Accordion} from 'native-base' ; 
+import {Container,Button,Icon,Accordion} from 'native-base' ; 
 import {Title,Appbar} from 'react-native-paper' ; 
 import StarRating from 'react-native-star-rating' ;
 
@@ -19,24 +19,26 @@ const programs = [
 
 const axios = require('axios'); 
 
-var programs1 = [] ; 
+export default function ChangeProgram({visible,toggler,lift}) {
 
-
-export default function ChangeProgram({visible,toggler,currentProgram,lift}) {
+    var [programs,setPrograms] = useState([]) ; 
 
     useEffect(() => {
-        axios.get(API_V1+PROGRAMS+GET_MAIN_LIFTS, {
-            params:{
-                lift:`${lift.name.slice(0,1)}`,
-                keys:"name frequency rating duration"
-            }
-        })
-        .then((response) => {
-            programs1 = response.data ; 
-            console.warn(programs1);
-        }).catch((error) => {
-            console.warn(error.message) ; 
-        })
+
+        if(visible && programs.length === 0) {
+            axios.get(API_V1+PROGRAMS+GET_MAIN_LIFTS, {
+                params:{
+                    lift:`${lift.liftName}`,
+                    keys:"liftName mucleGroup lift frequency rating duration name"
+                }
+            })
+            .then((response) => {
+                setPrograms(response.data) ;
+                console.warn(response.data) ;  
+            }).catch((error) => {
+                console.warn(error.message) ; 
+            })
+        }
     })
 
 
@@ -72,7 +74,7 @@ export default function ChangeProgram({visible,toggler,currentProgram,lift}) {
                     <Button
                         transparent
                         small
-                        onPress={() =>  Alert.alert("Confirm Program Switch",`Are you sure you want to switch your ${capitalize(lift.name)} program to ${item.title}? All progress from your current program will be lost.`,[{text:"Cancel",style:"cancel"},{text:"Switch",onPress:() => toggler(!visible)}])}
+                        onPress={() =>  Alert.alert("Confirm Program Switch",`Are you sure you want to switch your ${capitalize(lift.liftName)} program to ${item.name}? All progress from your current program will be lost.`,[{text:"Cancel",style:"cancel"},{text:"Switch",onPress:() => toggler(!visible)}])}
                     >
                         <Text style={[globals.h6,text.bold,text.uppercase,colors.colorWarning]}>Switch </Text>
                     </Button>
@@ -125,12 +127,12 @@ export default function ChangeProgram({visible,toggler,currentProgram,lift}) {
                 <Container>
                     <Appbar style={[{top:0,left:0,height:65,width:"100%"},colors.bgPrimary]}>
                         <Appbar.Action icon="close" color={colorCodes.secondary} onPress={() => toggler(!visible)}/>
-                        <Title style={[text.bold,globals.h4,colors.colorSecondary,text.left]}>{`${capitalize(lift.name)} Programs`}</Title>
+                        <Title style={[text.bold,globals.h4,colors.colorSecondary,text.left]}>{`${capitalize(lift.liftName || lift.muscleGroup)} Programs`}</Title>
                     </Appbar>
                     <View style={[globals.rootContainer]}>
                         <View>
                             <Accordion 
-                                dataArray={programs1}
+                                dataArray={programs}
                                 renderHeader={AccordionHeader} 
                                 renderContent={AccordionContent}
                                 expanded={false} 
