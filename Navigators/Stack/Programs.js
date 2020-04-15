@@ -8,6 +8,8 @@ import {HEADER_TITLE_STYLE,HEADER_STYLE} from '../../Styles/header';
 
 import Programs from '../../Pages/Programs/' ; 
 import Lift from '../../Pages/Programs/Lift' ; 
+import ChooseProgram from '../../Pages/Programs/ChoosePrograms';
+import ProgramInformation from '../../Pages/Programs/ProgramInformation/index.js';
 
 
 
@@ -35,6 +37,19 @@ function RoutineStack({navigation}) {
             <Stack.Screen
                 name="Lift"
                 component={Lift}
+            />
+
+            <Stack.Screen
+                name="ChooseProgram"
+                component={ChooseProgram}
+                options={{
+                    title:"Choose A Program",
+                }}
+            />
+
+            <Stack.Screen
+                name="ProgramInformation"
+                component={ProgramInformation}
             />
                 
         </Stack.Navigator>

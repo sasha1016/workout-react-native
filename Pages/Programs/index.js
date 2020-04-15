@@ -6,7 +6,7 @@ import {capitalize} from '../../Utilities' ;
 
 import AddProgram from './Lift/AddProgram' ; 
 
-import {List,ListItem,Left,Icon,Body,Right} from 'native-base' ; 
+import {List,ListItem,Left,Icon,Body,Right,Button} from 'native-base' ; 
 import {IconButton} from 'react-native-paper';
 
 const axios = require('axios') ; 
@@ -23,8 +23,13 @@ export default function Programs({navigation}) {
         navigation.push('Lift',{lift}) ;
     }
 
+    function goToChooseProgram(lift) {
+        navigation.push('ChooseProgram',{lift}); 
+    }
+
     function splitLifts(lifts) {
         lifts.map((program) => {
+            setMain([]) ; setAccessories([]) ;
             (program.lift === "main" ? setMain([...main,program]) : setAccessories([...accessories,program]) )
         }) ; 
     }
@@ -38,6 +43,7 @@ export default function Programs({navigation}) {
             }
         })
         .then((response) => {
+ 
             splitLifts(response.data) ; 
         })
         .catch((error) => {
@@ -70,29 +76,50 @@ export default function Programs({navigation}) {
                                             <Text note noOfLines={1} style={[globals.h5,colors.colorNeutral,{marginTop:5}]}>{lift.programName}</Text>
                                         </Body>
                                         <Right>
-                                            <Icon name="chevron-right" type="Feather" active style={colors.colorPrimaryLighter}/>
+                                            <Icon name="chevron-right" type="Feather" active style={[colors.colorPrimaryLighter]}/>
                                         </Right>
                                     </ListItem>
                                 )
                             })
                         }
+                        <ListItem 
+                            key="choose-program-main" 
+                            noBorder 
+                            style={[listItem.container,{marginLeft:0,justifyContent:'flex-end'},globals.flex]}
+                        >
+                            <Button 
+                                small 
+                                bordered 
+                                style={[{paddingLeft:10,paddingRight:10,borderColor:colorCodes.primary,borderRadius:5}]}
+                                onPress={() => goToChooseProgram("main")}
+                            >
+                                <Text style={[globals.h6,text.uppercase, text.bold,colors.colorPrimary]}>Choose a program  </Text>
+                            </Button>
+                        </ListItem>
                         <ListItem itemHeader style={[globals.paddingTop,listItem.container,{borderBottomWidth:1,paddingBottom:10,borderBottomColor:colorCodes.grey}]}>
                             <Text style={[globals.h5,text.bold,text.uppercase,colors.colorNeutral]}>Accessories </Text>
                         </ListItem>
                         {
-                            accessories.map((lift,index) => {
-                                return(
-                                    <ListItem noBorder key={`key-${index}`}  onPress={() => goToLift(lift)} style={[listItem.container,{marginLeft:0}]}>
-                                        <Body>
-                                            <Text style={[globals.h4,text.bold,colors.colorPrimary]}>{capitalize(lift.muscleGroup)}</Text>
-                                            <Text note noOfLines={1} style={[globals.h5,colors.colorNeutral,{marginTop:5}]}>{lift.programName}</Text>
-                                        </Body>
-                                        <Right>
-                                            <Icon name="chevron-right" type="Feather" active style={colors.colorPrimaryLighter}/>
-                                        </Right>
-                                    </ListItem>
-                                )
-                            })
+                            accessories.length == 0 ? 
+                                <ListItem noBorder key={0} style={[listItem.container,{marginLeft:0}]}>
+                                    <Body>
+                                        <Text note noOfLines={1} style={[globals.h5,colors.colorNeutral,text.center]}>No programs selected for accessory lifts.</Text>
+                                    </Body>
+                                </ListItem>                                
+                            :
+                                accessories.map((lift,index) => {
+                                    return(
+                                        <ListItem noBorder key={`key-${index}`}  onPress={() => goToLift(lift)} style={[listItem.container,{marginLeft:0}]}>
+                                            <Body>
+                                                <Text style={[globals.h4,text.bold,colors.colorPrimary]}>{capitalize(lift.muscleGroup)}</Text>
+                                                <Text note noOfLines={1} style={[globals.h5,colors.colorNeutral,{marginTop:5}]}>{lift.programName}</Text>
+                                            </Body>
+                                            <Right>
+                                                <Icon name="chevron-right" type="Feather" active style={colors.colorPrimaryLighter}/>
+                                            </Right>
+                                        </ListItem>
+                                    )
+                                })
                         }
                     </List>
                 </View>

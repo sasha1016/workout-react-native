@@ -33,7 +33,7 @@ export const globals = StyleSheet.create({
         fontSize:13
     },
     h6:{
-        fontSize:10
+        fontSize:11
     },
     paragraph: {
         fontSize:10
