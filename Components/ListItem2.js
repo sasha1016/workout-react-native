@@ -15,7 +15,7 @@ export default function LI({title = "",desc = [],icon = "chevron-right",mode = "
                 <Text style={[globals.h4,text.bold,colors.colorPrimary]}>{capitalize(title)}</Text>
                 {
                     desc.map((description) => 
-                        <Text note noOfLines={1} style={[globals.h5,colors.colorNeutral,{marginTop:5}]}>{description}</Text>
+                        <Text note noOfLines={1} style={[globals.h5,colors.colorNeutral,{marginTop:5}]}>{capitalize(description)}</Text>
                     )
                 }
             </Body>

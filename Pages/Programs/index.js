@@ -47,7 +47,7 @@ export default function Programs({navigation}) {
             splitLifts(response.data) ; 
         })
         .catch((error) => {
-            console.warn(error.message)
+            console.warn(error.response.data.message)
         })  ; 
 
         navigation.setOptions({
@@ -89,11 +89,13 @@ export default function Programs({navigation}) {
                         >
                             <Button 
                                 small 
-                                bordered 
-                                style={[{paddingLeft:10,paddingRight:10,borderColor:colorCodes.primary,borderRadius:5}]}
+                                iconRight
+                                transparent
+                                style={[{paddingLeft:10,marginRight:0,paddingRight:2,borderColor:colorCodes.primary,borderRadius:5}]}
                                 onPress={() => goToChooseProgram("main")}
                             >
-                                <Text style={[globals.h6,text.uppercase, text.bold,colors.colorPrimary]}>Choose a program  </Text>
+                                <Text style={[globals.h6,text.uppercase, text.bold,colors.colorPrimary]}>Choose program  </Text>
+                                <Icon name="chevron-right" type="Feather" style={[{right:0,marginRight:0},globals.h4,text.bold,colors.colorPrimary]}/>
                             </Button>
                         </ListItem>
                         <ListItem itemHeader style={[globals.paddingTop,listItem.container,{borderBottomWidth:1,paddingBottom:10,borderBottomColor:colorCodes.grey}]}>

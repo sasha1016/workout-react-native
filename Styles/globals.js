@@ -6,7 +6,7 @@ export const colorCodes = {
     secondary:"#FAEAFF",
     primaryLighter:"#8A7090",
     secondaryDarker:"#FAEAFF",
-    success:"#4CFF9C",
+    success:"#21BC7C",
     danger:"#FF2C55",
     warning:"#FF8D14",
     successLighter:"#BFFFDB",
@@ -34,6 +34,9 @@ export const globals = StyleSheet.create({
     },
     h6:{
         fontSize:11
+    },
+    h8:{
+        fontSize:8
     },
     paragraph: {
         fontSize:10
