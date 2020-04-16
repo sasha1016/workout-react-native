@@ -9,15 +9,19 @@ import AddProgram from './Lift/AddProgram' ;
 import {List,ListItem,Left,Icon,Body,Right,Button} from 'native-base' ; 
 import {IconButton} from 'react-native-paper';
 
+import RenderUserLifts from './Components/RenderUserLifts'
+
 const axios = require('axios') ; 
 
 import {API_V1,USER} from '../../config/index' ; 
+import {TEST} from '../../config/api' ; 
+
+import NavButton from '../../Components/NavButton.js';
 
 
 export default function Programs({navigation}) {
 
-    var [main,setMain] = useState([]) ; 
-    var [accessories,setAccessories] = useState([]) ; 
+    var [lifts,setLifts] = useState([]);
 
     function goToLift(lift) {
         navigation.push('Lift',{lift}) ;
@@ -27,24 +31,17 @@ export default function Programs({navigation}) {
         navigation.push('ChooseProgram',{lift}); 
     }
 
-    function splitLifts(lifts) {
-        lifts.map((program) => {
-            setMain([]) ; setAccessories([]) ;
-            (program.lift === "main" ? setMain([...main,program]) : setAccessories([...accessories,program]) )
-        }) ; 
-    }
-
     useEffect(() => {
 
         axios.get(API_V1+USER.GET_PROGRAMS, {
             params:{
-                userId:"1",
+                userId:`${TEST.USER}`,
                 keys:"muscleGroup programName programId lift frequency liftName duration commenced workoutsCompleted"
             }
         })
         .then((response) => {
- 
-            splitLifts(response.data) ; 
+            console.warn(response.data) ; 
+            setLifts(response.data) ;  
         })
         .catch((error) => {
             console.warn(error.response.data.message)
@@ -64,65 +61,7 @@ export default function Programs({navigation}) {
             <ScrollView>
                 <View style={[{flex:1,marginTop:10},globals.rootContainer]}>
                     <List itemDivider={false}>
-                        <ListItem itemHeader style={[listItem.container,{borderBottomWidth:1,paddingBottom:10,borderBottomColor:colorCodes.grey}]}>
-                            <Text style={[globals.h5,text.bold,text.uppercase,colors.colorNeutral]}>Main Lifts</Text>
-                        </ListItem>
-                        {
-                            main.map((lift,index) => {
-                                return(
-                                    <ListItem key={`key-${index}`} onPress={() => goToLift(lift)} noBorder style={[listItem.container,{marginLeft:0}]}>
-                                        <Body >
-                                            <Text style={[globals.h4,text.bold,colors.colorPrimary]}>{capitalize(lift.liftName)}</Text>
-                                            <Text note noOfLines={1} style={[globals.h5,colors.colorNeutral,{marginTop:5}]}>{lift.programName}</Text>
-                                        </Body>
-                                        <Right>
-                                            <Icon name="chevron-right" type="Feather" active style={[colors.colorPrimaryLighter]}/>
-                                        </Right>
-                                    </ListItem>
-                                )
-                            })
-                        }
-                        <ListItem 
-                            key="choose-program-main" 
-                            noBorder 
-                            style={[listItem.container,{marginLeft:0,justifyContent:'flex-end'},globals.flex]}
-                        >
-                            <Button 
-                                small 
-                                iconRight
-                                transparent
-                                style={[{paddingLeft:10,marginRight:0,paddingRight:2,borderColor:colorCodes.primary,borderRadius:5}]}
-                                onPress={() => goToChooseProgram("main")}
-                            >
-                                <Text style={[globals.h6,text.uppercase, text.bold,colors.colorPrimary]}>Choose program  </Text>
-                                <Icon name="chevron-right" type="Feather" style={[{right:0,marginRight:0},globals.h4,text.bold,colors.colorPrimary]}/>
-                            </Button>
-                        </ListItem>
-                        <ListItem itemHeader style={[globals.paddingTop,listItem.container,{borderBottomWidth:1,paddingBottom:10,borderBottomColor:colorCodes.grey}]}>
-                            <Text style={[globals.h5,text.bold,text.uppercase,colors.colorNeutral]}>Accessories </Text>
-                        </ListItem>
-                        {
-                            accessories.length == 0 ? 
-                                <ListItem noBorder key={0} style={[listItem.container,{marginLeft:0}]}>
-                                    <Body>
-                                        <Text note noOfLines={1} style={[globals.h5,colors.colorNeutral,text.center]}>No programs selected for accessory lifts.</Text>
-                                    </Body>
-                                </ListItem>                                
-                            :
-                                accessories.map((lift,index) => {
-                                    return(
-                                        <ListItem noBorder key={`key-${index}`}  onPress={() => goToLift(lift)} style={[listItem.container,{marginLeft:0}]}>
-                                            <Body>
-                                                <Text style={[globals.h4,text.bold,colors.colorPrimary]}>{capitalize(lift.muscleGroup)}</Text>
-                                                <Text note noOfLines={1} style={[globals.h5,colors.colorNeutral,{marginTop:5}]}>{lift.programName}</Text>
-                                            </Body>
-                                            <Right>
-                                                <Icon name="chevron-right" type="Feather" active style={colors.colorPrimaryLighter}/>
-                                            </Right>
-                                        </ListItem>
-                                    )
-                                })
-                        }
+                        <RenderUserLifts lifts={lifts} onPressCB={goToLift} onStartNewProgram={goToChooseProgram}/>
                     </List>
                 </View>
             </ScrollView>

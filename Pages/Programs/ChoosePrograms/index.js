@@ -17,20 +17,27 @@ export default function ChooseProgram({navigation,route}) {
     useEffect(() => {
         axios.get(API.V1 + V1.PROGRAMS.GET, {
             params:{
-                lift:route.params.lift
+                filterBy:(route.params.filterBy),
+                value:(route.params.filterByValue)
             }
         }).then((response) => {
-            console.warn(response.data) ; 
             setPrograms(response.data)
         }).catch((error) => {
-            console.warn(error, "asdas") ; 
+            console.warn(error) ; 
         })
+        
+
+        if(route.params.title) {
+            navigation.setOptions({
+                title:`${route.params.title}`
+            }) ; 
+        }
     },[]) ; 
 
     return(
         <FlatList 
             data={programs} 
-            renderItem={(item) => <ListItem title={item.item.name} desc={[item.item.liftName]} mode="NAV" onPress={() => navigation.push('ProgramInformation',{program:item.item})}/>}
+            renderItem={(item) => <ListItem title={item.item.name} desc={[item.item.liftName || item.item.muscleGroup]} mode="NAV" onPress={() => navigation.push('ProgramInformation',{program:item.item,programSwitch:(route.params.programSwitch || false)})}/>}
             keyExtractor={(item,index) => `key-${index}`}
             contentContainerStyle={{padding:20}}
         />

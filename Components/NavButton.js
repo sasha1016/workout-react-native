@@ -25,9 +25,9 @@ export default function NavButton(props = initialProps) {
             borderRadius:5
         },
         buttonText:{
-            paddingRight:(!props.icon ? 0:10)
+            paddingRight:(!props.icon ? 0:5)
         }, 
-        buttonIcon:{right:0,marginRight:0}
+        buttonIcon:{right:0,marginRight:0,paddingLeft:0,paddingRight:1}
     })
 
     return (
@@ -45,7 +45,7 @@ export default function NavButton(props = initialProps) {
                         <Icon 
                             name={props.icon} 
                             type="Feather" 
-                            style={[props.iconStyle,globals.h4,text.bold,colors.colorPrimary]}
+                            style={[props.iconStyle,globals.h4,text.bold,colors.colorPrimaryLighter,styles.buttonIcon]}
                         />
                     : 
                         null

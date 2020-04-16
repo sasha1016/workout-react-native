@@ -1,18 +1,19 @@
 import React,{useEffect,useState} from 'react' ; 
-import { ScrollView,Text,View } from 'react-native' ; 
+import { ScrollView,Text,Alert } from 'react-native' ; 
 import {List} from 'native-base' ;
 
 import {globals,text, colorCodes, colors} from '../../../Styles/globals' ; 
 import CustomListItem from '../../../Components/ListItem2.js';
 
-import Day from './Components/Day'
+import Day from './Components/Day' ; 
+import {capitalize} from '../../../Utilities' ; 
 
 import Divider from 'react-native-divider';
 
 const axios = require('axios') ;
 const moment = require('moment') ; 
 
-import {API,V1} from '../../../config/api'
+import {API,V1,TEST} from '../../../config/api'
 
 import NavButton from '../../../Components/NavButton.js';
 
@@ -25,7 +26,7 @@ export default function ProgramInformation({navigation,route}) {
         const conditional = (program.liftName !== undefined ? {liftName:program.liftName} : {muscleGroup:program.muscleGroup})  ; 
 
         const body = {
-            userId:"1",
+            userId:TEST.USER,
             commenced:moment().format('L LT'),
             programName:program.name,
             programId:program._id,
@@ -65,8 +66,6 @@ export default function ProgramInformation({navigation,route}) {
 
     const days = route.params.program.days ;
 
-
-
     return(
         <ScrollView style={{padding:20,paddingTop:0}}>
             <List>
@@ -93,11 +92,14 @@ export default function ProgramInformation({navigation,route}) {
             <NavButton 
                 transparent 
                 icon={false} 
-                title="Start" 
-                buttonTextStyle={colors.colorSuccess} 
+                title={route.params.programSwitch ? "Switch" : "Start"}
+                buttonTextStyle={route.params.programSwitch ? colors.colorWarning : colors.colorSuccess}
                 containerStyle={{paddingTop:20,paddingBottom:20}}
                 onPress={() => {
-                    addProgramToUserPrograms() ; 
+                    route.params.programSwitch ?
+                        Alert.alert("Confirm Program Switch",`Are you sure you want to switch your ${capitalize(route.params.program.liftName || route.params.program.muscleGroup)} program to ${route.params.program.name}? All progress from your current program will be lost.`,[{text:"Cancel",style:"cancel"},{text:"Switch",onPress:() => toggler(!visible)}])
+                    :
+                        addProgramToUserPrograms() 
                 }}
             />
         </ScrollView>

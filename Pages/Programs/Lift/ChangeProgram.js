@@ -3,44 +3,20 @@ import React,{useState,useEffect} from 'react'  ;
 import {globals,colorCodes,colors,text} from '../../../Styles/globals' ; 
 import {capitalize} from '../../../Utilities' ; 
 
-import {API_V1,GET_MAIN_LIFTS,PROGRAMS} from '../../../config/index' ; 
+import {API, V1} from '../../../config/api' ; 
 
 import {Modal,View,Text,StyleSheet,Alert} from 'react-native' ; 
 import {Container,Button,Icon,Accordion} from 'native-base' ; 
 import {Title,Appbar} from 'react-native-paper' ; 
 import StarRating from 'react-native-star-rating' ;
 
-const programs = [
-   {title:"Smolov",lift:"squat",duration:6,frequency:2,rating:3.5,increase:3},
-   {title:"Smolov Jr.",lift:"bench",duration:6,frequency:4,rating:4,increase:10},
-   {title:"Candito",lift:"deadlift",duration:8,frequency:3,rating:3.5,increase:6},
-   {title:"Mark Bell",lift:"squat",duration:12,frequency:4,rating:3.5,increase:7},
-]
+import ChooseProgram from '../ChoosePrograms' ; 
 
 const axios = require('axios'); 
 
-export default function ChangeProgram({visible,toggler,lift}) {
+export default function ChangeProgram({visible,toggler,lift,filterBy,filterByValue}) {
 
     var [programs,setPrograms] = useState([]) ; 
-
-    useEffect(() => {
-
-        if(visible && programs.length === 0) {
-            axios.get(API_V1+PROGRAMS+GET_MAIN_LIFTS, {
-                params:{
-                    lift:`${lift.liftName}`,
-                    keys:"liftName mucleGroup lift frequency rating duration name"
-                }
-            })
-            .then((response) => {
-                setPrograms(response.data) ;
-                console.warn(response.data) ;  
-            }).catch((error) => {
-                console.warn(error.message) ; 
-            })
-        }
-    })
-
 
     const AccordionContent = (item) => {
 
@@ -124,24 +100,30 @@ export default function ChangeProgram({visible,toggler,lift}) {
     return (
         <View>
             <Modal visible={visible} animationType="slide">
-                <Container>
-                    <Appbar style={[{top:0,left:0,height:65,width:"100%"},colors.bgPrimary]}>
-                        <Appbar.Action icon="close" color={colorCodes.secondary} onPress={() => toggler(!visible)}/>
-                        <Title style={[text.bold,globals.h4,colors.colorSecondary,text.left]}>{`${capitalize(lift.liftName || lift.muscleGroup)} Programs`}</Title>
-                    </Appbar>
-                    <View style={[globals.rootContainer]}>
-                        <View>
-                            <Accordion 
-                                dataArray={programs}
-                                renderHeader={AccordionHeader} 
-                                renderContent={AccordionContent}
-                                expanded={false} 
-                                animation={false}
-                                style={{borderWidth:0}}
-                            />
+                    {/* <Container>
+                        <Appbar style={[{top:0,left:0,height:65,width:"100%"},colors.bgPrimary]}>
+                            <Appbar.Action icon="close" color={colorCodes.secondary} onPress={() => toggler(!visible)}/>
+                            <Title style={[text.bold,globals.h4,colors.colorSecondary,text.left]}>{`${capitalize(lift.liftName || lift.muscleGroup)} Programs`}</Title>
+                        </Appbar>
+                        <View style={[globals.rootContainer]}>
+                            <View>
+                                <Accordion 
+                                    dataArray={programs}
+                                    renderHeader={AccordionHeader} 
+                                    renderContent={AccordionContent}
+                                    expanded={false} 
+                                    animation={false}
+                                    style={{borderWidth:0}}
+                                />
+                            </View>
                         </View>
-                    </View>
-                </Container>
+                    </Container> */}
+                <Appbar style={[{top:0,left:0,height:65,width:"100%"},colors.bgPrimary]}>
+                    <Appbar.Action icon="close" color={colorCodes.secondary} onPress={() => toggler(!visible)}/>
+                    <Title style={[text.bold,globals.h4,colors.colorSecondary,text.left]}>{`${capitalize(lift.liftName || lift.muscleGroup)} Programs`}</Title>
+                </Appbar>
+                <ChooseProgram filterBy={filterBy} filterByValue={filterByValue}/>
+                
             </Modal>
 
         </View>

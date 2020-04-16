@@ -17,14 +17,24 @@ export default function Lift({navigation,route}) {
         {displayTitle:"Program",key:"programName",displayValue:(value) => {return `${value}`}},
         {displayTitle:"Type",key:"lift",displayValue:(value) => {return `${value}`}},
         {displayTitle:"Muscle Group",key:"muscleGroup",displayValue:(value) => {return `${value}`}},
-        {displayTitle:"Lift",key:"liftName",displayValue:(value) => {return (value === "s" ? `Squat` : (value === "b" ? `Bench` : `Deadlift`))}},
+        {displayTitle:"Lift",key:"liftName",displayValue:(value) => {return `${value}`}},
         {displayTitle:"Commenced",key:"commenced",displayValue:(value) => {return `${moment(value,"YYYY-MM-DD").fromNow()}`}},
         {displayTitle:"Duration",key:"duration",displayValue:(value) => {return `${value} weeks`}},
         {displayTitle:"Frequency",key:"frequency",displayValue:(value) => {return `${value} x week`}},
         {displayTitle:"Workouts Completed",key:"workoutsCompleted",displayValue:(value,total) => {return `${value} of ${total}`}}
     ] ; 
 
-    const [changeProgram,setChangeProgram] = useState(false) ;
+    const goToChangeProgram = () => {
+        navigation.push(
+            'ChooseProgram',
+            {
+                filterBy:(route.params.lift.liftName ? "liftName" : "muscleGroup"),
+                filterByValue:(route.params.lift.liftName || route.params.lift.muscleGroup), 
+                title:`${capitalize(route.params.lift.liftName || route.params.lift.muscleGroup)} Programs`,
+                programSwitch:true,
+            }
+        ) ; 
+    }
 
     useEffect(() => {
 
@@ -35,7 +45,6 @@ export default function Lift({navigation,route}) {
 
     return (
         <View>
-            <ChangeProgram visible={changeProgram} toggler={setChangeProgram} lift={route.params.lift}/>
             <ScrollView>
                 <View style={[{flex:1,marginTop:10},globals.rootContainer]}>
                     <List itemDivider={false}>
@@ -69,7 +78,7 @@ export default function Lift({navigation,route}) {
                                                         <Icon 
                                                             name="edit-2"
                                                             onPress={() => {
-                                                                setChangeProgram(!changeProgram) 
+                                                                goToChangeProgram() ; 
                                                             }} 
                                                             type="Feather" 
                                                             active 
