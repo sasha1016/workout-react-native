@@ -7,7 +7,7 @@ import {capitalize} from '../Utilities' ;
 import {ListItem,Body,Right,Icon} from 'native-base' ; 
 
 
-export default function LI({title = "",desc = [],icon = "chevron-right",mode = "INFORMATION",onPress = () => {},key}) {
+export default function LI({title = "",desc = [],icon = "chevron-right",mode = "INFORMATION",onPress = () => {},key, onIconPress = () => {}}) {
 
     return (
         <ListItem key={key} onPress={onPress} noBorder style={[{position:"relative"}]}>
@@ -22,7 +22,13 @@ export default function LI({title = "",desc = [],icon = "chevron-right",mode = "
             {
                 mode === "NAV" ? 
                     <Right style={{marginRight:0,paddingRight:0,right:0,position:"absolute"}}>
-                        <Icon name={icon} type="Feather" active style={[colors.colorPrimaryLighter,text.right,{marginRight:0,right:0}]}/>
+                        <Icon 
+                            name={icon} 
+                            type="Feather" 
+                            active 
+                            style={[colors.colorPrimaryLighter,text.right,{marginRight:0,right:0}]}
+                            onPress={onIconPress}
+                        />
                     </Right>
                 : 
                     null

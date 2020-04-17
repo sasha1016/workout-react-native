@@ -4,31 +4,29 @@ import { View, ScrollView,Text,StyleSheet} from 'react-native' ;
 import {globals,colorCodes,colors,text} from '../../Styles/globals' ; 
 import {capitalize} from '../../Utilities' ; 
 
-import AddProgram from './Lift/AddProgram' ; 
+import AddProgram from './Components/AddProgram' ; 
 
-import {List,ListItem,Left,Icon,Body,Right,Button} from 'native-base' ; 
+import {List} from 'native-base' ; 
 import {IconButton} from 'react-native-paper';
 
-import RenderUserLifts from './Components/RenderUserLifts'
+import RenderUserPrograms from './Components/RenderUserPrograms'
 
 const axios = require('axios') ; 
 
 import {API_V1,USER} from '../../config/index' ; 
 import {TEST} from '../../config/api' ; 
 
-import NavButton from '../../Components/NavButton.js';
-
 
 export default function Programs({navigation}) {
 
-    var [lifts,setLifts] = useState([]);
+    var [programs,setPrograms] = useState([]);
 
-    function goToLift(lift) {
-        navigation.push('Lift',{lift}) ;
+    function viewUserProgram(program) {
+        navigation.push('UserProgramInformation',{program}) ; 
     }
 
-    function goToChooseProgram(lift) {
-        navigation.push('ChooseProgram',{lift}); 
+    function viewPrograms(filterBy,filterByValue) {
+        navigation.push('ViewPrograms',{filterBy,filterByValue}) ;
     }
 
     useEffect(() => {
@@ -36,12 +34,11 @@ export default function Programs({navigation}) {
         axios.get(API_V1+USER.GET_PROGRAMS, {
             params:{
                 userId:`${TEST.USER}`,
-                keys:"muscleGroup programName programId lift frequency liftName duration commenced workoutsCompleted"
+                keys:"_id muscleGroup programName programId lift frequency liftName duration commenced workoutsCompleted"
             }
         })
         .then((response) => {
-            console.warn(response.data) ; 
-            setLifts(response.data) ;  
+            setPrograms(response.data) ;  
         })
         .catch((error) => {
             console.warn(error.response.data.message)
@@ -61,7 +58,7 @@ export default function Programs({navigation}) {
             <ScrollView>
                 <View style={[{flex:1,marginTop:10},globals.rootContainer]}>
                     <List itemDivider={false}>
-                        <RenderUserLifts lifts={lifts} onPressCB={goToLift} onStartNewProgram={goToChooseProgram}/>
+                        <RenderUserPrograms programs={programs} viewUserProgramInformation={viewUserProgram} onStartNewProgramIntent={viewPrograms}/>
                     </List>
                 </View>
             </ScrollView>

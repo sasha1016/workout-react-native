@@ -32,6 +32,7 @@ export default function Lift({navigation,route}) {
                 filterByValue:(route.params.lift.liftName || route.params.lift.muscleGroup), 
                 title:`${capitalize(route.params.lift.liftName || route.params.lift.muscleGroup)} Programs`,
                 programSwitch:true,
+                userProgramToSwitch:route.params.lift._id //The ID of the document stored in UserPrograms Collection 
             }
         ) ; 
     }

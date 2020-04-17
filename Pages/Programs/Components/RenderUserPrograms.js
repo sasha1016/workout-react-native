@@ -42,43 +42,39 @@ const Header = (props) => {
 }
 
 
-export default function RenderUserLifts({lifts,onPressCB,onStartNewProgram}) {
+export default function RenderUserPrograms({programs,viewUserProgramInformation,onStartNewProgramIntent}) {
     var mainIndexPos = true, accessIndexPos = true ; 
     return (
         <View>
             {
-                lifts.map((lift,index) => {
-
-
-                    if(lift.lift === "main") {
-
+                programs.map((program,index) => {
+                    if(program.lift === "main") {
                         if(mainIndexPos) {
                             mainIndexPos = false ; 
                             return (
                                 <Fragment>
-                                    <Header title="Main Lifts" onIconPress={() => onStartNewProgram(lift)}/>
-                                    <CustomListItem title={lift.liftName} desc={[lift.programName]} onPress={() => onPressCB(lift)} key={lift.programId} mode="NAV"/>
+                                    <Header title="Main Lifts" onIconPress={() => onStartNewProgramIntent("lift","main")}/>
+                                    <CustomListItem title={program.liftName} desc={[program.programName]} onPress={() => viewUserProgramInformation(program)} key={program.programId} mode="NAV"/>
                                 </Fragment>
                             )
                         } else {
-
-                            if(lifts.length - 1 === index) {
+                            if(programs.length - 1 === index) {
                                 if(accessIndexPos) {
                                     return (
                                         <Fragment>
-                                            <CustomListItem title={lift.liftName} desc={[lift.programName]} onPress={() => onPressCB(lift)} key={lift.programId} mode="NAV"/>
-                                            <Header title="Accessory Lifts" onIconPress={() => onStartNewProgram({lift:"access"})}/>
+                                            <CustomListItem title={program.liftName} desc={[program.programName]} onPress={() => viewUserProgramInformation(program)} key={program.programId} mode="NAV"/>
+                                            <Header title="Accessory Lifts" onIconPress={() => onStartNewProgramIntent("lift","access")}/>
                                             <Text style={[globals.h5,text.center,colors.colorNeutral,globals.paddingTop]}>No Accessory Lift programs started</Text>
                                         </Fragment>
                                     )                               
                                 } else {
                                     return (
-                                        <CustomListItem title={lift.liftName} desc={[lift.programName]} onPress={() => onPressCB(lift)} key={lift.programId} mode="NAV"/>
+                                        <CustomListItem title={program.liftName} desc={[program.programName]} onPress={() => viewUserProgramInformation(program)} key={program.programId} mode="NAV"/>
                                     )                                     
                                 }
                             } else {
                                 return (
-                                    <CustomListItem title={lift.liftName} desc={[lift.programName]} onPress={() => onPressCB(lift)} key={lift.programId} mode="NAV"/>
+                                    <CustomListItem title={program.liftName} desc={[program.programName]} onPress={() => viewUserProgramInformation(program)} key={program.programId} mode="NAV"/>
                                 )  
                             }      
                         }
@@ -87,29 +83,29 @@ export default function RenderUserLifts({lifts,onPressCB,onStartNewProgram}) {
                             accessIndexPos = !accessIndexPos ; 
                             return (
                                 <Fragment>
-                                    <Header title="Accessory Lifts"/>
-                                    <CustomListItem title={lift.muscleGroup} desc={[lift.programName]} onPress={() => onPressCB(lift)} key={lift.programId} mode="NAV"/>
+                                    <Header title="Accessory Lifts" onIconPress={() => onStartNewProgramIntent("lift","access")}/>
+                                    <CustomListItem title={program.muscleGroup} desc={[program.programName]} onPress={() => viewUserProgramInformation(program)} key={program.programId} mode="NAV"/>
                                 </Fragment>
                             )     
 
                         } else {
-                            if(lifts.length - 1 === index) {
+                            if(programs.length - 1 === index) {
                                 if(mainIndexPos) {
                                     return (
                                         <Fragment>
-                                            <CustomListItem title={lift.muscleGroup} desc={[lift.programName]} onPress={() => onPressCB(lift)} key={lift.programId} mode="NAV"/>
-                                            <Header title="Accessory Lifts" onIconPress={() => onStartNewProgram({lift:"access"})}/>
-                                            <Text style={[globals.h5,text.center,colors.colorNeutral,globals.paddingTop]}>No Accessory Lift programs started</Text>
+                                            <CustomListItem title={program.muscleGroup} desc={[program.programName]} onPress={() => viewUserProgramInformation(program)} key={program.programId} mode="NAV"/>
+                                            <Header title="Main Lifts" onIconPress={() => onStartNewProgramIntent("lift","main")}/>
+                                            <Text style={[globals.h5,text.center,colors.colorNeutral,globals.paddingTop]}>No Main Lift programs started</Text>
                                         </Fragment>
                                     )                               
                                 } else {
                                     return (
-                                        <CustomListItem title={lift.muscleGroup} desc={[lift.programName]} onPress={() => onPressCB(lift)} key={lift.programId} mode="NAV"/>
+                                        <CustomListItem title={program.muscleGroup} desc={[program.programName]} onPress={() => viewUserProgramInformation(program)} key={program.programId} mode="NAV"/>
                                     ) ; 
                                 }
                             } else {
                                 return (
-                                    <CustomListItem title={lift.muscleGroup} desc={[lift.programName]} onPress={() => onPressCB(lift)} key={lift.programId} mode="NAV"/>
+                                    <CustomListItem title={program.muscleGroup} desc={[program.programName]} onPress={() => viewUserProgramInformation(program)} key={program.programId} mode="NAV"/>
                                 ) ; 
                             }   
                         }

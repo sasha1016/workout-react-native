@@ -6,11 +6,13 @@ export const V1 = {
     USER:{
         PROGRAMS:{
             GET:"user/programs/get/",
-            ADD:"user/programs/add/"
+            ADD:"user/programs/add/",
+            SWITCH:"user/programs/switch/"
         }
     }, 
     PROGRAMS:{
-        GET:"programs/get", 
+        GET:"programs/get/", 
+        ADD:"programs/add/"
     }
 }
 

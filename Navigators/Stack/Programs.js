@@ -7,9 +7,9 @@ import {colorCodes} from '../../Styles/globals.js';
 import {HEADER_TITLE_STYLE,HEADER_STYLE} from '../../Styles/header';
 
 import Programs from '../../Pages/Programs/' ; 
-import Lift from '../../Pages/Programs/Lift' ; 
-import ChooseProgram from '../../Pages/Programs/ChoosePrograms';
+import ViewPrograms from '../../Pages/Programs/ViewPrograms';
 import ProgramInformation from '../../Pages/Programs/ProgramInformation/index.js';
+import UserProgramInformation from '../../Pages/Programs/UserProgramInformation/index.js';
 
 
 
@@ -35,13 +35,13 @@ function RoutineStack({navigation}) {
             />
 
             <Stack.Screen
-                name="Lift"
-                component={Lift}
+                name="UserProgramInformation"
+                component={UserProgramInformation}
             />
 
             <Stack.Screen
-                name="ChooseProgram"
-                component={ChooseProgram}
+                name="ViewPrograms"
+                component={ViewPrograms}
                 options={{
                     title:"Choose A Program",
                 }}

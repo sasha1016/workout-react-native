@@ -39,11 +39,38 @@ export default function ProgramInformation({navigation,route}) {
         } ; 
 
         axios.post(API.V1 + V1.USER.PROGRAMS.ADD,{...body})
-        .then((response) => {
-            navigation.push('Programs',{programSelected:true,program:body})
+        .then(() => {
+            navigation.push('Programs',{programStarted:true,program:body})
         }).catch((error) => {
             console.warn(error.response.data.message)
         })
+    }
+
+    const switchProgram = () => {
+        if(route.params.programSwitch) {
+            const conditional = (program.liftName !== undefined ? {liftName:program.liftName} : {muscleGroup:program.muscleGroup})  ; 
+            
+            const newProgram = {
+                commenced:moment().format('L LT'),
+                programName:program.name,
+                programId:program._id,
+                frequency:program.frequency,
+                weightFactor:program.weightFactor, 
+                duration:program.duration,
+                type:program.type,
+                ...conditional
+            }
+            axios.post(API.V1 + V1.USER.PROGRAMS.SWITCH, {
+                userProgramToSwitch:route.params.userProgramToSwitch, // id of document in user programs 
+                newProgram,
+                userId:TEST.USER
+            })
+            .then((response) => {
+                navigation.push('Programs',{programStarted:true,program:newProgram})
+            }).catch((error) => {
+                console.warn(error) ;
+            })
+        }
     }
 
     useEffect(() => {
@@ -97,7 +124,7 @@ export default function ProgramInformation({navigation,route}) {
                 containerStyle={{paddingTop:20,paddingBottom:20}}
                 onPress={() => {
                     route.params.programSwitch ?
-                        Alert.alert("Confirm Program Switch",`Are you sure you want to switch your ${capitalize(route.params.program.liftName || route.params.program.muscleGroup)} program to ${route.params.program.name}? All progress from your current program will be lost.`,[{text:"Cancel",style:"cancel"},{text:"Switch",onPress:() => toggler(!visible)}])
+                        Alert.alert("Confirm Program Switch",`Are you sure you want to switch your ${capitalize(route.params.program.liftName || route.params.program.muscleGroup)} program to ${route.params.program.name}? All progress from your current program will be lost.`,[{text:"Cancel",style:"cancel"},{text:"Switch",onPress:() => {switchProgram()} }])
                     :
                         addProgramToUserPrograms() 
                 }}

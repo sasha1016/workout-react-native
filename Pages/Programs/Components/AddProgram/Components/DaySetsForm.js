@@ -1,6 +1,6 @@
 import React,{useState,useEffect} from 'react'  ;
 
-import {globals,colorCodes,colors,text} from '../../../../Styles/globals' ; 
+import {globals,colorCodes,colors,text} from '../../../../../Styles/globals' ; 
 
 import {View,Text,Alert} from 'react-native' ; 
 import {Item,Label,Input,List,ListItem,Body,Right,Icon} from 'native-base' ; 

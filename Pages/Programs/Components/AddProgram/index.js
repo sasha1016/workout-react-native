@@ -1,10 +1,10 @@
 import React,{useState,useEffect} from 'react'  ;
 
-import {globals,colorCodes,colors,text} from '../../../Styles/globals' ; 
-import {capitalize} from '../../../Utilities' ; 
+import {globals,colorCodes,colors,text} from '../../../../Styles/globals' ; 
+import {capitalize} from '../../../../Utilities' ; 
 
-import {MUSCLE_GROUPS} from '../../../Constants' ; 
-import {API_V1,USER,PROGRAMS} from '../.././../config/index' ;
+import {MUSCLE_GROUPS} from '../../../../Constants' ; 
+import {API,V1} from '../../../../config/api' ;
 
 import DaySetsForm from './Components/DaySetsForm' ; 
 
@@ -91,7 +91,7 @@ const AddProgramForm = () => {
 
     const addProgram = () => {
         console.warn(values) ;
-        axios.post(API_V1 + PROGRAMS + '/add', {
+        axios.post(API.V1 + V1.PROGRAMS.ADD, {
             ...values
         }).then((response) => {
             console.warn(response); 
