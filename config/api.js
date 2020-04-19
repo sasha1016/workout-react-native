@@ -1,5 +1,5 @@
 export const API = {
-    V1:"http://192.168.0.102:3000/", 
+    V1:"http://192.168.43.85:3000/", 
 }
 
 export const V1 = {
@@ -12,6 +12,7 @@ export const V1 = {
         ROUTINES:{
             GET:"user/routines/get",
             UPDATE:"user/routines/update",
+            DELETE:"user/routines/delete"
         }
     }, 
     PROGRAMS:{

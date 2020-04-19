@@ -7,7 +7,8 @@ import {colorCodes} from '../../Styles/globals.js';
 import {HEADER_TITLE_STYLE,HEADER_STYLE} from '../../Styles/header';
 
 import Routine from '../../Pages/Routine/' ; 
-import Day from '../../Pages/Routine/Day.js' ; 
+import Day from '../../Pages/Routine/Day/index' ; 
+import Program from '../../Pages/Routine/Program/' ; 
 
 
 
@@ -35,6 +36,11 @@ function RoutineStack({navigation}) {
             <Stack.Screen
                 name="Day"
                 component={Day}
+            />
+
+            <Stack.Screen
+                name="Program"
+                component={Program}
             />
                 
         </Stack.Navigator>

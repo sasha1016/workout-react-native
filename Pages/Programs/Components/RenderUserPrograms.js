@@ -35,7 +35,7 @@ const Header = (props) => {
         <ListItem itemHeader style={[styles.listHeader,globals.flex,globals.flexRow]}>
             <Text style={[globals.h5,text.bold,text.uppercase,colors.colorNeutral]}>{props.title}</Text>
             <Right>
-                <Icon name="plus" type="Feather" style={[styles.icon,globals.h4,colors.colorPrimaryLighter]} onPress={props.onIconPress}/>
+                <Icon name="plus" type="Feather" style={[styles.icon,globals.h4,colors.colorNeutral]} onPress={props.onIconPress}/>
             </Right>
         </ListItem>
     )

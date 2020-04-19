@@ -13,8 +13,15 @@ const axios = require('axios') ;
 
 export default function Routine({navigation}) {
 
-    function goToDay(day) {
-        navigation.push('Day',{day}) ;
+
+    const onRoutineChange = (newRoutineForDay,day) => {
+        var newRoutines = routines ; 
+        newRoutine[day] = newRoutineForDay ; 
+        setRoutine(newRoutines) ; 
+    }
+
+    function goToDay(routine,day) {
+        navigation.push('Day',{day,routine,onRoutineChange}) ;
     }
 
     const [routines,setRoutines] = useState([]) ; 
@@ -27,11 +34,11 @@ export default function Routine({navigation}) {
                 userId:TEST.USER
             }
         }).then((response) => {
-            setRoutines(response.data) ; 
+            setRoutines(response.data[0]) ; 
         }).catch((error) => {
             console.warn(error.data.message,"failuer") ; 
         })
-    },[])
+    },[]) ; 
 
     return (
         <View style={{padding:20,paddingTop:5}}>
@@ -41,9 +48,9 @@ export default function Routine({navigation}) {
                             return <CustomListItem 
                                 title={day}
                                 mode="NAV"
-                                desc={[`${routines[0][day].length} Programs`]}
+                                desc={[`${routines[day].length} Programs`]}
                                 key={`key-${index}`}
-                                onIconPress={() => {}}
+                                onPress={() => {goToDay(routines[day], day)}}
                             />
                     })
                 : 

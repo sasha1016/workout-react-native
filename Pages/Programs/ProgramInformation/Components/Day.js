@@ -12,7 +12,7 @@ export default function Day({day}) {
     return (
         <List>
             <ListItem itemHeader style={[{borderBottomWidth:1,paddingBottom:10,paddingLeft:0,borderBottomColor:colorCodes.grey}]}>
-                <Text style={[globals.h5,text.bold,text.uppercase,colors.colorPrimary]}>{`${day.name}   `}</Text>
+                <Text style={[globals.h5,text.bold,text.uppercase,colors.colorNeutral]}>{`${day.name}   `}</Text>
             </ListItem>
             {
                 lifts.map((lift) => {
