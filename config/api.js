@@ -8,12 +8,16 @@ export const V1 = {
             GET:"user/programs/get/",
             ADD:"user/programs/add/",
             SWITCH:"user/programs/switch/"
+        },
+        ROUTINES:{
+            GET:"user/routines/get",
+            UPDATE:"user/routines/update",
         }
     }, 
     PROGRAMS:{
         GET:"programs/get/", 
         ADD:"programs/add/"
-    }
+    },
 }
 
 export const TEST = {
