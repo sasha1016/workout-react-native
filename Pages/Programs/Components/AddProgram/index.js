@@ -8,8 +8,8 @@ import {API,V1} from '../../../../config/api' ;
 
 import DaySetsForm from './Components/DaySetsForm' ; 
 
-import {Modal,View,Text,ScrollView,StyleSheet,FlatList} from 'react-native' ; 
-import {Picker, Item,Label,Input,List,ListItem,Body,Toast,Right,Icon, Radio} from 'native-base' ; 
+import {Modal,View,Text,ScrollView,StyleSheet} from 'react-native' ; 
+import {Picker, Item,Label,Input,List,ListItem,Body, Radio} from 'native-base' ; 
 import {Title,Appbar,Chip, Button} from 'react-native-paper' ; 
 
 const axios = require('axios') ; 
@@ -22,7 +22,7 @@ const input = StyleSheet.create({
 }) ; 
 
 
-const AddProgramForm = () => {
+const AddProgramForm = ({visible,toggler}) => {
 
     const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'] ; 
 
@@ -52,33 +52,34 @@ const AddProgramForm = () => {
         }
     }) ; 
 
-    /*
-    
-    days: [
-        name: string, 
-        toComplete: {
-            Lift : [ {reps:number,percentage:number} ]
-        }
-    ]
-    
-    
-    */
+
 
     const onSetAdd = (set,day,lift) => {
 
-        const dayRemoved = values.days.filter((d)=> {
-            if(d.name === day){
-                if(d.toComplete[lift] !== undefined) {
-                    let liftObj = d.toComplete[lift]; 
-                    d.toComplete[lift] = [...liftObj, set] ; 
-                } else {
-                    d.toComplete[lift] = [set] 
-                }
-            }
-            return true ; 
-        }) ; 
+        var updatedDayToPush = values.days.filter((dayObj) => {return dayObj.name === day})[0]  ;
 
-        setValues( {...values, days: [ ...dayRemoved ]} )
+        if (updatedDayToPush.toComplete.length !== 0) {
+            var addedFlag = false ; 
+
+            updatedDayToPush.toComplete.map((liftObj,index) => {
+                if(liftObj.name === lift.trim()) { // lift exists  
+                    addedFlag = true ; 
+                    updatedDayToPush.toComplete[index].sets.push(set) ; 
+                } 
+            }) ; 
+
+            if(!addedFlag) {
+                updatedDayToPush.toComplete.push({name:lift.trim(),sets:[set]})
+            }
+
+        } else {
+            updatedDayToPush.toComplete.push({name:lift.trim(),sets:[set]})
+        }
+            
+        const dayRemovedFromValues = values.days.filter((dayObj) => {return dayObj.name !== day}) ; 
+
+        setValues({...values,days:[...dayRemovedFromValues,updatedDayToPush]}) ; 
+
     }
 
     const removeFromSelected = (day) => {
@@ -93,8 +94,8 @@ const AddProgramForm = () => {
         console.warn(values) ;
         axios.post(API.V1 + V1.PROGRAMS.ADD, {
             ...values
-        }).then((response) => {
-            console.warn(response); 
+        }).then(() => {
+            toggler(!visible) ; 
         }).catch((error) => {
             console.warn(error.response) ; 
         })
@@ -239,7 +240,7 @@ const AddProgramForm = () => {
                                                     preferredDays:[...values.preferredDays,day],
                                                     days:[
                                                         ...values.days, 
-                                                        {name:day,toComplete:{}}
+                                                        {name:day,toComplete:[]}
                                                     ]
                                                 }
                                             ) ; 

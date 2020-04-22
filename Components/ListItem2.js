@@ -36,7 +36,7 @@ export default function LI({title = "",desc = [],icon = "chevron-right",mode = "
                 <Text style={[globals.h4,text.bold,colors.colorPrimary]}>{capitalize(title || "")}</Text>
                 {
                     desc.map((description,descIndex) => 
-                        <Text note noOfLines={1} style={[globals.h5,colors.colorNeutral,styles.desc,{marginTop:(descIndex === 0 ? 5 : 0)}]}>{capitalize(description || "")}</Text>
+                        <Text key={`key_${descIndex}`} note noOfLines={1} style={[globals.h5,colors.colorNeutral,styles.desc,{marginTop:(descIndex === 0 ? 5 : 0)}]}>{capitalize(description || "")}</Text>
                     )
                 }
             </Body>

@@ -14,20 +14,20 @@ export default function Day({navigation,route}) {
         navigation.setOptions({
             title:capitalize(route.params.program.programName)
         })
-    },[])
+    },[navigation])
 
     return (
         <List itemDivider={false} style={{padding:20,paddingTop:10}} >
         {
-                route.params.program.toComplete.map((lift,index) => {
+                route.params.program.toComplete.map((exercise,index) => {
                         return (
                             <Fragment>
-                                <ListHeader title={lift.name} icon={false}/>
+                                <ListHeader title={`${exercise.name}      `} icon={false}/>
                                 {
-                                    lift.sets.map((set,index) => {
+                                    exercise.sets.map((set,index) => {
                                         return <CustomListItem 
                                             title={`Set ${index + 1}`}
-                                            desc={[`${set.reps} Reps at ${set.weightFactor}% Intensity`]}
+                                            desc={[`${set.reps} Reps at ${set.weightFactor || set.percentage}% Intensity`]}
                                         />
                                     })
                                 }

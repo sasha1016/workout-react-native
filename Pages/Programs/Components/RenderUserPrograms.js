@@ -53,7 +53,7 @@ export default function RenderUserPrograms({programs,viewUserProgramInformation,
                             mainIndexPos = false ; 
                             return (
                                 <Fragment>
-                                    <Header title="Main Lifts" onIconPress={() => onStartNewProgramIntent("lift","main")}/>
+                                    <Header title="Main Lifts" key="main_lifts_header" onIconPress={() => onStartNewProgramIntent("lift","main")}/>
                                     <CustomListItem title={program.liftName} desc={[program.programName]} onPress={() => viewUserProgramInformation(program)} key={program.programId} mode="NAV"/>
                                 </Fragment>
                             )
@@ -63,7 +63,7 @@ export default function RenderUserPrograms({programs,viewUserProgramInformation,
                                     return (
                                         <Fragment>
                                             <CustomListItem title={program.liftName} desc={[program.programName]} onPress={() => viewUserProgramInformation(program)} key={program.programId} mode="NAV"/>
-                                            <Header title="Accessory Lifts" onIconPress={() => onStartNewProgramIntent("lift","access")}/>
+                                            <Header title="Accessory Lifts" key="accessorty_lifts_header" onIconPress={() => onStartNewProgramIntent("lift","access")}/>
                                             <Text style={[globals.h5,text.center,colors.colorNeutral,globals.paddingTop]}>No Accessory Lift programs started</Text>
                                         </Fragment>
                                     )                               
@@ -83,7 +83,7 @@ export default function RenderUserPrograms({programs,viewUserProgramInformation,
                             accessIndexPos = !accessIndexPos ; 
                             return (
                                 <Fragment>
-                                    <Header title="Accessory Lifts" onIconPress={() => onStartNewProgramIntent("lift","access")}/>
+                                    <Header title="Accessory Lifts" key="accessorty_lifts_header" onIconPress={() => onStartNewProgramIntent("lift","access")}/>
                                     <CustomListItem title={program.muscleGroup} desc={[program.programName]} onPress={() => viewUserProgramInformation(program)} key={program.programId} mode="NAV"/>
                                 </Fragment>
                             )     
@@ -94,7 +94,7 @@ export default function RenderUserPrograms({programs,viewUserProgramInformation,
                                     return (
                                         <Fragment>
                                             <CustomListItem title={program.muscleGroup} desc={[program.programName]} onPress={() => viewUserProgramInformation(program)} key={program.programId} mode="NAV"/>
-                                            <Header title="Main Lifts" onIconPress={() => onStartNewProgramIntent("lift","main")}/>
+                                            <Header title="Main Lifts" key="main_lifts_header" onIconPress={() => onStartNewProgramIntent("lift","main")}/>
                                             <Text style={[globals.h5,text.center,colors.colorNeutral,globals.paddingTop]}>No Main Lift programs started</Text>
                                         </Fragment>
                                     )                               

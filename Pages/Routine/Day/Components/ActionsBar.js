@@ -12,25 +12,25 @@ export default function ActionsBar(props) {
 
     return (
         <FooterTab style={footer.container}>
-            <Button>
+            <Button onPress={props.onAddIntent}>
                 <Icon 
                     name="plus" 
                     type="Feather"
-                    style={[...iconStyle,colors.colorNeutral]} 
+                    style={[...iconStyle,colors.colorPrimaryLighter]} 
                 />
             </Button>
             <Button onPress={props.onDeleteIntent}>
                 <Icon 
                     name="trash-2" 
                     type="Feather"
-                    style={[...iconStyle,(!props.deleteIntent ? colors.colorNeutral : colors.colorPrimary)]} 
+                    style={[...iconStyle,(!props.deleteIntent ? colors.colorPrimaryLighter : colors.colorPrimary)]} 
                 />
             </Button>
             <Button>
                 <Icon 
                     name="shuffle" 
                     type="Feather"
-                    style={[...iconStyle,colors.colorNeutral]} 
+                    style={[...iconStyle,colors.colorPrimaryLighter]} 
                 />
             </Button>
         </FooterTab>

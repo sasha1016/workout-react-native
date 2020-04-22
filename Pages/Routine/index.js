@@ -1,30 +1,24 @@
-import React,{useState,useEffect} from 'react' ; 
-import { View, FlatList} from 'react-native' ; 
-
-
-import {globals,colorCodes,colors,text} from '../../Styles/globals' ; 
+import React,{useEffect,useContext} from 'react' ; 
+import { List } from 'native-base' ; 
 
 import CustomListItem from '../../Components/ListItem2' ; 
 
-import {API,V1,TEST} from '../../config/api'
+import {API,V1,TEST} from '../../config/api' ; 
+
+import {RoutineContext} from './Contexts/index.js' ; 
 
 const axios = require('axios') ; 
 
 
 export default function Routine({navigation}) {
 
+    const routines = useContext(RoutineContext) ; 
 
-    const onRoutineChange = (newRoutineForDay,day) => {
-        var newRoutines = routines ; 
-        newRoutine[day] = newRoutineForDay ; 
-        setRoutine(newRoutines) ; 
+
+    function goToDay(day) {
+        navigation.push('Day',{day}) ;
     }
 
-    function goToDay(routine,day) {
-        navigation.push('Day',{day,routine,onRoutineChange}) ;
-    }
-
-    const [routines,setRoutines] = useState([]) ; 
 
     const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'] ; 
 
@@ -33,30 +27,32 @@ export default function Routine({navigation}) {
             params:{
                 userId:TEST.USER
             }
-        }).then((response) => {
-            setRoutines(response.data[0]) ; 
+        }).then((response) => { 
+            routines.set(response.data[0]) ;
         }).catch((error) => {
             console.warn(error.data.message,"failuer") ; 
         })
     },[]) ; 
 
     return (
-        <View style={{padding:20,paddingTop:5}}>
+        <List style={{padding:20,paddingTop:5}}>
             {
-                routines.length !== 0 ? 
-                    days.map((day,index) => {
-                            return <CustomListItem 
+                routines.data !== [] ? 
+                    Object.keys(routines.data).map((day) => {
+                        if(days.includes(day)) {
+                            return (<CustomListItem 
                                 title={day}
                                 mode="NAV"
-                                desc={[`${routines[day].length} Programs`]}
-                                key={`key-${index}`}
-                                onPress={() => {goToDay(routines[day], day)}}
-                            />
+                                key={`key_${day}`}
+                                desc={[`${routines.data[day].length} programs`]}
+                                onPress={() => {goToDay(day)}}
+                            />)
+                        } 
                     })
                 : 
                     null
             }
-        </View>
+        </List>
     ) ; 
  
 

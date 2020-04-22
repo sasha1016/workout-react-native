@@ -33,12 +33,16 @@ export default function DaySetsForm({day,index,onSetAdd,toComplete}) {
                                 !sets.length ? 
                                     (<Text style={[globals.h5,colors.colorNeutral,text.center]}>Add a set below</Text>)
                                 :
-                                    sets.map((set,index) => {
+                                    toComplete.map((exercise,index) => {
                                         return(
                                             <ListItem key={`key-${index}`} noBorder>
                                                 <Body >
-                                                    <Text style={[globals.h4,text.bold,colors.colorPrimary]}>{`${lifts[index]}`}</Text>
-                                                    <Text note noOfLines={1} style={[globals.h5,colors.colorNeutral,{marginTop:5}]}>{`${set.reps} Reps at ${set.percentage}% of 1RM`}</Text>
+                                                    <Text style={[globals.h4,text.bold,colors.colorPrimary]}>{`${exercise.name}`}</Text>
+                                                    {
+                                                        exercise.sets.map((set) => 
+                                                            <Text note noOfLines={1} style={[globals.h5,colors.colorNeutral,{marginTop:5}]}>{`${set.reps} Reps at ${set.percentage}% of 1RM`}</Text>
+                                                        )
+                                                    }
                                                 </Body>
                                                 <Right>
                                                     <Icon name="trash-2" type="Feather" active style={colors.colorPrimaryLighter}/>
