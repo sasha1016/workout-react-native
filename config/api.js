@@ -2,6 +2,8 @@ export const API = {
     V1:"http://192.168.0.102:3000/", 
 }
 
+// exp://192.168.43.85:19000
+
 export const V1 = {
     USER:{
         PROGRAMS:{
@@ -13,7 +15,10 @@ export const V1 = {
             GET:"user/routines/get",
             ADD:"user/routines/add",
             UPDATE:"user/routines/update",
-            DELETE:"user/routines/delete"
+            DELETE:"user/routines/delete", 
+            DAY:{
+                GET:"user/routines/day/"
+            }
         }
     }, 
     PROGRAMS:{

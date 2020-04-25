@@ -9,7 +9,8 @@ const initialProps = {
     title:"Go",
     onPress:() => {},
     iconStyle:{}, 
-    buttonTextStyle:{}
+    buttonTextStyle:{},
+    right:true
 }
 
 export default function NavButton(props = initialProps) {
@@ -34,18 +35,27 @@ export default function NavButton(props = initialProps) {
         <View style={[styles.container,globals.flex,props.containerStyle]} >
             <Button 
                 small 
-                iconRight
                 transparent={props.transparent}
                 style={[styles.button,props.buttonStyle]}
                 onPress={props.onPress}
             >
-                <Text style={[globals.h6, text.bold, text.uppercase, colors.colorPrimary,styles.buttonText,props.buttonTextStyle]}>{props.title}  </Text>
                 {                    
-                    props.icon ?
+                    props.icon && !props.right ?
                         <Icon 
                             name={props.icon} 
                             type="Feather" 
-                            style={[props.iconStyle,globals.h4,text.bold,colors.colorPrimaryLighter,styles.buttonIcon]}
+                            style={[globals.h4,text.bold,colors.colorPrimaryLighter,styles.buttonIcon,props.iconStyle]}
+                        />
+                    : 
+                        null
+                }
+                <Text style={[globals.h6, text.bold, text.uppercase, colors.colorPrimary,styles.buttonText,props.buttonTextStyle]}>{props.title}  </Text>
+                {                    
+                    props.icon && props.right ?
+                        <Icon 
+                            name={props.icon} 
+                            type="Feather" 
+                            style={[globals.h4,text.bold,colors.colorPrimaryLighter,styles.buttonIcon,props.iconStyle]}
                         />
                     : 
                         null

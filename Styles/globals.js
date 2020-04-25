@@ -71,6 +71,11 @@ export const globals = StyleSheet.create({
     }, 
     justifyCenter:{
         justifyContent:'center'
+    },
+    listContainer:{
+        padding:20,
+        paddingTop:5,
+        paddingBottom:5
     }
 }) ; 
 

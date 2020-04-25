@@ -6,7 +6,7 @@ import {globals,colorCodes,colors,text} from '../../Styles/globals' ;
 import SliderInput from './Components/SliderInput' ; 
 import SetNotCompletedAsPlanned from './Components/SetNotCompletedAsPlanned/' ; 
 
-import {View,Text,StyleSheet,} from 'react-native' ; 
+import {View,Text,StyleSheet} from 'react-native' ; 
 
 
 

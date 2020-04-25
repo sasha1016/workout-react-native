@@ -3,14 +3,15 @@ import {useState} from 'react' ;
 import {Stopwatch} from 'react-native-stopwatch-timer' ; 
 import {StyleSheet,View} from 'react-native' ; 
 
-import { Button } from 'react-native-paper' ; 
+import { Button,Icon } from 'native-base' ; 
 
-import { globals, colorCodes, colors} from '../Styles/globals.js' ; 
+import { globals, colorCodes,text,colors} from '../Styles/globals.js' ; 
 
 export default function stopwatch({title = "",
                                    start = () => {},
                                    end = () => {},
-                                   pause = () => {}
+                                   pause = () => {},
+                                   props = {}
                                  }) {
 
     var [started,updateStart] = useState(false) ;
@@ -18,6 +19,23 @@ export default function stopwatch({title = "",
     var [reset,updateReset] = useState(false) ; 
 
     var [toggled,updateToggled] = useState(false) ;
+
+    function stopwatchNotStarted() {
+        updateStart(!started) ; 
+        toggleStopwatch() ; 
+        start() ; 
+    }
+
+    function stopwatchStartedButNotPaused() {
+        updatePause(!paused) ; 
+        toggleStopwatch() ; 
+        pause(); 
+    }
+
+    function stopwatchStartedButPaused() {
+        updatePause(!paused) ; 
+        toggleStopwatch() ; 
+    }
 
     function toggleStopwatch() {
         updateToggled(!toggled) ; 
@@ -29,75 +47,35 @@ export default function stopwatch({title = "",
         updatePause(false) ;
         updateToggled(false) ;  
         end() ; 
-    }
+    } 
+
+    const iconStyle = [globals.h3,text.bold,colors.colorPrimary]  ;
     return (
-        <View>
-            <View>
-            <View style={[styles.setControlButtonsContainer]}>
-                {
-                    !started ?
-                        <Button 
-                            disabled={started}
-                            mode="contained"
-                            style={[colors.colorSecondary,colors.bgPrimary,styles.setControlButtons,{marginRight:5}]} 
-                            icon="check" 
-                            contentStyle={colors.colorSecondary}
-                            onPress={() => {
-                                updateStart(!started) ; 
-                                toggleStopwatch() ; 
-                                start() ; 
-                            }}
-                        >
-                            Start {title}
-                        </Button>
-                    : 
-                        (
-                            !paused ? 
-                                <Button 
-                                    mode="contained"
-                                    style={[styles.setControlButtons,colors.bgPrimary,{marginRight:5}]} 
-                                    icon="pause" 
-                                    contentStyle={colors.colorSecondary}
-                                    onPress={() => {
-                                        updatePause(!paused) ; 
-                                        toggleStopwatch() ; 
-                                        pause(); 
-                                    }}
-                                >
-                                    Pause {title}
-                                </Button> 
-                            :
-                                <Button 
-                                    mode="contained"
-                                    style={[styles.setControlButtons,colors.bgPrimary,{marginRight:5}]} 
-                                    icon="play" 
-                                    contentStyle={colors.colorSecondary}
-                                    onPress={() => {
-                                        updatePause(!paused) ; 
-                                        toggleStopwatch() ; 
-                                    }}
-                                >
-                                    Resume {title}
-                                </Button>           
-                        )       
-                }
-                <Button disabled={!started} 
-                        mode="outlined" 
-                        style={[styles.setControlButtons,{borderColor:colorCodes.danger,marginLeft:5}]} 
-                        icon="close" 
-                        color={colorCodes.danger}
-                        onPress={() => {
-                            resetStopwatch() ; 
-                        }}
+            <View style={[globals.flexRow,props.style]}>
+                <Button 
+                    style={[styles.button]} 
+                    transparent
+                    onPress={() => {!started? false : resetStopwatch()} }
                 >
-                    End {title}
+                    <Icon 
+                        name="stop" 
+                        type="FontAwesome"
+                        style={[...iconStyle,(!started ? colors.colorGrey : colors.colorPrimary)]} 
+                    />
+                </Button>
+                <Stopwatch options={stopwatchStyle} msecs={true} start={toggled} reset={reset}/>
+                <Button 
+                    style={[styles.button]} 
+                    transparent
+                    onPress={() => { !started ? stopwatchNotStarted() : (!paused ? stopwatchStartedButNotPaused() : stopwatchStartedButPaused()) }}
+                >
+                    <Icon 
+                        name={!started ? "play" : (!paused ? "pause" : "play")} 
+                        type="Feather"
+                        style={[...iconStyle]} 
+                    />
                 </Button>
             </View>
-            </View>
-            <View style={globals.paddingTop}>
-                <Stopwatch options={stopwatchStyle} start={toggled} reset={reset}/>
-            </View>
-        </View>
     )
 }
 
@@ -106,9 +84,12 @@ const stopwatchStyle = StyleSheet.create({
     container:{
         backgroundColor:'transparent',
         borderRadius:5,
-        padding:10,
-        borderColor:colorCodes.primary,
-        borderWidth:1,
+        flex:.6,
+        alignContent:'center',
+        alignItems:'center',
+        justifyContent:'center',
+        borderColor:colorCodes.grey,
+        borderWidth:1
     },
     text:{
         textAlign:'center',
@@ -129,5 +110,9 @@ const styles = StyleSheet.create({
     }, 
     setControlButtons:{
         flex:.5
+    }, 
+    button:{
+        flex:.2,
+        justifyContent:'center'
     }
 }) ; 

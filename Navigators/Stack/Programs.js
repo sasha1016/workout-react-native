@@ -15,7 +15,7 @@ import UserProgramInformation from '../../Pages/Programs/UserProgramInformation/
 
 const Stack = createStackNavigator();
 
-function RoutineStack({navigation}) {
+function ProgramsStack({navigation}) {
     return (
         <Stack.Navigator
             initialRouteName="Programs"
@@ -56,4 +56,4 @@ function RoutineStack({navigation}) {
     )
 }
 
-export default RoutineStack ; 
+export default ProgramsStack ; 
