@@ -24,13 +24,10 @@ function getWorkoutForTheDay(callback) {
     }).then((response) => {
         callback(response.data); 
     }).catch((error) => {
-        console.warn(error.response.data,"fail") ; 
+        console.warn(error,"fail") ; 
     })
 }
 
-function startWorkout(context) {
-    context.set({...context.data,started:true,startedTime:getDateTime()}) ; 
-}
 
 const EMPTY_ROUTINE = {toComplete:[]} ; 
 
@@ -38,7 +35,7 @@ const EMPTY_ROUTINE = {toComplete:[]} ;
 export default function Home({navigation,route}) {
 
 
-    const workout = useContext(WorkoutContext) ; 
+    const state = useContext(WorkoutContext) ; 
 
     const [routine,setRoutine] = useState(EMPTY_ROUTINE) ;
 
@@ -49,7 +46,7 @@ export default function Home({navigation,route}) {
     React.useEffect(() => {
 
         getWorkoutForTheDay((response) => {
-            Object.keys(response).length !== 0 ? setRoutine((response[day])[0]) : setRoutine(EMPTY_ROUTINE)  ; 
+            Object.keys(response[day]).length !== 0 ? setRoutine((response[day])[0]) : setRoutine(EMPTY_ROUTINE)  ; 
         })
 
     },[route])
@@ -66,7 +63,7 @@ export default function Home({navigation,route}) {
                                     <CustomListItem
                                         title={exercise.name} 
                                         desc={[`${exercise.sets.length} sets`]}
-                                        mode={workout.data.started ? "NAV" : "INFO"}
+                                        mode={state.workout.started ? "NAV" : "INFO"}
                                         key={exercise._id}
                                         onPress={() => ( goToExercise(exercise) )}
                                     />
@@ -83,10 +80,10 @@ export default function Home({navigation,route}) {
                 <Button 
                     style={[globals.flex,{alignContent:'center'}]} 
                     transparent
-                    onPress={() => startWorkout(workout)}
+                    onPress={() => state.reducers.workout.set({...state.workout,started:true})}
                 >
                     <Text style={[globals.flex,globals.h5,text.center,text.uppercase,text.bold,colors.colorPrimary]}>
-                        {workout.data.started ? "Started" : "Start"}
+                        {state.workout.started ? "Started" : "Start"}
                     </Text>
                 </Button>
             </View>

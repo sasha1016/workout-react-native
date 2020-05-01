@@ -19,6 +19,11 @@ export const V1 = {
             DAY:{
                 GET:"user/routines/day/"
             }
+        },
+        REVIEWS:{
+            SET:{
+                ADD:"user/reviews/set/add",
+            }
         }
     }, 
     PROGRAMS:{

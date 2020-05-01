@@ -13,16 +13,19 @@ import RenderUserPrograms from './Components/RenderUserPrograms'
 
 const axios = require('axios') ; 
 
-import {API_V1,USER} from '../../config/index' ; 
-import {TEST} from '../../config/api' ; 
+import {
+    TEST,
+    API,
+    V1
+} from '../../config/api' ; 
 
 
 export default function Programs({navigation}) {
 
     var [programs,setPrograms] = useState([]);
 
-    function viewUserProgram(program) {
-        navigation.push('UserProgramInformation',{program}) ; 
+    function viewUserProgram(userProgram) {
+        navigation.push('UserProgramInformation',{userProgram}) ; 
     }
 
     function viewPrograms(filterBy,filterByValue) {
@@ -31,17 +34,17 @@ export default function Programs({navigation}) {
 
     useEffect(() => {
 
-        axios.get(API_V1+USER.GET_PROGRAMS, {
+        axios.get(API.V1 + V1.USER.PROGRAMS.GET, {
             params:{
-                userId:`${TEST.USER}`,
-                keys:"_id muscleGroup programName programId lift frequency liftName duration commenced workoutsCompleted"
+                user:`${TEST.USER}`,
+                populate:"program"
             }
         })
         .then((response) => {
             setPrograms(response.data) ;  
         })
         .catch((error) => {
-            console.warn(error.response.data.message)
+            console.warn(error)
         })  ; 
 
         navigation.setOptions({
@@ -58,7 +61,7 @@ export default function Programs({navigation}) {
             <ScrollView>
                 <View style={[{flex:1,marginTop:10},globals.rootContainer]}>
                     <List itemDivider={false}>
-                        <RenderUserPrograms programs={programs} viewUserProgramInformation={viewUserProgram} onStartNewProgramIntent={viewPrograms}/>
+                        <RenderUserPrograms userPrograms={programs} viewUserProgramInformation={viewUserProgram} onStartNewProgramIntent={viewPrograms}/>
                     </List>
                 </View>
             </ScrollView>

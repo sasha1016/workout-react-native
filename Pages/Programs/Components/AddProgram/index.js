@@ -91,13 +91,12 @@ const AddProgramForm = ({visible,toggler}) => {
     }
 
     const addProgram = () => {
-        console.warn(values) ;
         axios.post(API.V1 + V1.PROGRAMS.ADD, {
             ...values
         }).then(() => {
             toggler(!visible) ; 
         }).catch((error) => {
-            console.warn(error.response) ; 
+            console.warn(error) ; 
         })
     }
 
@@ -189,7 +188,7 @@ const AddProgramForm = ({visible,toggler}) => {
                     <Radio 
                         color={colorCodes.primaryLighter} 
                         selectedColor={colorCodes.primary} 
-                        onPress={() => setValues({...values,type:"hypertophy"})}
+                        onPress={() => setValues({...values,type:"hypertrophy"})}
                         selected={values.type == "hypertrophy"}
                     />
                 </Item>
@@ -308,7 +307,7 @@ export default function AddProgram({visible,toggler}) {
                             </ListItem>
                             <ListItem noBorder style={[{width:"100%",marginLeft:0}]}>
                                 <Body style={{width:"100%"}}>
-                                    <AddProgramForm/>
+                                    <AddProgramForm visible={visible} toggler={toggler}/>
                                 </Body>
                             </ListItem>
                         </List>

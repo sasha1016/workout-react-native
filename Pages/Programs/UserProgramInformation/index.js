@@ -16,33 +16,32 @@ export default function UserProgramInformation({navigation,route}) {
 
     useEffect(() => {
         navigation.setOptions({
-            title:route.params.program.programName
+            title:route.params.userProgram.program.name
         }) ; 
-
-        setProgram(route.params.program); 
 
     },[]) ; 
 
     const switchProgramIntent = () => {
         navigation.push(
             'ViewPrograms',
-            {
-                filterBy:(route.params.program.liftName ? "liftName" : "muscleGroup"),
-                filterByValue:(route.params.program.liftName || route.params.program.muscleGroup), 
-                title:`${capitalize(route.params.program.liftName || route.params.program.muscleGroup)} Programs`,
+            {   
+                filterBy:(route.params.userProgram.program.liftName ? "liftName" : "muscleGroup"),
+                filterByValue:(route.params.userProgram.program.liftName || route.params.userProgram.program.muscleGroup), 
+                title:`${capitalize(route.params.userProgram.program.liftName || route.params.userProgram.program.muscleGroup)} Programs`,
+                programCurrentlySubscribedTo:route.params.userProgram.program._id, 
                 programSwitch:true,
-                userProgramToSwitch:route.params.program._id //The ID of the document stored in UserPrograms Collection 
+                userProgramToSwitch:route.params.userProgram._id, 
             }
         ) ; 
     }
     
     const toDisplay = [
 
-        {title:"Program",key:"programName",value:(value) => {return `${value}`}},
-        {title:"Type",key:"lift",value:(value) => {return `${value}`}},
+        {title:"Program",key:"name",value:(value) => {return `${value}`}},
+        {title:"Type",key:"lift",value:(value) => {return `${(value === "main" ? "Main Lift" : "Accessory Lift")}`}},
         {title:"Muscle Group",key:"muscleGroup",value:(value) => {return `${value}`}},
         {title:"Lift",key:"liftName",value:(value) => {return `${value}`}},
-        {title:"Commenced",key:"commenced",value:(value) => {return `${moment(value,"L TS").fromNow()}`}},
+        //{title:"Commenced",key:"commenced",value:(value) => {return `${moment(value,"L TS").fromNow()}`}},
         {title:"Duration",key:"duration",value:(value) => {return `${value} weeks`}},
         {title:"Frequency",key:"frequency",value:(value) => {return `${value} x week`}},
         //{title:"Workouts Completed",key:"workoutsCompleted",value:(value,total) => {return `${value} of ${total}`}}
@@ -53,19 +52,26 @@ export default function UserProgramInformation({navigation,route}) {
             <List>
                 {
                     toDisplay.map((item,index) => (
-                            program[item.key] !== undefined ?
+                            route.params.userProgram.program[item.key] !== undefined ?
                                 <CustomListItem 
                                     title={item.title} 
-                                    desc={[item.value(program[item.key])]} 
-                                    icon={item.key === "programName"? "edit-2" : null}
+                                    desc={[item.value(route.params.userProgram.program[item.key])]} 
+                                    icon={item.key === "name"? "edit-2" : null}
                                     onIconPress={switchProgramIntent}
-                                    mode={item.key === "programName"? "NAV" : "INFORMATION"}
+                                    mode={item.key === "name"? "NAV" : "INFORMATION"}
                                     key={`key-${index}`}
                                 />
                             : 
                                 null
                         )
                     )
+                }
+                {
+                    <CustomListItem 
+                        title="Commenced"
+                        desc={[`${moment(route.params.userProgram.commenced,"L TS").fromNow()}`]} 
+                        key={`key-commenced`}
+                    />                    
                 }
             </List>
         </ScrollView>

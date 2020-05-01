@@ -63,7 +63,9 @@ export default function stopwatch({title = "",
                         style={[...iconStyle,(!started ? colors.colorGrey : colors.colorPrimary)]} 
                     />
                 </Button>
-                <Stopwatch options={stopwatchStyle} msecs={true} start={toggled} reset={reset}/>
+                <View style={{flex:.6}}>
+                    <Stopwatch options={stopwatchStyle} start={toggled} reset={reset}/>
+                </View>    
                 <Button 
                     style={[styles.button]} 
                     transparent
@@ -84,9 +86,7 @@ const stopwatchStyle = StyleSheet.create({
     container:{
         backgroundColor:'transparent',
         borderRadius:5,
-        flex:.6,
-        alignContent:'center',
-        alignItems:'center',
+        flex:1,
         justifyContent:'center',
         borderColor:colorCodes.grey,
         borderWidth:1
@@ -95,7 +95,7 @@ const stopwatchStyle = StyleSheet.create({
         textAlign:'center',
         fontWeight:'700',
         color:colorCodes.primary,
-        fontSize:19,
+        fontSize:15,
         letterSpacing:1
     }
 })

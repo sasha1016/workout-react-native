@@ -1,14 +1,16 @@
-import React,{useState} from 'react'  ;
+import React from 'react'  ;
 
-import {List,Snackbar} from 'react-native-paper' ; 
+import CustomListItem from '../../../ListItem2' ; 
+import { Toast } from 'native-base' ; 
 
 import {globals,colorCodes,colors,text} from '../../../../Styles/globals' ; 
 
-import {FlatList,View,Picker} from 'react-native' ; 
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import {FlatList,View,Text} from 'react-native' ; 
+
+import Divider from 'react-native-divider' ; 
 
 
-export default function Form({state,reducers,snackbar,snackbarToggler}) {
+export default function Form({state,reducers}) {
 
     const addRepToSetBreakdown = (count) => {
         reducers.updateSetReview({
@@ -25,76 +27,60 @@ export default function Form({state,reducers,snackbar,snackbarToggler}) {
             return (item.id !== set.id)
         })}) ; 
     }
-    
-    const ListItem = ({set,index}) => {
+
+    const SetBreakDownForm = () => {
         return (
-            <List.Item 
-                style={[
-                        globals.item,
+            ( !(state.totalSetBreakdown < 1) ?
+                <React.Fragment>
+                    <View style={[globals.flex,{paddingTop:10}]}>
+                        <Divider style={{marginTop:20,marginBottom:20}} borderColor={colorCodes.grey} orientation="center">
+                            <Text style={[text.uppercase,globals.h8,colors.colorNeutral]}>Add Set</Text>   
+                        </Divider>
                         {
-                            padding:5,
-                            borderBottomColor: (index == state.setReview.setBreakdown.length - 1 ? "transparent" : colorCodes.grey)
-                        },
-                    ]} 
-                title={`1 x ${set.reps}`} 
-                titleStyle={[
-                                colors.colorPrimary,
-                                text.bold
-                            ]} 
-                right={() =>  (<TouchableOpacity onPress={() => deleteSet(set)}><List.Icon color={colorCodes.neutral} icon="delete-outline"/></TouchableOpacity>)}
-            />
+                            [...Array(state.repsInSet).keys()].map((item,index) => {
+                                if(item < (state.totalSetBreakdown == state.repsInSet ? state.repsInSet - 1 : state.totalSetBreakdown)) {
+                                    return (
+                                        <CustomListItem 
+                                            title={`Set ${state.setReview.setBreakdown.length + 1}`}
+                                            icon="plus"
+                                            desc={[`${item+1} Reps`]}
+                                            onIconPress={() => addRepToSetBreakdown(item + 1)}
+                                            key={`key_${index}`}
+                                            mode="NAV"
+                                        />
+                                    )
+                                } 
+                            })
+                        }
+                    </View>
+                </React.Fragment>
+
+                :
+
+                (null)
+            
+            )
         )
     }
 
 
 
     return (
-        <View style={[{paddingTop:60},globals.rootContainer]}>
-
-            <View>
-                <FlatList 
-                    data={state.setReview.setBreakdown}
-                    renderItem={({item,index}) =>  <ListItem set={item} index={index}/>}
-                    keyExtractor={({item,index}) => `${index}`}
-                />
-            </View>
-
-            { // If set didn't go as planned 
-
-                ( !(state.totalSetBreakdown < 1) ?
-                    <View style={[{borderWidth:1,borderColor:colorCodes.grey,borderRadius:5},text.h5,colors.colorPrimary]}>
-                        <Picker 
-                            onValueChange={(value) => (value !== null ? addRepToSetBreakdown(value) : false)}
-                            selectedValue={null}
-                        >
-
-                            <Picker.Item label="Reps" value={null}/>
-                            {[...Array(state.repsInSet).keys()].map((item) => {
-                                if(item < (state.totalSetBreakdown == state.repsInSet ? state.repsInSet - 1 : state.totalSetBreakdown)) {
-                                    return (<Picker.Item label={`${item + 1}`} value={item + 1} key={item}/>)
-                                } 
-                            })}
-                        
-                        </Picker>
-                    </View>
-
-                    :
-
-                    (null)
-                
-                )
-
-            }
-
-            <Snackbar
-                visible={snackbar}
-                onDismiss={()=> snackbarToggler(!snackbar)}
-                duration={1000}
-                style={colors.bgPrimary}
-            >
-                Set Breakdown Incomplete 
-            </Snackbar>
-
+        <View style={[{paddingTop:60}]}>
+            <FlatList 
+                data={state.setReview.setBreakdown}
+                ListEmptyComponent={<Text style={[globals.h6,colors.colorGrey,{letterSpacing:0},text.center]}>Set Breakdown is empty</Text>}
+                renderItem={({item,index}) =>  <CustomListItem 
+                                                    title={`Set ${(index+1)}`}
+                                                    desc={[`${item.reps} Reps`]}
+                                                    onIconPress={() => deleteSet(item)}
+                                                    icon="trash-2"
+                                                    mode="NAV"
+                                                />}
+                keyExtractor={(item) => `${item.id}`}
+                ListFooterComponent={SetBreakDownForm}
+                contentContainerStyle={{padding:20}}
+            />
         </View>
     )
 }
