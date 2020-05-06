@@ -21,13 +21,13 @@ export default function ViewPrograms({navigation,route}) {
     useEffect(() => {
         axios.get(API.V1 + V1.USER.PROGRAMS.GET, {
             params:{
-                userId:TEST.USER
+                user:TEST.USER,
+                populate:"program"
             }
         }).then((response) => {
             var selectedPrograms = [] ; 
-            route.params.dayRoutine.map(program => selectedPrograms = [...selectedPrograms,program.userProgramId]) ;
-            const filteredUserPrograms = response.data.filter((program) => {return !selectedPrograms.includes(program._id)}) ;
-
+            route.params.dayRoutine.map(routine => selectedPrograms = [...selectedPrograms,routine.userProgram._id]) ;
+            const filteredUserPrograms = response.data.filter((userProgram) => {return !selectedPrograms.includes(userProgram._id)}) ;
             setPrograms(filteredUserPrograms) ;  
         }).catch((error) => {
             console.warn(error,"failure") ; 
@@ -41,9 +41,9 @@ export default function ViewPrograms({navigation,route}) {
             data={programs} 
             renderItem={({item}) => 
                                     <CustomListItem 
-                                        title={item.programName} 
-                                        desc={[item.liftName || item.muscleGroup]}
-                                        onPress={() => navigation.navigate('ChooseProgramDayForRoutine',{programId:item.programId,userProgramId:item._id})}
+                                        title={item.program.name} 
+                                        desc={[item.program.liftName || item.program.muscleGroup]}
+                                        onPress={() => navigation.navigate('ChooseProgramDayForRoutine',{program:item.program,userProgram:item._id})}
                                         mode="NAV" 
                                     />
                         }

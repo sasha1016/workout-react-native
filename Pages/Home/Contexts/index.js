@@ -7,7 +7,9 @@ const date = moment().format() ;
 const INITIAL_SET_STATE = {
     completed:false,
     timeTaken:0,
+    startedTime:0,
     started:false,  
+    paused:false,
 }
 
 const INITIAL_EXERCISE_STATE = {

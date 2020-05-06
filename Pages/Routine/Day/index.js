@@ -21,8 +21,8 @@ export default function Day({navigation,route}) {
     const [deleteIntent,setDeleteIntent] = useState(false) ; 
     const [dayRoutine,setDayRoutine] = useState([]) ; 
     
-    const goToProgram = (program) => {
-        navigation.push('Program',{program})
+    const goToProgram = (routine) => {
+        navigation.push('Program',{routine})
     }
 
     const onDeleteIntent = () => {
@@ -33,21 +33,21 @@ export default function Day({navigation,route}) {
         navigation.navigate('ViewUserPrograms',{dayRoutine,day:route.params.day}) ; 
     }
 
-    const deleteProgram = (routineId,day,programName) => {
+    const deleteProgram = (id,day,programName) => {
 
         const apiCall = () => {
             axios.post(API.V1 + V1.USER.ROUTINES.DELETE, {
-                userId:TEST.USER, 
+                user:TEST.USER, 
                 day:day,
-                routineId:routineId
+                routineId:id
             }).then(() => {
-                var newDayRoutine = route.params.dayRoutine.filter((program) => {return (program._id === routineId ? false : true)}  ) ; 
+                var newDayRoutine = routines.data[day].filter((program) => {return (program._id === id ? false : true)}  ) ; 
                 setDayRoutine(newDayRoutine) ; 
                 var newRoutines = routines.data ; 
                 newRoutines[day] = newDayRoutine ; 
                 routines.set(newRoutines) ; 
             }).catch((error) => {
-                console.warn(error.response.data.message)
+                console.warn(error)
             }) 
         } 
 
@@ -62,12 +62,13 @@ export default function Day({navigation,route}) {
 
     const addProgram = (toAdd) => {
         axios.post(API.V1 + V1.USER.ROUTINES.ADD, {
-            userId:TEST.USER,
+            user:TEST.USER,
             day:route.params.day,
-            toAdd
+            toAdd, 
+            populate:"program,userProgram"
         }).then((response) => {
-            routines.set(response.data) ; 
-            setDayRoutine(response.data[route.params.day])
+            routines.set(response.data) ;  
+            setDayRoutine(response.data[route.params.day]) ; 
         }).catch((error) => {
             console.warn(error.response.data.message,"Filure") ; 
         })
@@ -77,6 +78,8 @@ export default function Day({navigation,route}) {
         
         route.params.intentToAdd !== undefined ? addProgram(route.params.toAdd) : false; 
 
+        setDayRoutine(routines.data[route.params.day])
+
     },[route])
 
 
@@ -85,8 +88,7 @@ export default function Day({navigation,route}) {
             title:capitalize(route.params.day) 
         }) ; 
 
-        setDayRoutine(routines.data[route.params.day]) ; 
-
+        
     },[])
 
     return (
@@ -96,7 +98,7 @@ export default function Day({navigation,route}) {
                     dayRoutine.length === 0 ? 
                         <Text style={[globals.h5,text.center,colors.colorNeutral,{paddingTop:15}]}>It's currently empty. Add one by clicking the + icon.</Text>
                     :
-                        dayRoutine.map((program,index) => {
+                        dayRoutine.map((routine,index) => {
                             var desc = () => {
                                 var str = "" ; 
                                 program.toComplete.slice(0,3).map((set, index) => {
@@ -110,12 +112,12 @@ export default function Day({navigation,route}) {
                             return (
                                 <CustomListItem
                                     mode="NAV"
-                                    title={program.programName}
+                                    title={routine.program.name}
                                     // desc={desc()}
                                     icon={deleteIntent ? "trash-2" : "chevron-right"}
-                                    onPress={() => {deleteIntent ? false : goToProgram(program)}}
+                                    onPress={() => {deleteIntent ? false : goToProgram(routine)}}
                                     key={`key-${index}`} 
-                                    onIconPress={() => {deleteIntent ? deleteProgram(program._id,route.params.day,program.programName) : false}}
+                                    onIconPress={() => {deleteIntent ? deleteProgram(routine._id,route.params.day,routine.program.name) : false}}
                                 />
                             ) ;
                         }) 

@@ -8,3 +8,7 @@ export const capitalize = (word : String) => {
 export const getDateTime = () => {
     return moment().format() ; 
 }
+
+export const getSecondsElapsed = (from = 0) => {
+    return (Math.ceil(((new Date).getTime() - from) / 1000)) ; 
+}

@@ -1,13 +1,13 @@
 import React from 'react' ; 
 import {useState} from 'react' ; 
 import {Stopwatch} from 'react-native-stopwatch-timer' ; 
-import {StyleSheet,View} from 'react-native' ; 
+import {StyleSheet,View, Alert} from 'react-native' ; 
 
 import { Button,Icon } from 'native-base' ; 
 
 import { globals, colorCodes,text,colors} from '../Styles/globals.js' ; 
 
-export default function stopwatch({title = "",
+export default function stopwatch({disabled = false,
                                    start = () => {},
                                    end = () => {},
                                    pause = () => {},
@@ -69,7 +69,7 @@ export default function stopwatch({title = "",
                 <Button 
                     style={[styles.button]} 
                     transparent
-                    onPress={() => { !started ? stopwatchNotStarted() : (!paused ? stopwatchStartedButNotPaused() : stopwatchStartedButPaused()) }}
+                    onPress={() => { !disabled ? !started ? stopwatchNotStarted() : (!paused ? stopwatchStartedButNotPaused() : stopwatchStartedButPaused()) : Alert.alert('Warning','You cannot start the set as you have not started the workout') }}
                 >
                     <Icon 
                         name={!started ? "play" : (!paused ? "pause" : "play")} 

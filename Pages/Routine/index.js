@@ -25,10 +25,11 @@ export default function Routine({navigation}) {
     useEffect(() => {
         axios.get(API.V1 + V1.USER.ROUTINES.GET, {
             params:{
-                userId:TEST.USER
+                user:TEST.USER,
+                populate:"program,userProgram"
             }
         }).then((response) => { 
-            routines.set(response.data[0]) ;
+            routines.set(response.data) ;
         }).catch((error) => {
             console.warn(error.data.message,"failuer") ; 
         })

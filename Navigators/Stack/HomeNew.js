@@ -33,7 +33,7 @@ function HomeStack({navigation}) {
                                 name="Home"
                                 component={Home}
                                 options={{
-                                    title:moment().format("ddd, D/MM"),
+                                    title:moment().format("dddd, DD/MM"),
                                     headerLeft:(() => <IconButton icon="menu" color={colorCodes.secondary} onPress={() => navigation.openDrawer()}/>)
                                 }}
                             />

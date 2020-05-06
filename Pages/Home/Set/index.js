@@ -114,6 +114,7 @@ export default function Set({navigation,route}) {
                     {
                         !setDetails.completed ? 
                             <Stopwatch 
+                                disabled={!state.workout.started}
                                 title="set" 
                                 start={() => setStart()} 
                                 end={() => setComplete()}

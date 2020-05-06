@@ -1,5 +1,5 @@
 Arguments: 
-  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js add react-native-divider
+  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js add reanimated-bottom-sheet
 
 PATH: 
   C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Android;C:\Windows\System32;C:\Program Files\nodejs\;C:\Program Files\Git\cmd;C:\Program Files (x86)\Yarn\bin\;C:\Users\Shashank\AppData\Local\Programs\Python\Python37\Scripts\;C:\Users\Shashank\AppData\Local\Programs\Python\Python37\;C:\Users\Shashank\AppData\Local\Microsoft\WindowsApps;C:\Users\Shashank\AppData\Roaming\npm;C:\Users\Shashank\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\Shashank\AppData\Local\Yarn\bin;
@@ -14,7 +14,7 @@ Platform:
   win32 x64
 
 Trace: 
-  Error: EPERM: operation not permitted, unlink 'C:\Users\Shashank\Desktop\projects\react-native\workout\node_modules\@babel\helper-compilation-targets\node_modules\.bin'
+  Error: EPERM: operation not permitted, unlink 'C:\Users\Shashank\Desktop\projects\react-native\workout\node_modules\@babel\compat-data\node_modules\.bin'
 
 npm manifest: 
   {
@@ -44,10 +44,12 @@ npm manifest:
       "react-dom": "~16.9.0",
       "react-native": "https://github.com/expo/react-native/archive/sdk-36.0.0.tar.gz",
       "react-native-circular-progress": "^1.3.6",
+      "react-native-divider": "^1.0.3",
       "react-native-draggable-flatlist": "^2.3.2",
       "react-native-gesture-handler": "~1.5.0",
       "react-native-paper": "^3.6.0",
       "react-native-progress": "^4.0.3",
+      "react-native-raw-bottom-sheet": "^2.1.0",
       "react-native-reanimated": "~1.4.0",
       "react-native-safe-area-context": "0.6.0",
       "react-native-screens": "2.0.0-alpha.12",
@@ -4991,6 +4993,13 @@ Lockfile:
     dependencies:
       prop-types "^15.7.2"
   
+  react-native-divider@^1.0.3:
+    version "1.0.3"
+    resolved "https://registry.yarnpkg.com/react-native-divider/-/react-native-divider-1.0.3.tgz#fcc1cf6d6e3d40a09509991dc42cb49482bb0241"
+    integrity sha512-JK7nqiV6CYergVSKpfSEBLWFRu11vzZjSv76SHPlwNTR404fdR4WkjqgIXoUDz4mfDeadAcWnyUNuopxfFHseA==
+    dependencies:
+      prop-types "^15.6.1"
+  
   react-native-draggable-flatlist@^2.3.2:
     version "2.3.2"
     resolved "https://registry.yarnpkg.com/react-native-draggable-flatlist/-/react-native-draggable-flatlist-2.3.2.tgz#4d84b2f7298d2426a4e5a95290c3b10861d81bf2"
@@ -5051,6 +5060,11 @@ Lockfile:
     dependencies:
       "@react-native-community/art" "^1.0.3"
       prop-types "^15.7.2"
+  
+  react-native-raw-bottom-sheet@^2.1.0:
+    version "2.1.0"
+    resolved "https://registry.yarnpkg.com/react-native-raw-bottom-sheet/-/react-native-raw-bottom-sheet-2.1.0.tgz#cf875206a748d4ccf0b1086d2d113eb75d128664"
+    integrity sha512-Ho/UkKrq8MzmiSRLcveUdMEEwa8oFwDr8Va2NnjJrLpe3v/0WDLpA7SKdU1zg8FcHYmCWXdrGjFbhVMi4lSCqg==
   
   react-native-reanimated@~1.4.0:
     version "1.4.0"
