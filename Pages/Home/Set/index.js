@@ -99,7 +99,7 @@ export default function Set({navigation,route}) {
                     />
                     <CustomListItem
                         title="Weight"
-                        desc={[(route.params.set.percentage || route.params.set.weightFactor).toString()]}
+                        desc={[(route.params.weight)]}
                         mode="INFO"
                     />
                 </View>

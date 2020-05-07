@@ -1,18 +1,26 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import Layout from './Layout/'
+import Layout from './Layout/' ; 
 
-export default function App() {
-  return (
-    <Layout/>
-  );
+import * as Font from 'expo-font' ; 
+import { AppLoading } from 'expo' ; 
+
+const loadFonts = async () => {
+  await Font.loadAsync({
+    Roboto:require('native-base/Fonts/Roboto.ttf'),
+    Roboto_medium:require('native-base/Fonts/Roboto_medium.ttf'),
+  })
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default function App() {
+  const [loaded,setLoaded] = React.useState(false)  ;
+
+  if(loaded) {
+    return (<Layout/>)
+  } else {
+    return (<AppLoading
+      startAsync={loadFonts}
+      onFinish={() => setLoaded(true)}
+    />)
+  }
+}
+

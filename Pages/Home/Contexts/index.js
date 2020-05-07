@@ -23,6 +23,11 @@ const INITIAL_WORKOUT_STATE = {
     started:false,
     timeStarted:null,
     day:day,
+    paused:{
+        status:false,
+        total:0,
+        started:0,
+    },
     date:date,
 
 }

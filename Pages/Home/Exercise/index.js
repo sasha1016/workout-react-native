@@ -12,6 +12,8 @@ import {
 } 
 from '../Contexts/exercise' ; 
 
+import ActionBar from '../Components/ActionBar' ; 
+
 
 function Exercise({navigation,route}) {
 
@@ -37,29 +39,33 @@ function Exercise({navigation,route}) {
     },[state.exercise.started]); 
     
 
-    const goToSet = (set,setNo,totalSets) => {
-        navigation.navigate('Set',{set,setNo,totalSets}) ; 
+    const goToSet = (set,weight,setNo,totalSets) => {
+        navigation.navigate('Set',{set,weight,setNo,totalSets}) ; 
     }
 
 
 
     return (
-        <View style={[globals.flex,globals.listContainer]}>
-                {
-                        route.params.sets.map((set,index) => {
-                            return (
-                                <CustomListItem
-                                    title={`Set ${index + 1}`} 
-                                    desc={[`${set.reps} Reps @ ${set.percentage || set.weightFactor}%`]}
-                                    mode="NAV"
-                                    key={set._id}
-                                    onPress={() => goToSet(set,index + 1, route.params.totalSets)}
-                                />
-                            )
-                        })
-                }
+        <React.Fragment>
+            <View style={[globals.flex,globals.listContainer]}>
+                    {
+                            route.params.sets.map((set,index) => {
+                                let weight = ( route.params.oneRM ? `${route.params.oneRM * Math.floor(parseInt(set.weightFactor || set.percentage)/100)} kg`: `${set.weightFactor || set.percentage}% Intensity`) ; 
+                                return (
+                                    <CustomListItem
+                                        title={`Set ${index + 1}`} 
+                                        desc={[`${set.reps} Reps @ ${weight}`]}
+                                        mode="NAV"
+                                        key={set._id}
+                                        onPress={() => goToSet(set,weight,index + 1, route.params.totalSets)}
+                                    />
+                                )
+                            })
+                    }
 
-        </View>
+            </View>
+            <ActionBar/>
+        </React.Fragment>
     ) ; 
 
 }
