@@ -37,7 +37,7 @@ function getWorkoutForTheDay(callback) {
 }
 
 
-const EMPTY_ROUTINE = {toComplete:[]} ; 
+const EMPTY_ROUTINE = [] ; 
 
 
 export default function Home({navigation,route}) {
@@ -45,21 +45,23 @@ export default function Home({navigation,route}) {
 
     const state = useContext(WorkoutContext) ; 
 
-    const [routine,setRoutine] = useState(EMPTY_ROUTINE) ;
+    const [dayRoutine,setDayRoutine] = useState(EMPTY_ROUTINE) ;
 
-    function goToExercise(exercise) {
-        navigation.navigate('Exercise',{sets:exercise.sets,exerciseName:exercise.name,oneRM:exercise.oneRM,totalSets:exercise.sets.length})
+    function goToExercise(exercise,program) {
+        navigation.navigate('Exercise',{exercise,program})
     }
 
     React.useEffect(() => {
 
         getWorkoutForTheDay((response) => {
             response = response[0] ; 
-            Object.keys((response[day])[0]).length !== 0 ? setRoutine((response[day])[0]) : false  ; 
+            state.reducers.routineTracker.set(response[day]) ; 
+            Object.keys((response[day])).length !== 0 ? setDayRoutine(response[day]) : false  ; 
         })
 
-    },[route])
+    },[route]) ; 
 
+    console.warn(state.completed.exercises) ; 
 
     return (
         <React.Fragment>
@@ -68,19 +70,22 @@ export default function Home({navigation,route}) {
                     <View>
                         
                         {   
-                            routine.toComplete.length === 0 ? 
+                            dayRoutine.length === 0 ? 
                                 ( <Text style={[globals.h5,text.center,colors.colorNeutral,{paddingTop:15}]}>Your routine for today is empty.</Text>)
                             :
-                                routine.toComplete.map((exercise) => {
-                                    
+                                dayRoutine.map((program) => {
                                     return (
-                                        <CustomListItem
-                                            title={exercise.name} 
-                                            desc={[`${exercise.sets.length} sets`]}
-                                            mode="NAV"
-                                            key={exercise._id}
-                                            onPress={() => ( goToExercise(exercise) )}
-                                        />
+                                        program.toComplete.map((exercise) => {
+                                            return (
+                                                <CustomListItem
+                                                    title={exercise.name} 
+                                                    desc={[`${exercise.sets.length} sets`]}
+                                                    mode="NAV"
+                                                    key={exercise._id}
+                                                    onPress={() => ( goToExercise(exercise,program) )}
+                                                />
+                                            )
+                                        })
                                     )
                                 })
                         }

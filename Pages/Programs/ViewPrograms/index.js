@@ -5,7 +5,7 @@ import {globals,colorCodes,colors,text} from '../../../Styles/globals' ;
 
 const axios = require('axios') ; 
 
-import {API,V1} from '../../../config/index' ; 
+import {API,V1} from '../../../config/api' ; 
 import ListItem from '../../../Components/ListItem2.js';
 
 
@@ -18,12 +18,12 @@ export default function ViewPrograms({navigation,route}) {
         axios.get(API.V1 + V1.PROGRAMS.GET, {
             params:{
                 filterBy:(route.params.filterBy),
-                value:(route.params.filterByValue)
+                value:(route.params.filterByValue)  
             }
         }).then((response) => {
             setPrograms(response.data) ; 
         }).catch((error) => {
-            console.warn(error) ; 
+            console.warn(error.message) ; 
         }) ; 
 
     },[]) ; 

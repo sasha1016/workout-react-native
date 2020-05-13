@@ -17,7 +17,7 @@ export default function timer({duration=10,onFinish = () => {}}) {
                 transparent
             ></Button>
             <View style={{flex:.6}}>
-                <Timer options={timerStyle} start={true} totalDuration={(duration * 1000)} handleFinish={onFinish} />
+                <Timer options={timerStyle} start={true} totalDuration={(duration * 1000)} handleFinish={() => onFinish()} />
             </View>    
             <Button 
                 style={[styles.button]} 

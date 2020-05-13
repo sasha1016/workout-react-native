@@ -56,13 +56,13 @@ export default function RenderUserPrograms({userPrograms,viewUserProgramInformat
                     </Fragment>
                 :
                     userPrograms.map((userProgram,index) => {
-                        if(userProgram.lift === "main") {
+                        if(userProgram.program.lift === "main") {
                             if(mainIndexPos) { // If its the first main Lift program to be displayed 
                                 mainIndexPos = false ; 
                                 return (
                                     <Fragment>
                                         <Header title="Main Lifts" key="main_lifts_header" onIconPress={() => onStartNewProgramIntent("lift","main")}/>
-                                        <CustomListItem title={userProgram.liftName} desc={[userProgram.programName || userProgram.userProgram.name]} onPress={() => viewUserProgramInformation(userProgram)} key={userProgram.programId || userProgram.userProgram._id} mode="NAV"/>
+                                        <CustomListItem title={userProgram.program.liftName} desc={[userProgram.programName || userProgram.program.name]} onPress={() => viewUserProgramInformation(userProgram)} key={userProgram.programId || userProgram.program._id} mode="NAV"/>
                                     </Fragment>
                                 )
                             } else {
@@ -94,7 +94,7 @@ export default function RenderUserPrograms({userPrograms,viewUserProgramInformat
                                         <Header title="Accessory Lifts" key="accessorty_lifts_header" onIconPress={() => onStartNewProgramIntent("lift","access")}/>
                                         <CustomListItem title={userProgram.program.muscleGroup} desc={[userProgram.programName || userProgram.program.name]} onPress={() => viewUserProgramInformation(userProgram)} key={userProgram.programId || userProgram.program._id} mode="NAV"/>
                                         {
-                                            mainIndexPos?
+                                            mainIndexPos && userPrograms.length - 1 === index?
                                                 <Fragment>
                                                     <Header title="Main Lifts" key="main_lifts_header" onIconPress={() => onStartNewProgramIntent("lift","main")}/>
                                                     <Text style={[globals.h5,text.center,colors.colorNeutral,globals.paddingTop]}>No Main Lift programs started</Text>
@@ -135,4 +135,44 @@ export default function RenderUserPrograms({userPrograms,viewUserProgramInformat
         </View>
     )
 
+}
+
+export function RenderUserPrograms1({userPrograms,viewUserProgramInformation,onStartNewProgramIntent}) {
+    const [accessories,setAccessories] = React.useState([]) ; 
+    const [mainLifts,setMainLifts] = React.useState([]) ; 
+    var sorted = false ; 
+
+    userPrograms.map((userProgram) => {
+        userProgram.program.lift === "main" ? setMainLifts([...mainLifts,userProgram]) : setAccessories([...accessories,userProgram])
+    }) ; 
+
+    return (
+
+        <React.Fragment>
+            <View>
+                <Header title="Main Lifts" key="main_lifts_header" onIconPress={() => onStartNewProgramIntent("lift","main")}/>
+                {
+                    accessories.length === 0 ? 
+                        <Text style={[globals.h5,text.center,colors.colorNeutral,globals.paddingTop]}>No Main Lift programs started</Text>
+                    :
+                        mainLifts.map((userProgram) => {
+                            <CustomListItem title={userProgram.program.muscleGroup} desc={[userProgram.programName || userProgram.program.name]} onPress={() => viewUserProgramInformation(userProgram)} key={userProgram.programId || userProgram.program._id} mode="NAV"/>
+                        })
+                }
+            </View>
+
+            <View>
+                <Header title="Accessory Lifts" key="accessorty_lifts_header" onIconPress={() => onStartNewProgramIntent("lift","access")}/>
+                {
+                    accessories.length === 0 ? 
+                        <Text style={[globals.h5,text.center,colors.colorNeutral,globals.paddingTop]}>No Accessory Lift programs started</Text>
+                    :
+                        accessories.map((userProgram) => {
+                            <CustomListItem title={userProgram.program.muscleGroup} desc={[userProgram.programName || userProgram.program.name]} onPress={() => viewUserProgramInformation(userProgram)} key={userProgram.programId || userProgram.program._id} mode="NAV"/>
+                        })
+                }
+            </View>
+        </React.Fragment>
+
+    )
 }

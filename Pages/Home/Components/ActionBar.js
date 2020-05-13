@@ -33,6 +33,8 @@ import RBSheet from 'react-native-raw-bottom-sheet';
 
 import Divider from 'react-native-divider' ; 
 
+import Timer from '../../../Components/Timer.js';
+
 
 
 const iconStyle = [globals.h3,text.bold] ; 
@@ -64,6 +66,14 @@ const BottomSheetContent = () => {
             alignContent:'space-around'
         }
     });
+
+    const restDuration = () => {
+        return (state.workout.rest.duration - (Math.ceil((new Date).getTime() - state.workout.rest.timeStarted) / 1000))
+    }
+
+    const onRestComplete = () => {
+        state.reducers.workout.set({...state.workout,rest:{status:false,timeStarted:0,duration:0}}) ; 
+    }
 
     return (
             <ScrollView>
@@ -123,47 +133,19 @@ const BottomSheetContent = () => {
                         />      
                     </Button>      
                 </View>
-                <Divider borderColor={colorCodes.primaryLighter} orientation="center">
-                    <Text style={[globals.h8,colors.colorPrimaryLighter,text.center,text.uppercase]}>Previous Set</Text>
-                </Divider>  
-                <View style={[globals.flexRow]}>
-                    <View style={[globals.flexColumn,{justify:'center',flex:.5}]}>
-                        <Text
-                            style={[globals.h8,colors.colorPrimaryLighter,styles.info_header,text.center]}
-                        >
-                            Exercise
-                        </Text>
-                        <Text
-                            style={[globals.h5,text.bold,colors.colorPrimary,styles.info_content,text.center]}
-                        >
-                            Squats
-                        </Text>
-                    </View>
-                    <View style={[globals.flexColumn,globals.flex,{justify:'center',flex:.25}]}>
-                        <Text
-                            style={[globals.h8,colors.colorPrimaryLighter,styles.info_header,text.center]}
-                        >
-                            Rating
-                        </Text>
-                        <Text
-                            style={[globals.h5,text.bold,colors.colorPrimary,styles.info_content,text.center]}
-                        >
-                            7
-                        </Text>
-                    </View>
-                    <View style={[globals.flexColumn,globals.flex,{justify:'center',flex:.25}]}>
-                        <Text
-                            style={[globals.h8,colors.colorPrimaryLighter,styles.info_header,text.center]}
-                        >
-                            Technique
-                        </Text>
-                        <Text
-                            style={[globals.h5,text.bold,colors.colorPrimary,styles.info_content,text.center]}
-                        >
-                            8
-                        </Text>
-                    </View>
-                </View> 
+                {
+                    state.workout.rest.status ?
+                        <React.Fragment>
+                            <Divider borderColor={colorCodes.primaryLighter} orientation="center">
+                                <Text style={[globals.h8,colors.colorPrimaryLighter,text.center,text.uppercase]}>Rest Timer</Text>
+                            </Divider> 
+                            <View style={[globals.flex,{justifyContent:'center'}]}>
+                                <Timer duration={restDuration()} onFinish={onRestComplete}/>
+                            </View>
+                        </React.Fragment>
+                    : 
+                        null
+                }
                 <Divider borderColor={colorCodes.primaryLighter} orientation="center">
                     <Text style={[globals.h8,colors.colorPrimaryLighter,text.center,text.uppercase]}>Next Set</Text>
                 </Divider>  
@@ -205,6 +187,48 @@ const BottomSheetContent = () => {
                         </Text>
                     </View>
                 </View> 
+                <Divider borderColor={colorCodes.primaryLighter} orientation="center">
+                    <Text style={[globals.h8,colors.colorPrimaryLighter,text.center,text.uppercase]}>Previous Set</Text>
+                </Divider> 
+                <View style={[globals.flexRow]}>
+                    <View style={[globals.flexColumn,{justify:'center',flex:.5}]}>
+                        <Text
+                            style={[globals.h8,colors.colorPrimaryLighter,styles.info_header,text.center]}
+                        >
+                            Exercise
+                        </Text>
+                        <Text
+                            style={[globals.h5,text.bold,colors.colorPrimary,styles.info_content,text.center]}
+                        >
+                            Squats
+                        </Text>
+                    </View>
+                    <View style={[globals.flexColumn,globals.flex,{justify:'center',flex:.25}]}>
+                        <Text
+                            style={[globals.h8,colors.colorPrimaryLighter,styles.info_header,text.center]}
+                        >
+                            Rating
+                        </Text>
+                        <Text
+                            style={[globals.h5,text.bold,colors.colorPrimary,styles.info_content,text.center]}
+                        >
+                            7
+                        </Text>
+                    </View>
+                    <View style={[globals.flexColumn,globals.flex,{justify:'center',flex:.25}]}>
+                        <Text
+                            style={[globals.h8,colors.colorPrimaryLighter,styles.info_header,text.center]}
+                        >
+                            Technique
+                        </Text>
+                        <Text
+                            style={[globals.h5,text.bold,colors.colorPrimary,styles.info_content,text.center]}
+                        >
+                            8
+                        </Text>
+                    </View>
+                </View>  
+
             
             </ScrollView>  
     )

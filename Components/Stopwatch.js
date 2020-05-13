@@ -8,6 +8,7 @@ import { Button,Icon } from 'native-base' ;
 import { globals, colorCodes,text,colors} from '../Styles/globals.js' ; 
 
 export default function stopwatch({disabled = false,
+                                   warningText = "",
                                    start = () => {},
                                    end = () => {},
                                    pause = () => {},
@@ -69,7 +70,7 @@ export default function stopwatch({disabled = false,
                 <Button 
                     style={[styles.button]} 
                     transparent
-                    onPress={() => { !disabled ? !started ? stopwatchNotStarted() : (!paused ? stopwatchStartedButNotPaused() : stopwatchStartedButPaused()) : Alert.alert('Warning','You cannot start the set as you have not started the workout') }}
+                    onPress={() => { !disabled ? !started ? stopwatchNotStarted() : (!paused ? stopwatchStartedButNotPaused() : stopwatchStartedButPaused()) : Alert.alert('Warning',warningText) }}
                 >
                     <Icon 
                         name={!started ? "play" : (!paused ? "pause" : "play")} 

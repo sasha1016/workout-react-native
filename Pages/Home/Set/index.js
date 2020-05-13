@@ -14,7 +14,10 @@ import { WorkoutContext } from '../Contexts/index' ;
 import { ExerciseContext } from '../Contexts/exercise' ; 
 
 import Stopwatch from '../../../Components/Stopwatch.js' ; 
-import Timer from '../../../Components/Timer.js';
+
+import {
+    getCurrentEpoch
+} from '../../../Utilities/index' ; 
 
 import Divider from 'react-native-divider' ; 
 
@@ -22,7 +25,8 @@ import SetReview from '../../../Components/SetReview/SetReview' ;
 
 import {
     API,
-    V1
+    V1,
+    TEST
 } from '../../../config/api' ; 
 
 const axios = require('axios') ; 
@@ -34,12 +38,6 @@ const INITIAL_SET_DETAILS = {
     started:false,  
 }
 
-const postSetReview = (review,setId,callback) => {
-    axios.post(API.V1,V1.USER.ROUTINES.SET.ADD, {
-        review,
-        set
-    })
-}
 
 
 export default function Set({navigation,route}) {
@@ -62,8 +60,8 @@ export default function Set({navigation,route}) {
             timeTaken:startTime,
             started:true,
         }) ; 
-        (!state.exercise.started? state.reducers.exercise.set({...state.exercise,started:true}) : null ) ; 
- 
+
+        (!state.exercise.started ? state.reducers.exercise.start(route.params.exercise._id) : null ) ; 
     }
 
     const setComplete = () => {
@@ -71,23 +69,53 @@ export default function Set({navigation,route}) {
  
         updateSetDetails({...setDetails,timeTaken,completed:true}) ; 
 
-        state.reducers.exercise.updateSetStatus(route.params.set._id); 
-        state.reducers.workout.set({...state.workout,setStarted:false}) ; 
+        
+        //state.reducers.exercise.updateSetStatus(route.params.set._id); 
+        //state.reducers.workout.set({...state.workout,setStarted:false,rest:{status:true,duration:120,timeStarted:getCurrentEpoch()}}) ;
+    }
+
+    
+    const postSetReview = (review,setId,callback) => {
+        axios.post(API.V1,V1.USER.ROUTINES.SET.ADD, {
+            user:TEST.USER,
+            day:state.workout.day,
+            review,
+            id:setId
+        }).then(() => {
+            callback(); 
+        })
+    }
+
+    const updateSetStatusInState = (id) => {
+        let sets = state.exercise.sets ; 
+        console.warn(sets) ; 
+        sets.map((set,index) => {
+            set._id === id ? sets[index].completed = true : false
+        }) ; 
+        state.reducers.exercise.set({...state.exercise,sets:sets}) ; 
     }
 
     const onSetReviewSubmitted = (review) => {
-        updateSetDetails({
-            ...review,
-            timeTaken:setDetails.timeTaken,
-        }) ; 
-        console.warn(setDetails,review) ;
+
+        let setReview = {...review,timeTaken:setDetails.timeTaken} ; 
+
+        state.reducers.set.end(id = route.params.set._id, review = setReview) ; 
+
+        navigation.navigate('Exercise') ; 
+
+
+        // updateSetStatusInState(route.params.set._id) ; 
+        // postSetReview(
+        //     id = route.params.set._id,
+        //     review = setReview, 
+        //     () => {navigation.navigate('Exercise')}
+        // )
+
     }
 
-
-
-    return (
-        <React.Fragment>
-            <ScrollView style={[globals.flex]}>
+    const SetNotCompleted = () => {
+        return (
+            <React.Fragment>
                 <View 
                     pointerEvents={!setDetails.completed ? "auto": "none"}
                     style={[globals.listContainer,{opacity:(!setDetails.completed ? 1 : 0.3)}]}
@@ -104,24 +132,26 @@ export default function Set({navigation,route}) {
                     />
                 </View>
 
-                <Divider borderColor={colorCodes.grey} orientation="center">
-                    <Text style={[text.uppercase,globals.h8,colors.colorNeutral]}>
-                        {setDetails.completed ? "Rest Timer" : "Set Timer"}
-                    </Text>   
-                </Divider>
-
-                <View style={{paddingTop:10,paddingBottom:10}}>
-                    {
-                        !setDetails.completed ? 
-                            <Stopwatch 
-                                disabled={!state.workout.started}
-                                title="set" 
-                                start={() => setStart()} 
-                                end={() => setComplete()}
-                            /> 
-                        : 
-                            <View style={{flex:1,justifyContent:'center'}}><Timer duration={120}/></View> }
-                </View>
+                {
+                    !setDetails.completed ? 
+                        <React.Fragment>
+                            <Divider borderColor={colorCodes.grey} orientation="center">
+                                <Text style={[text.uppercase,globals.h8,colors.colorNeutral]}>
+                                    Set Timer
+                                </Text>   
+                            </Divider>
+                            <View style={{paddingTop:10,paddingBottom:10}}>
+                                <Stopwatch 
+                                    disabled={!state.workout.started || state.workout.rest.status}
+                                    warningText={state.workout.started ? `You cannot start another set while you're resting` : `You cannot start the set as you have not started the workout` }
+                                    title="set" 
+                                    start={() => setStart()} 
+                                    end={() => setComplete()}
+                                /> 
+                            </View>
+                        </React.Fragment>
+                    : null 
+                }
 
                 <Divider style={{marginTop:20,marginBottom:20}} borderColor={colorCodes.grey} orientation="center">
                     <Text style={[text.uppercase,globals.h8,colors.colorNeutral]}>Set Review</Text>   
@@ -134,6 +164,69 @@ export default function Set({navigation,route}) {
                     <SetReview repsInSet={route.params.set.reps} onSetReviewSubmitted={onSetReviewSubmitted}/>
 
                 </View>
+            </React.Fragment>
+        )
+    }
+
+
+    return (
+        <React.Fragment>
+            <ScrollView style={[globals.flex]}>
+                {
+                    state.completed.sets.includes(route.params.set._id) ?
+                        <Text>You completed the set big man</Text>
+                    : 
+                        <React.Fragment>
+                            <View 
+                                pointerEvents={!setDetails.completed ? "auto": "none"}
+                                style={[globals.listContainer,{opacity:(!setDetails.completed ? 1 : 0.3)}]}
+                            >
+                                <CustomListItem
+                                    title="Reps"
+                                    desc={[route.params.set.reps.toString()]}
+                                    mode="INFO"
+                                />
+                                <CustomListItem
+                                    title="Weight"
+                                    desc={[(route.params.weight)]}
+                                    mode="INFO"
+                                />
+                            </View>
+
+                            {
+                                !setDetails.completed ? 
+                                    <React.Fragment>
+                                        <Divider borderColor={colorCodes.grey} orientation="center">
+                                            <Text style={[text.uppercase,globals.h8,colors.colorNeutral]}>
+                                                Set Timer
+                                            </Text>   
+                                        </Divider>
+                                        <View style={{paddingTop:10,paddingBottom:10}}>
+                                            <Stopwatch 
+                                                disabled={!state.workout.started || state.workout.rest.status}
+                                                warningText={state.workout.started ? `You cannot start another set while you're resting` : `You cannot start the set as you have not started the workout` }
+                                                title="set" 
+                                                start={() => setStart()} 
+                                                end={() => setComplete()}
+                                            /> 
+                                        </View>
+                                    </React.Fragment>
+                                : null 
+                            }
+
+                            <Divider style={{marginTop:20,marginBottom:20}} borderColor={colorCodes.grey} orientation="center">
+                                <Text style={[text.uppercase,globals.h8,colors.colorNeutral]}>Set Review</Text>   
+                            </Divider>
+
+                            <View 
+                                pointerEvents={setDetails.completed ? "auto": "none"}
+                                style={[{opacity:(setDetails.completed ? 1 : 0.3),paddingBottom:20}]}
+                            >
+                                <SetReview repsInSet={route.params.set.reps} onSetReviewSubmitted={onSetReviewSubmitted}/>
+
+                            </View>
+                        </React.Fragment>
+                }
             </ScrollView>
         </React.Fragment>
     ) ; 

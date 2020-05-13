@@ -7,7 +7,7 @@ import {capitalize} from '../Utilities' ;
 import {ListItem,Body,Right,Icon} from 'native-base' ; 
 
 
-export default function LI({title = "",desc = [],icon = "chevron-right",mode = "INFORMATION",onPress = () => {}, onIconPress = () => {}, index}) {
+export default function LI({title = "",desc = [],icon = "chevron-right",mode = "INFORMATION",onPress = () => {}, onIconPress = () => {}, iconStyle =  [] }) {
 
     const styles = StyleSheet.create({
         container:{
@@ -47,7 +47,7 @@ export default function LI({title = "",desc = [],icon = "chevron-right",mode = "
                             name={icon} 
                             type="Feather" 
                             active 
-                            style={[colors.colorPrimaryLighter,text.right,styles.icon]}
+                            style={[colors.colorPrimaryLighter,text.right,styles.icon,iconStyle]}
                             onPress={onIconPress}
                         />
                     </Right>
