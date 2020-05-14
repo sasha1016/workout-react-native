@@ -61,8 +61,6 @@ export default function Home({navigation,route}) {
 
     },[route]) ; 
 
-    console.warn(state.completed.exercises) ; 
-
     return (
         <React.Fragment>
             <ScrollView>
@@ -76,10 +74,13 @@ export default function Home({navigation,route}) {
                                 dayRoutine.map((program) => {
                                     return (
                                         program.toComplete.map((exercise) => {
+                                            let completed = state.completed.exercises.includes(exercise._id) ; 
                                             return (
                                                 <CustomListItem
                                                     title={exercise.name} 
                                                     desc={[`${exercise.sets.length} sets`]}
+                                                    icon={completed ? "check" : "chevron-right"}
+                                                    iconStyle={completed ? {color:colorCodes.success} : null}
                                                     mode="NAV"
                                                     key={exercise._id}
                                                     onPress={() => ( goToExercise(exercise,program) )}

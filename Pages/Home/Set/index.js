@@ -49,7 +49,8 @@ export default function Set({navigation,route}) {
 
     React.useEffect(() => {
         navigation.setOptions({
-            title:`Set ${route.params.setNo} of ${route.params.totalSets}`
+            title:`Set ${route.params.setNo} of ${route.params.totalSets}`,
+            headerRight:() => <Text style={[globals.h5,text.uppercase,colors.colorSecondary,text.bold,{paddingRight:20}]}>Skip</Text>
         })
     }) ; 
 
@@ -61,17 +62,14 @@ export default function Set({navigation,route}) {
             started:true,
         }) ; 
 
-        (!state.exercise.started ? state.reducers.exercise.start(route.params.exercise._id) : null ) ; 
+        state.reducers.current.set.start(set_id = route.params.set._id, exercise_id = route.params.exercise._id, program_id = route.params.program._id) ;
+
     }
 
     const setComplete = () => {
         let timeTaken = Math.ceil( ( parseInt((new Date).getTime()) - parseInt(setDetails.timeTaken) ) / 1000) ; 
  
         updateSetDetails({...setDetails,timeTaken,completed:true}) ; 
-
-        
-        //state.reducers.exercise.updateSetStatus(route.params.set._id); 
-        //state.reducers.workout.set({...state.workout,setStarted:false,rest:{status:true,duration:120,timeStarted:getCurrentEpoch()}}) ;
     }
 
     
@@ -86,20 +84,11 @@ export default function Set({navigation,route}) {
         })
     }
 
-    const updateSetStatusInState = (id) => {
-        let sets = state.exercise.sets ; 
-        console.warn(sets) ; 
-        sets.map((set,index) => {
-            set._id === id ? sets[index].completed = true : false
-        }) ; 
-        state.reducers.exercise.set({...state.exercise,sets:sets}) ; 
-    }
-
     const onSetReviewSubmitted = (review) => {
 
         let setReview = {...review,timeTaken:setDetails.timeTaken} ; 
 
-        state.reducers.set.end(id = route.params.set._id, review = setReview) ; 
+        state.reducers.current.set.end(id = route.params.set._id, review = setReview) ; 
 
         navigation.navigate('Exercise') ; 
 
@@ -113,61 +102,24 @@ export default function Set({navigation,route}) {
 
     }
 
-    const SetNotCompleted = () => {
-        return (
-            <React.Fragment>
-                <View 
-                    pointerEvents={!setDetails.completed ? "auto": "none"}
-                    style={[globals.listContainer,{opacity:(!setDetails.completed ? 1 : 0.3)}]}
-                >
-                    <CustomListItem
-                        title="Reps"
-                        desc={[route.params.set.reps.toString()]}
-                        mode="INFO"
-                    />
-                    <CustomListItem
-                        title="Weight"
-                        desc={[(route.params.weight)]}
-                        mode="INFO"
-                    />
-                </View>
+    const timerDisabled = () => {
+        let response = {value:false,message:""} ; 
 
-                {
-                    !setDetails.completed ? 
-                        <React.Fragment>
-                            <Divider borderColor={colorCodes.grey} orientation="center">
-                                <Text style={[text.uppercase,globals.h8,colors.colorNeutral]}>
-                                    Set Timer
-                                </Text>   
-                            </Divider>
-                            <View style={{paddingTop:10,paddingBottom:10}}>
-                                <Stopwatch 
-                                    disabled={!state.workout.started || state.workout.rest.status}
-                                    warningText={state.workout.started ? `You cannot start another set while you're resting` : `You cannot start the set as you have not started the workout` }
-                                    title="set" 
-                                    start={() => setStart()} 
-                                    end={() => setComplete()}
-                                /> 
-                            </View>
-                        </React.Fragment>
-                    : null 
-                }
+        if(!state.workout.started) {
+            response.value = true; response.message = "You cannot start the set as you have not started the workout" ; 
+        } else if (state.workout.rest.status) {
+            response.value = true; response.message = "You cannot start another set while you're resting" ; 
+        } else if (state.current.set.started) {
+            response.value = true; response.message = "You cannot start another set while doing another set" ; 
+        }
+        else if (state.current.exercise._id !== null && state.current.exercise._id !== route.params.exercise._id) {
+            response.value = true; response.message = "You cannot only finish one exercise at a time" ; 
+        }
 
-                <Divider style={{marginTop:20,marginBottom:20}} borderColor={colorCodes.grey} orientation="center">
-                    <Text style={[text.uppercase,globals.h8,colors.colorNeutral]}>Set Review</Text>   
-                </Divider>
-
-                <View 
-                    pointerEvents={setDetails.completed ? "auto": "none"}
-                    style={[{opacity:(setDetails.completed ? 1 : 0.3),paddingBottom:20}]}
-                >
-                    <SetReview repsInSet={route.params.set.reps} onSetReviewSubmitted={onSetReviewSubmitted}/>
-
-                </View>
-            </React.Fragment>
-        )
+        return response ; 
     }
 
+    let disabled = timerDisabled() ; 
 
     return (
         <React.Fragment>
@@ -203,8 +155,8 @@ export default function Set({navigation,route}) {
                                         </Divider>
                                         <View style={{paddingTop:10,paddingBottom:10}}>
                                             <Stopwatch 
-                                                disabled={!state.workout.started || state.workout.rest.status}
-                                                warningText={state.workout.started ? `You cannot start another set while you're resting` : `You cannot start the set as you have not started the workout` }
+                                                disabled={disabled.value}
+                                                warningText={disabled.message}
                                                 title="set" 
                                                 start={() => setStart()} 
                                                 end={() => setComplete()}

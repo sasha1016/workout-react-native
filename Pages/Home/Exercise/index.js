@@ -1,26 +1,40 @@
 import React,{useContext} from 'react' ; 
-import { View } from 'react-native' ; 
+import { 
+    View,
+    Text 
+} from 'react-native' ; 
 
-import  {globals,colorCodes} from '../../../Styles/globals.js';
+import  {globals,colorCodes,text,colors} from '../../../Styles/globals.js';
 import  CustomListItem from '../../../Components/ListItem2';
 
 import {WorkoutContext} from '../Contexts/index' ; 
 
 import ActionBar from '../Components/ActionBar' ; 
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+
+import {Title} from 'react-native-paper' ; 
+
+import ReasonForSkipping from '../Components/SkippingReasonForm';
+
 
 
 export default function Exercise({navigation,route}) {
 
+    const state = useContext(WorkoutContext) ;
+    const [intentToSkip,setIntentToSkip] = React.useState(false);   
 
     React.useEffect(() => {
         navigation.setOptions({
-            title:route.params.exercise.name
+            title:route.params.exercise.name,
+            headerRight:() => (
+                                <TouchableWithoutFeedback onPress={() => setIntentToSkip(!intentToSkip)}>
+                                    <Title style={[text.bold,text.h4,colors.colorSecondary,{paddingRight:20}]}>
+                                        Skip
+                                    </Title>
+                                </TouchableWithoutFeedback>
+                            )
         }) ; 
     }) ; 
-
-    const state = useContext(WorkoutContext) ; 
-
-    
 
     const goToSet = (set,weight,setNo,totalSets) => {
         navigation.navigate('Set',{set,weight,setNo,totalSets,exercise:route.params.exercise,program:route.params.program}) ; 
@@ -28,6 +42,7 @@ export default function Exercise({navigation,route}) {
 
     return (
         <React.Fragment>
+            <ReasonForSkipping visible={intentToSkip} toggler={setIntentToSkip} aspect="exercise"/>
             <View style={[globals.flex,globals.listContainer]}>
                     {
                             route.params.exercise.sets.map((set,index) => {

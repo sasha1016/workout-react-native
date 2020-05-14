@@ -4,20 +4,6 @@ import moment from 'moment' ;
 const day = moment().format("dddd").toLowerCase() ; 
 const date = moment().format() ; 
 
-const INITIAL_SET_STATE = {
-    completed:false,
-    timeTaken:0,
-    startedTime:0,
-    started:false,  
-    paused:false,
-}
-
-const INITIAL_EXERCISE_STATE = {
-    started:false,
-    startedAt:null,
-    endedAt:null,
-    id:null,
-}
 
 const INITIAL_WORKOUT_STATE = {
     skipped:false,
@@ -38,57 +24,80 @@ const INITIAL_WORKOUT_STATE = {
 
 }
 
-const INITIAL_LISTS_STATE = {
-    sets:[],
-    exercises:[],
-    programs:[]
+const INITIAL_STATES = {
+    CURRENT:{
+        PROGRAM:{   
+            started:false,
+            startedAt:null,
+            endedAt:null,
+            exercisesRemaining:null,
+            _id:null
+        }, 
+        SET:{
+            _id:null,
+            completed:false,
+            reviewSubmitted:false,
+            endedAt:null,
+            startedAt:null,
+            started:false,  
+            paused:false,
+        }, 
+        EXERCISE:{
+            started:false,
+            startedAt:null,
+            endedAt:null,
+            setsRemaining:null,
+            _id:null            
+        }
+    }, 
+    ROUTINE_FOR_THE_DAY:{
+        sets:[{
+            review:{
+                date:"",
+                timeTaken:0,
+                technique:0,
+                rating:0
+            },
+            completed:false
+        }],
+        programs:[{
+            review:{
+                timeTaken:0
+            },
+            state:{
+                completed:false,
+                timeTaken:0,
+                exercisesRemaining:0
+            }
+        }],
+        exercises:[{
+            review:{
+                timeTaken:0
+            },
+            state:{
+                completed:false,
+                timeTaken:0,
+                exercisesRemaining:0
+            }
+        }]
+    }
 }
 
 export const WorkoutContext = createContext({}); 
 
 export function WorkoutContextProvider(props) {
     const [workout,setWorkout] = useState(INITIAL_WORKOUT_STATE) ; 
-    const [exercise,setExercise] = useState(INITIAL_EXERCISE_STATE) ; 
-    const [set,updateSet] = useState(INITIAL_SET_STATE) ;
 
-    const [routineForTheDay,setRoutineForTheDay] = useState(
-            {
-                sets:[{
-                    review:{
-                        date:"",
-                        timeTaken:0,
-                        technique:0,
-                        rating:0
-                    },
-                    completed:false
-                }],
-                programs:[{
-                    review:{
-                        timeTaken:0
-                    },
-                    state:{
-                        completed:false,
-                        timeTaken:0,
-                        exercisesRemaining:0
-                    }
-                }],
-                exercises:[{
-                    review:{
-                        timeTaken:0
-                    },
-                    state:{
-                        completed:false,
-                        timeTaken:0,
-                        exercisesRemaining:0
-                    }
-                }]
-            }
-        ) ; 
-    var [completed,setCompleted] = useState(INITIAL_LISTS_STATE) ;
+    const [currentProgram,setCurrentProgram] = useState(INITIAL_STATES.CURRENT.PROGRAM) ; 
+    const [currentExercise,setCurrentExercise] = useState(INITIAL_STATES.CURRENT.EXERCISE) ; 
+    const [currentSet,setCurrentSet] = useState(INITIAL_STATES.CURRENT.SET) ; 
+
+
+    const [routineForTheDay,setRoutineForTheDay] = useState(INITIAL_STATES.ROUTINE_FOR_THE_DAY) ; 
 
     const [setsCompleted,setSetsCompleted] = useState([]) ; 
     const [exercisesCompleted,setExercisesCompleted] = useState([]) ; 
-    const [progrmasCompleted,setProgramsCompleted] = useState([]) ; 
+    const [programsCompleted,setProgramsCompleted] = useState([]) ; 
 
 
     React.useEffect(() => {
@@ -102,7 +111,7 @@ export function WorkoutContextProvider(props) {
     React.useEffect(() => {
         var exercises = [] ; 
         routineForTheDay.exercises.map((exercise) => {
-            (exercise.state.completed ? exercises.push(exercise._id) : false)
+            (exercise.completed ? exercises.push(exercise._id) : false)
         });   
         setExercisesCompleted([...exercises]); 
     },[routineForTheDay.exercises]); 
@@ -110,7 +119,7 @@ export function WorkoutContextProvider(props) {
     React.useEffect(() => {
         var programs = [] ; 
         routineForTheDay.programs.map((program) => {
-            (program.state.completed ? programs.push(program._id) : false)
+            (program.completed ? programs.push(program._id) : false)
         });   
         setProgramsCompleted([...programs]) ; 
     },[routineForTheDay.programs]); 
@@ -126,44 +135,45 @@ export function WorkoutContextProvider(props) {
         const TO_ADD = {
             PROGRAMS:{
                 review:{
-                    timeTaken:0
-                },
-                state:{
-                    completed:false,
                     timeTaken:0,
-                    exercisesRemaining:0
-                }
-                
+                    skipped:false,
+                    date:null
+                },
+                completed:false,
+                exercisesRemaining:0,
+                skipped:false
             },
             EXERCISES:{
                 review:{
                     timeTaken:0,
+                    skipped:false,
+                    date:null
                 },
-                state:{
-                    completed:false,
-                    setsRemaining:0
-                }
+                completed:false,
+                skipped:false,
+                setsRemaining:0
             },
             SETS:{
                 review:{
-                    date:"",
+                    date:null,
                     timeTaken:0,
                     technique:0,
                     rating:0
                 },
-                completed:false
+                completed:false,
+                skipped:false,
             }
         }
 
         dayRoutine.map((program) => {
             program.toComplete.map((exercise) => {
                 exercise.sets.map((set) => {
-                    sets = [...sets, {...TO_ADD.SETS,_id:set._id}] ; 
+                    sets = [...sets, {...TO_ADD.SETS,_id:set._id,exercise_id:exercise._id,program_id:program._id}] ; 
                 }) ;
-                TO_ADD.EXERCISES.state.setsRemaining = exercise.sets.length ; 
-                exercises = [...exercises, {_id:exercise._id,...TO_ADD.EXERCISES}] ;
+                TO_ADD.EXERCISES.setsRemaining = exercise.sets.length ; 
+                exercises = [...exercises, {_id:exercise._id,program_id:program._id,...TO_ADD.EXERCISES}] ;
             }) ; 
-            TO_ADD.PROGRAMS.state.exercisesRemaining = program.toComplete.length ; 
+            TO_ADD.PROGRAMS.exercisesRemaining = program.toComplete.length ; 
             programs = [...programs, {_id:program._id,...TO_ADD.PROGRAMS}] ; 
         });
         setRoutineForTheDay({sets,exercises,programs}) ; 
@@ -181,46 +191,87 @@ export function WorkoutContextProvider(props) {
         setRoutineForTheDay({[where]:copy,...routineForTheDay})
     }
 
-    
-    const updateSetStatus = (setId, skipped = false, reason = "") => {
-        const sets = exercise.setStatuses.filter(set => set._id !== setId) ; 
 
-        const set = exercise.setStatuses.find(set => set._id === setId) ;  
+    const _startProgram = (programID, startedAt) => {
+        let exercisesRemaining = routineForTheDay.programs.filter((p) => {return p._id === programID})[0].exercisesRemaining; 
+        setCurrentProgram({
+            ...currentProgram,
+            startedAt:startedAt,
+            started:true,
+            _id:programID, 
+            exercisesRemaining
+        }) ;
+    }
 
-        if(!skipped) {
-            set.skipped = false, set.completed = true ; 
-        }
-        else {
-            set.skipped = true, set.completed = false, set.reason = reason ; 
-        }
+    const _endProgram = (programID,exercises,sets) => {
+        let timeTaken = Math.ceil(((new Date).getTime() - currentProgram.startedAt) / 1000) ; 
 
-        setExercise({...exercise,setSatuses:[...sets,set]});
+        let programs = [...routineForTheDay.programs] ; 
 
-        (
-            exercise.setStatuses.find(set => set.completed === null) === undefined ? 
-                setExercise({...exercise,completed:true})
-            :   null
-        )
+        programs.map((program,index) => {
+            program._id === programID ? programs[index] = {...program,review:{timeTaken},completed:true,exercisesRemaining:0} : false
+        }) ; 
+
+        setCurrentProgram(INITIAL_STATES.CURRENT.PROGRAM) ;
+        setRoutineForTheDay({programs,exercises,sets});
     }
 
     
-    const startExercise = (id) => {
-        let startedAt = (new Date).getTime() ; 
-        setExercise({endedAt:null,startedAt:startedAt,started:true,id:id}) ; 
+    const _startExercise = (exerciseID,programID,startedAt = false) => {
+        !startedAt ? startedAt = (new Date).getTime() : false ; 
+
+        let exercise = routineForTheDay.exercises.filter((e) => {return e._id === exerciseID})[0]; 
+
+        setCurrentExercise({
+            ...currentExercise,
+            startedAt:startedAt,
+            started:true,
+            _id:exerciseID,
+            setsRemaining:exercise.setsRemaining
+        }) ;
+
+
+        !currentProgram.started ? _startProgram(programID,startedAt) : false ; 
     } 
 
-    const endExercise = (id) => {
-        let timeTaken = Math.ceil(((new Date).getTime() - exercise.startedAt) / 1000) ; 
-        let exercises = routineForTheDay.exercises ; 
-        console.warn("exercise ended") ; 
 
-        routineForTheDay.exercises.map((exercise,index) => {
-            exercise._id === id ? exercises[index] = {review:{timeTaken},state:{completed:true,setsRemaining:0}} : null 
+    const _endExercise = (id,sets) => {
+        let timeTaken = Math.ceil(((new Date).getTime() - currentExercise.startedAt) / 1000) ; 
+        let exercises = [...routineForTheDay.exercises] ; 
+
+        //mapping through exercises to update the status 
+
+        exercises.map((exercise,index) => {
+            if(exercise._id === id) {{
+                exercises[index] = {...exercise,review:{timeTaken},completed:true,setsRemaining:0} ; 
+            }}
         }); 
 
-        setRoutineForTheDay({exercises:exercises,...routineForTheDay}) ; 
-        setExercise(INITIAL_EXERCISE_STATE); 
 
+        let exercisesRemaining = currentProgram.exercisesRemaining;
+
+        if(exercisesRemaining === 1) { // last exercise of the set 
+            _endProgram(currentProgram._id,exercises,sets) ; 
+        } else {
+            setCurrentProgram({...currentProgram,exercisesRemaining:exercisesRemaining - 1}) ;
+            setRoutineForTheDay({...routineForTheDay,exercises,sets})        
+        }
+
+        setCurrentExercise(INITIAL_STATES.CURRENT.EXERCISE) ; 
+
+    }
+
+
+    const startSet = (setID,exerciseID,programID) => {
+        let startedAt = (new Date).getTime() ; 
+        setCurrentSet({
+            ...currentSet,
+            started:true,
+            _id:setID,
+            startedAt,
+        });
+
+        (!currentExercise.started ? _startExercise(exerciseID,programID,startedAt) : null)
     }
 
     const endSet = (id,review) => {
@@ -230,62 +281,75 @@ export function WorkoutContextProvider(props) {
             set._id === id ? sets[index] = {...set,review,completed:true} : null ; 
         }) ; 
 
-        var exercises = [...routineForTheDay.exercises] ;
-        
-        var exerciseEnded = false ; 
+        let setsRemaining = currentExercise.setsRemaining ; 
 
-        exercises.map((e,index) => {
-            if(e._id === exercise.id) {
-                let exerciseSetBelongsTo = exercises[index] ; 
+        if(setsRemaining === 1) { // last set of the exercise 
+            _endExercise(currentExercise._id,sets) ; 
+        } else {
+            setCurrentExercise({...currentExercise,setsRemaining:setsRemaining - 1}) ;
+            setRoutineForTheDay({...routineForTheDay,sets})
+        }
 
-                if(exerciseSetBelongsTo.state.setsRemaining === 1) {
-                    endExercise(exercise.id,sets) ; 
-                    exerciseEnded = true ; 
-                } else {
-                    exerciseSetBelongsTo = {
-                        ...exerciseSetBelongsTo,
-                        state:{
-                            ...exerciseSetBelongsTo.state,
-                            setsRemaining:(exerciseSetBelongsTo.state.setsRemaining - 1)
-                        }
-                    } ; 
-                    exercises[index] = exerciseSetBelongsTo ;
-                }
-            }
-
-        }); 
-
-        !exerciseEnded ? setRoutineForTheDay({...routineForTheDay,exercises,sets}) : setRoutineForTheDay({...routineForTheDay,sets}) ;   
+        setCurrentSet(INITIAL_STATES.CURRENT.SET) ; 
 
     }
 
+    const skip = (aspect,id,reason) => {
+        var key = `_id` ;
+        var sets = [...routineForTheDay.sets] ; 
+        var exercises = [...routineForTheDay.exercises] ; 
+        var programs = [...routineForTheDay.programs] ; 
+
+        switch(aspect) {
+            case "PROGRAM":
+                programs.map((program,index) => {
+                    program[key] === id ? program[index] = {...program, skipped:true,reason} : false 
+                }) ;
+                key = `program_id` ; 
+            case "EXERCISE":
+                exercises.map((exercise,index) => {
+                    exercise[key] === id ? exercise[index] = {...exercise, skipped:true,reason} : false 
+                }) ;
+                key = (key === `_id` ? `exercise_id` : key);
+            default:
+                sets.map((set,index) => {
+                    set[key] === id ? set[index] = {...set, skipped:true,reason} : false 
+                }) ; 
+                break  ;
+        }
+
+        setRoutineForTheDay({sets,exercises,programs}) ; 
+
+    }
+
+
     const value = {
         workout,
-        exercise,
-        set,
         routineForTheDay,
         reducers:{
             workout:{
                 set:setWorkout
             }, 
-            exercise:{
-                set:setExercise,
-                start:startExercise, 
-                end:endExercise,
-                updateSetStatus,
-            }, 
-            set:{
-                set:updateSet,
-                end:endSet, 
-            }, 
             routineTracker:{
-                set:createRoutineTracker
+                set:createRoutineTracker,
+                skip:skip
+            },
+            current:{
+                set:{
+                    start:startSet,
+                    end:endSet, 
+                }
             }
         }, 
+        current:{
+            set:currentSet,
+            exercise:currentExercise,
+            program:currentProgram
+        },
         completed:{
             sets:setsCompleted,
             exercises:exercisesCompleted,
-            programs:progrmasCompleted
+            programs:programsCompleted
         }
     } ; 
 
