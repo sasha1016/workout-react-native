@@ -1,7 +1,7 @@
 import React from 'react' ; 
 import {RadioButtons,RadioButton} from '../FormComponents/RadioButtons' ; 
 
-export default function WeightFactor({onSelectWeightFactor,type}) {
+export default function Type({onSelectType,type}) {
     return (        
         <RadioButtons>
             <RadioButton

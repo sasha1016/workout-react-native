@@ -5,13 +5,13 @@ export default function WeightFactor({onSelectWeightFactor,weightFactor}) {
     return (
         <RadioButtons>
             <RadioButton
-                selected={weightFactor == "percentage"}
+                selected={weightFactor === "percentage"}
                 onSelected={() => onSelectWeightFactor("percentage")}
             >
                 <RadioButton.Label>Percentage</RadioButton.Label>
             </RadioButton>
             <RadioButton   
-                selected={weightFactor == "absolute"}
+                selected={weightFactor === "absolute"}
                 onSelected={() => onSelectWeightFactor("absolute")}
             >
                 <RadioButton.Label>Absolute</RadioButton.Label>

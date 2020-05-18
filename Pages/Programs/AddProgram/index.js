@@ -216,7 +216,7 @@ const AddProgramForm = ({visible,toggler}) => {
                     />
             }
             <Type type={values.type} onSelectType={(type) => setValues({...values,type:type})}/>
-            <WeightFactor type={values.weightFactor} onSelectWeightFactor={(weightFactor) => setValues({...values,weightFactor:weightFactor})}/>
+            <WeightFactor weightFactor={values.weightFactor} onSelectWeightFactor={(weightFactor) => setValues({...values,weightFactor:weightFactor})}/>
             <PickFrequency onPickFrequency={(frequency) => setValues({...values,frequency:frequency})} frequency={values.frequency}/>
 
             <View style={[globals.paddingTop,styles.chipContainer]}>
