@@ -40,7 +40,7 @@ function ProgramsStack({navigation}) {
                 component={AddProgram}
                 options={{
                     title:"Add A Program",
-                    headerLeft:(() => <IconButton icon="close" color={colorCodes.secondary} onPress={() => navigation.goBack()}/>)
+    
                 }}
             />
 
