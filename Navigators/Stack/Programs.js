@@ -7,6 +7,7 @@ import {colorCodes} from '../../Styles/globals.js';
 import {HEADER_TITLE_STYLE,HEADER_STYLE} from '../../Styles/header';
 
 import Programs from '../../Pages/Programs/' ; 
+import AddProgram from '../../Pages/Programs/AddProgram';
 import ViewPrograms from '../../Pages/Programs/ViewPrograms';
 import ProgramInformation from '../../Pages/Programs/ProgramInformation/index.js';
 import UserProgramInformation from '../../Pages/Programs/UserProgramInformation/index.js';
@@ -31,6 +32,15 @@ function ProgramsStack({navigation}) {
                 options={{
                     title:"Programs",
                     headerLeft:(() => <IconButton icon="menu" color={colorCodes.secondary} onPress={() => navigation.openDrawer()}/>)
+                }}
+            />
+
+            <Stack.Screen
+                name="AddProgram"
+                component={AddProgram}
+                options={{
+                    title:"Add A Program",
+                    headerLeft:(() => <IconButton icon="close" color={colorCodes.secondary} onPress={() => navigation.goBack()}/>)
                 }}
             />
 

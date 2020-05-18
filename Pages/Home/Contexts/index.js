@@ -99,6 +99,12 @@ export function WorkoutContextProvider(props) {
     const [exercisesCompleted,setExercisesCompleted] = useState([]) ; 
     const [programsCompleted,setProgramsCompleted] = useState([]) ; 
 
+    const [setsSkipped,setSetsSkipped] = useState([]) ; 
+    const [exercisesSkipped,setExercisesSkipped] = useState([]) ; 
+    const [programsSkipped,setProgramsSkipped] = useState([]) ; 
+
+
+
 
     React.useEffect(() => {
         var sets = [] ; 
@@ -137,7 +143,7 @@ export function WorkoutContextProvider(props) {
                 review:{
                     timeTaken:0,
                     skipped:false,
-                    date:null
+                    date:date
                 },
                 completed:false,
                 exercisesRemaining:0,
@@ -147,7 +153,7 @@ export function WorkoutContextProvider(props) {
                 review:{
                     timeTaken:0,
                     skipped:false,
-                    date:null
+                    date:date
                 },
                 completed:false,
                 skipped:false,
@@ -294,30 +300,47 @@ export function WorkoutContextProvider(props) {
 
     }
 
-    const skip = (aspect,id,reason) => {
+    const skip = (aspect,id,reasons) => {
         var key = `_id` ;
         var sets = [...routineForTheDay.sets] ; 
         var exercises = [...routineForTheDay.exercises] ; 
         var programs = [...routineForTheDay.programs] ; 
 
+        aspect = aspect.toUpperCase() ; 
+
+        var programsSkipped = [...programsSkipped] ; 
+        var exercisesSkipped = [...exercisesSkipped] ; 
+        var setsSkipped = [...setsSkipped] ; 
+
         switch(aspect) {
             case "PROGRAM":
                 programs.map((program,index) => {
-                    program[key] === id ? program[index] = {...program, skipped:true,reason} : false 
+                    if(program[key] === id) {
+                        programs[index] = {...program, skipped:true,reasons} ; 
+                        programsSkipped.push(program._id) ; 
+                    } 
                 }) ;
+                setProgramsSkipped(programsSkipped);
                 key = `program_id` ; 
             case "EXERCISE":
                 exercises.map((exercise,index) => {
-                    exercise[key] === id ? exercise[index] = {...exercise, skipped:true,reason} : false 
+                    if(exercise[key] === id) {
+                        exercises[index] = {...exercise, skipped:true,reasons} ; 
+                        exercisesSkipped.push(exercise._id) ; 
+                    } 
                 }) ;
+                setExercisesSkipped(exercisesSkipped) ; 
                 key = (key === `_id` ? `exercise_id` : key);
             default:
                 sets.map((set,index) => {
-                    set[key] === id ? set[index] = {...set, skipped:true,reason} : false 
-                }) ; 
+                    if(set[key] === id) {
+                        sets[index] = {...set, skipped:true,reasons} ; 
+                        setsSkipped.push(set._id) ; 
+                    } 
+                }) ;
+                setSetsSkipped(setsSkipped) ;  
                 break  ;
         }
-
         setRoutineForTheDay({sets,exercises,programs}) ; 
 
     }
@@ -350,6 +373,11 @@ export function WorkoutContextProvider(props) {
             sets:setsCompleted,
             exercises:exercisesCompleted,
             programs:programsCompleted
+        },
+        skipped:{
+            programs:programsSkipped,
+            exercises:exercisesSkipped,
+            sets:setsSkipped
         }
     } ; 
 

@@ -1,30 +1,9 @@
 import React from 'react'  ;
 
-import {
-    globals,
-    colorCodes,
-    colors,
-    text
-} from '../../../Styles/globals' ; 
-
-import {
-    Modal,
-    View,
-    Text,
-    ScrollView
-} from 'react-native' ; 
-
-import {
-    Title,
-    Appbar
-} from 'react-native-paper' ; 
-
-import {
-    List,
-    ListItem
-} from 'native-base' ; 
+import Modal from '../../../Components/Modal' ; 
 
 import CustomListItem from '../../../Components/ListItem2' ; 
+import { FlatList } from 'react-native-gesture-handler';
 
 const EXCUSES = [
     `Time Constraint`,
@@ -35,34 +14,36 @@ const EXCUSES = [
 ]
 
 
-export default function ReasonForSkipping({visible,toggler,aspect=""}) {
+export default function ReasonForSkipping({visible,toggler,aspect="",onSkipped}) {
 
     const [selectedExcuses,setSelectedExcuses] = React.useState([]); 
 
-    return (
-        <Modal visible={visible} animationType="slide">
-            <ScrollView>
-                <Appbar style={[{top:0,left:0,height:65,width:"100%"},colors.bgPrimary]}>
-                    <Appbar.Action icon="close" color={colorCodes.secondary} onPress={() => toggler(!visible)}/>
-                    <Title style={[text.bold,globals.h4,colors.colorSecondary,text.left]}>{`Skip ${aspect}`}</Title>
-                </Appbar>
-                <View style={[globals.rootContainer]}>
-                    {
-                        EXCUSES.map((excuse) => {
-                            let excuseSelected = selectedExcuses.includes(excuse);
-                            return(
-                                <CustomListItem 
-                                    title={excuse}
-                                    mode="NAV"
-                                    icon={excuseSelected ? "minus-square" : "plus-square"}
-                                    onIconPress={() => excuseSelected ? setSelectedExcuses(selectedExcuses.filter(e => e !== excuse)) : setSelectedExcuses([...selectedExcuses,excuse])}
-                                />
-                            )
-                        })
-                    }
+    const skip = () => {
+        onSkipped(selectedExcuses) ; 
+        toggler(!visible) ; 
+    }
 
-                </View>
-            </ScrollView>
+    const _renderItem = ({item}) => {
+        let excuseSelected = selectedExcuses.includes(item);
+        return(
+            <CustomListItem 
+                title={item}
+                mode="NAV"
+                icon={excuseSelected ? "check-square" : "square"}
+                onIconPress={() => excuseSelected ? setSelectedExcuses(selectedExcuses.filter(e => e !== item)) : setSelectedExcuses([...selectedExcuses,item])}
+                onPress={() => excuseSelected ? setSelectedExcuses(selectedExcuses.filter(e => e !== item)) : setSelectedExcuses([...selectedExcuses,item])}
+            />
+        )        
+    }
+
+    return (
+        <Modal title={`Skip ${aspect}`} visible={visible} toggler={toggler} buttons={[{text:`Skip`,onPress:() => skip()}]}>
+            <FlatList 
+                data={EXCUSES} 
+                renderItem={_renderItem}
+                keyExtractor={(_,index) => `key-${index}`}
+                getItemLayout={(data,index) => ({length:46,offset:46 * index,index})}
+            />
         </Modal>
-    )
-}
+    ) ; 
+} 

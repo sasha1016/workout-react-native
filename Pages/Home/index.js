@@ -15,6 +15,8 @@ import ActionBar from './Components/ActionBar' ;
 
 import {API,V1,TEST} from '../../config/api' ; 
 
+import Review from "./Components/Reviews";
+
 const axios = require('axios') ; 
 
 import moment from 'moment' ;
@@ -47,11 +49,11 @@ export default function Home({navigation,route}) {
 
     const [dayRoutine,setDayRoutine] = useState(EMPTY_ROUTINE) ;
 
-    function goToExercise(exercise,program) {
-        navigation.navigate('Exercise',{exercise,program})
+    function goToProgram(program) {
+        navigation.navigate('Program',{program})
     }
 
-    React.useEffect(() => {
+    React.useLayoutEffect(() => {
 
         getWorkoutForTheDay((response) => {
             response = response[0] ; 
@@ -60,6 +62,8 @@ export default function Home({navigation,route}) {
         })
 
     },[route]) ; 
+
+    
 
     return (
         <React.Fragment>
@@ -72,21 +76,18 @@ export default function Home({navigation,route}) {
                                 ( <Text style={[globals.h5,text.center,colors.colorNeutral,{paddingTop:15}]}>Your routine for today is empty.</Text>)
                             :
                                 dayRoutine.map((program) => {
+                                    let completed = state.completed.programs.includes(program._id) ; 
+                                    let skipped = state.skipped.programs.includes(program._id)
                                     return (
-                                        program.toComplete.map((exercise) => {
-                                            let completed = state.completed.exercises.includes(exercise._id) ; 
-                                            return (
-                                                <CustomListItem
-                                                    title={exercise.name} 
-                                                    desc={[`${exercise.sets.length} sets`]}
-                                                    icon={completed ? "check" : "chevron-right"}
-                                                    iconStyle={completed ? {color:colorCodes.success} : null}
-                                                    mode="NAV"
-                                                    key={exercise._id}
-                                                    onPress={() => ( goToExercise(exercise,program) )}
-                                                />
-                                            )
-                                        })
+                                        <CustomListItem
+                                            title={program.program.name} 
+                                            desc={[`${program.toComplete.length} Exercises`]}
+                                            icon={completed ? "check" : (skipped ? "skip-forward" : "chevron-right")}
+                                            iconStyle={completed ? {color:colorCodes.success} : null}
+                                            mode="NAV"
+                                            key={program.program._id}
+                                            onPress={() => ( goToProgram(program) )}
+                                        />
                                     )
                                 })
                         }

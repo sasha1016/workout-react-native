@@ -2,9 +2,6 @@ import React,{useEffect,useState} from 'react' ;
 import { View, ScrollView,Text,StyleSheet} from 'react-native' ; 
 
 import {globals,colorCodes,colors,text} from '../../Styles/globals' ; 
-import {capitalize} from '../../Utilities' ; 
-
-import AddProgram from './Components/AddProgram' ; 
 
 import {List} from 'native-base' ; 
 import {IconButton} from 'react-native-paper';
@@ -48,7 +45,7 @@ export default function Programs({navigation}) {
         })  ; 
 
         navigation.setOptions({
-            headerRight:() => <IconButton icon="plus" color={colorCodes.secondary} onPress={ () => setAddProgram(!addProgram)}/>
+            headerRight:() => <IconButton icon="plus" color={colorCodes.secondary} onPress={ () => navigation.push('AddProgram')}/>
         }) ;
 
     },[]) ; 
@@ -57,7 +54,7 @@ export default function Programs({navigation}) {
 
     return (
         <View>
-            <AddProgram visible={addProgram} toggler={setAddProgram} />
+            {/* <AddProgram visible={addProgram} toggler={setAddProgram} /> */}
             <ScrollView>
                 <View style={[{flex:1,marginTop:10},globals.rootContainer]}>
                     <List itemDivider={false}>

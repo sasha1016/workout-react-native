@@ -7,6 +7,7 @@ import {colorCodes} from '../../Styles/globals.js';
 import {HEADER_TITLE_STYLE,HEADER_STYLE} from '../../Styles/header';
 
 import Home from '../../Pages/Home/index.js' ; 
+import Program from '../../Pages/Home/Program' ; 
 import Exercise from '../../Pages/Home/Exercise/index.js' ; 
 import Set from '../../Pages/Home/Set/index.js' ; 
 
@@ -36,6 +37,12 @@ function HomeStack({navigation}) {
                                     title:moment().format("dddd, DD/MM"),
                                     headerLeft:(() => <IconButton icon="menu" color={colorCodes.secondary} onPress={() => navigation.openDrawer()}/>)
                                 }}
+                            />
+
+                            
+                            <Stack.Screen
+                                name="Program"
+                                component={Program}
                             />
 
                             <Stack.Screen

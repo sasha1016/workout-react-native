@@ -1,5 +1,5 @@
 Arguments: 
-  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js add reanimated-bottom-sheet
+  C:\Program Files\nodejs\node.exe C:\Program Files (x86)\Yarn\bin\yarn.js add react-native-dialog
 
 PATH: 
   C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\WINDOWS\System32\OpenSSH\;C:\Android;C:\Windows\System32;C:\Program Files\nodejs\;C:\Program Files\Git\cmd;C:\Program Files (x86)\Yarn\bin\;C:\Users\Shashank\AppData\Local\Programs\Python\Python37\Scripts\;C:\Users\Shashank\AppData\Local\Programs\Python\Python37\;C:\Users\Shashank\AppData\Local\Microsoft\WindowsApps;C:\Users\Shashank\AppData\Roaming\npm;C:\Users\Shashank\AppData\Local\Programs\Microsoft VS Code\bin;C:\Users\Shashank\AppData\Local\Yarn\bin;
@@ -39,6 +39,7 @@ npm manifest:
       "formik": "^2.1.4",
       "moment": "^2.24.0",
       "native-base": "2.13.8",
+      "prop-types": "^15.7.2",
       "react": "~16.9.0",
       "react-circular-progressbar": "^2.0.3",
       "react-dom": "~16.9.0",
@@ -61,6 +62,7 @@ npm manifest:
       "react-navigation": "^4.3.2",
       "react-navigation-drawer": "^2.4.6",
       "react-navigation-stack": "^2.3.4",
+      "reanimated-bottom-sheet": "^1.0.0-alpha.20",
       "yup": "^0.28.3"
     },
     "devDependencies": {
@@ -5267,6 +5269,11 @@ Lockfile:
       safe-buffer "~5.1.1"
       string_decoder "~1.1.1"
       util-deprecate "~1.0.1"
+  
+  reanimated-bottom-sheet@^1.0.0-alpha.20:
+    version "1.0.0-alpha.20"
+    resolved "https://registry.yarnpkg.com/reanimated-bottom-sheet/-/reanimated-bottom-sheet-1.0.0-alpha.20.tgz#fc586b594a8e8c3e2a49821cfaaccd8c03f80660"
+    integrity sha512-bcXVkmJLL6SOoIPWU2dIJnT7+78a5tDi9eaE6ESsEewZ10lpfJhjfCCFrngPZKPhatQ6mjCJSYEAL+fwbXCiJw==
   
   regenerate-unicode-properties@^8.2.0:
     version "8.2.0"

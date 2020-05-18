@@ -195,3 +195,8 @@ export const colors = StyleSheet.create({
         backgroundColor:colorCodes.neutral
     }
 }) ; 
+
+
+export const COMPOUNDS = {
+    tidbit:[globals.h5,text.center,colors.colorNeutral,{paddingTop:15,paddingBottom:15}]
+}
