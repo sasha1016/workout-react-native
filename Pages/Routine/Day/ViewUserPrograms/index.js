@@ -11,7 +11,7 @@ import CustomListItem from '../../../../Components/ListItem2.js';
 
 export default function ViewPrograms({navigation,route}) {
 
-    const [programs,setPrograms] = useState([]) ;
+    const [userPrograms,setUserPrograms] = useState([]) ;
     
 
     navigation.setOptions({
@@ -25,10 +25,7 @@ export default function ViewPrograms({navigation,route}) {
                 populate:"program"
             }
         }).then((response) => {
-            var selectedPrograms = [] ; 
-            route.params.dayRoutine.map(routine => selectedPrograms = [...selectedPrograms,routine.userProgram._id]) ;
-            const filteredUserPrograms = response.data.filter((userProgram) => {return !selectedPrograms.includes(userProgram._id)}) ;
-            setPrograms(filteredUserPrograms) ;  
+            setUserPrograms(response.data) ;  
         }).catch((error) => {
             console.warn(error,"failure") ; 
         })
@@ -38,14 +35,18 @@ export default function ViewPrograms({navigation,route}) {
 
     return(
         <FlatList 
-            data={programs} 
-            renderItem={({item}) => 
-                                    <CustomListItem 
-                                        title={item.program.name} 
-                                        desc={[item.program.liftName || item.program.muscleGroup]}
-                                        onPress={() => navigation.navigate('ChooseProgramDayForRoutine',{program:item.program,userProgram:item._id})}
-                                        mode="NAV" 
-                                    />
+            data={userPrograms} 
+            renderItem={({item}) => {
+                                    return (item.program.preferredDays.length !== item.daysSelectedOfTheProgram.length ?
+                                        <CustomListItem 
+                                            title={item.program.name} 
+                                            desc={[item.program.liftName || item.program.muscleGroup]}
+                                            onPress={() => navigation.navigate('ChooseProgramDayForRoutine',{program:item.program,userProgram:item})}
+                                            mode="NAV" 
+                                        />
+                                    :
+                                        null)
+                                }
                         }
             keyExtractor={(_,index) => `key-${index}`}
             contentContainerStyle={{padding:20,paddingTop:5}}

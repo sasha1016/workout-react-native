@@ -36,13 +36,14 @@ export default function ReasonForSkipping({visible,toggler,aspect="",onSkipped})
         )        
     }
 
+    
     return (
-        <Modal title={`Skip ${aspect}`} visible={visible} toggler={toggler} buttons={[{text:`Skip`,onPress:() => skip()}]}>
+        <Modal scrollable={false} title={`Skip ${aspect}`} visible={visible} toggler={toggler} buttons={[{text:`Skip`,onPress:() => skip()}]}>
             <FlatList 
                 data={EXCUSES} 
                 renderItem={_renderItem}
                 keyExtractor={(_,index) => `key-${index}`}
-                getItemLayout={(data,index) => ({length:46,offset:46 * index,index})}
+                getItemLayout={(_,index) => ({length:46,offset:46 * index,index})}
             />
         </Modal>
     ) ; 

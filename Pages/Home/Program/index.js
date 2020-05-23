@@ -1,22 +1,14 @@
 import React,{useContext} from 'react' ; 
 import { 
-    View,
-    Text 
+    View
 } from 'react-native' ; 
-
-import  {globals,colorCodes,text,colors} from '../../../Styles/globals.js';
+import  {globals,colorCodes} from '../../../Styles/globals.js';
 import  CustomListItem from '../../../Components/ListItem2';
-
 import {WorkoutContext} from '../Contexts/index' ; 
-
 import ActionBar from '../Components/ActionBar' ; 
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
-
-import {Title} from 'react-native-paper' ; 
-
 import ReasonForSkipping from '../Components/SkippingReasonForm';
-
-import Review from "../Components/Reviews"
+import Review from "../Components/Reviews" ; 
+import SkipButton from '../Components/SkipButton'  ; 
 
 export default function Exercise({navigation,route}) {
 
@@ -30,12 +22,8 @@ export default function Exercise({navigation,route}) {
         navigation.setOptions({
             title:route.params.program.program.name,
             headerRight:() => (
-                                !programCompleted ? 
-                                    <TouchableWithoutFeedback onPress={() => setIntentToSkip(!intentToSkip)}>
-                                        <Title style={[text.bold,text.h4,colors.colorSecondary,{paddingRight:20}]}>
-                                            Skip
-                                        </Title>
-                                    </TouchableWithoutFeedback>
+                                !programCompleted && state.information.workout.mutable ?
+                                    <SkipButton onPress={() => setIntentToSkip(!intentToSkip)} />
                                 : 
                                     null
                             )
@@ -47,7 +35,7 @@ export default function Exercise({navigation,route}) {
     }
 
     const onSkipped = (reasons) => {
-        state.reducers.routineTracker.skip(`program`,route.params.exercise._id,reasons) ; 
+        state.reducers.routineTracker.skip(`program`,route.params.program._id,reasons) ; 
     } 
     let review = programCompleted ? state.routineForTheDay.programs.filter((program) => {return program._id === route.params.program._id})[0].review : [];
 
@@ -64,7 +52,7 @@ export default function Exercise({navigation,route}) {
                                     title={exercise.name} 
                                     desc={[`${exercise.sets.length} sets`]}
                                     icon={completed ? "check" : (skipped ? "x" : "chevron-right")}
-                                    iconStyle={completed ? {color:colorCodes.success} : null}
+                                    iconStyle={completed ? {color:colorCodes.success} : skipped ? {color:colorCodes.danger} : null}
                                     mode="NAV"
                                     key={exercise._id}
                                     onPress={() => ( goToExercise(exercise,route.params.program) )}

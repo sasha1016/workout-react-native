@@ -33,13 +33,14 @@ export default function Day({navigation,route}) {
         navigation.navigate('ViewUserPrograms',{dayRoutine,day:route.params.day}) ; 
     }
 
-    const deleteProgram = (id,day,programName) => {
+    const deleteProgram = (id,day,programName,userProgramID) => {
 
         const apiCall = () => {
             axios.post(API.V1 + V1.USER.ROUTINES.DELETE, {
                 user:TEST.USER, 
                 day:day,
-                routineId:id
+                routineId:id,
+                userProgramID
             }).then(() => {
                 var newDayRoutine = routines.data[day].filter((program) => {return (program._id === id ? false : true)}  ) ; 
                 setDayRoutine(newDayRoutine) ; 
@@ -60,11 +61,12 @@ export default function Day({navigation,route}) {
         ) ; 
     }
 
-    const addProgram = (toAdd) => {
+    const addProgram = (toAdd,daySelectedOfTheProgram) => {
         axios.post(API.V1 + V1.USER.ROUTINES.ADD, {
             user:TEST.USER,
             day:route.params.day,
             toAdd, 
+            daySelectedOfTheProgram,
             populate:"program,userProgram"
         }).then((response) => {
             routines.set(response.data) ;  
@@ -76,7 +78,7 @@ export default function Day({navigation,route}) {
 
     useEffect(() => {
         
-        route.params.intentToAdd !== undefined ? addProgram(route.params.toAdd) : false; 
+        route.params.intentToAdd !== undefined ? addProgram(route.params.toAdd,route.params.daySelectedOfTheProgram) : false; 
 
         setDayRoutine(routines.data[route.params.day])
 
@@ -98,26 +100,15 @@ export default function Day({navigation,route}) {
                     dayRoutine.length === 0 ? 
                         <Text style={[globals.h5,text.center,colors.colorNeutral,{paddingTop:15}]}>It's currently empty. Add one by clicking the + icon.</Text>
                     :
-                        dayRoutine.map((routine,index) => {
-                            var desc = () => {
-                                var str = "" ; 
-                                program.toComplete.slice(0,3).map((set, index) => {
-                                    if(index == 2) {
-                                        (program.toComplete.length == 2 ? str += ` and ` : str += `, `) ; 
-                                    } 
-                                    str += `${set.name}` 
-                                }) ;
-                                return [str] ; 
-                            } ;  
+                        dayRoutine.map((routine,index) => { 
                             return (
                                 <CustomListItem
                                     mode="NAV"
                                     title={routine.program.name}
-                                    // desc={desc()}
                                     icon={deleteIntent ? "trash-2" : "chevron-right"}
                                     onPress={() => {deleteIntent ? false : goToProgram(routine)}}
                                     key={`key-${index}`} 
-                                    onIconPress={() => {deleteIntent ? deleteProgram(routine._id,route.params.day,routine.program.name) : false}}
+                                    onIconPress={() => {deleteIntent ? deleteProgram(routine._id,route.params.day,routine.program.name,routine.userProgram._id) : false}}
                                 />
                             ) ;
                         }) 

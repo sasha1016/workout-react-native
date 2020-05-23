@@ -8,36 +8,39 @@ const axios = require('axios') ;
 import {API,V1} from '../../../config/api' ; 
 import ListItem from '../../../Components/ListItem2.js';
 
+function _getPrograms(routeParams,callback) {
+    let params = {
+        filterBy:(routeParams.filterBy),
+        value:(routeParams.filterByValue)  
+    }
+
+    routeParams.exclude ? params.exclude = routeParams.exclude : null
+
+    console.warn(params) ; 
+
+    axios.get(API.V1 + V1.PROGRAMS.GET, {
+        params
+    }).then((response) => {
+        callback(response.data) ; 
+    }).catch((error) => {
+        console.warn(error.message) ; 
+    }) ; 
+}
 
 export default function ViewPrograms({navigation,route}) {
 
     var [programs,setPrograms] = useState([]);
 
-    useEffect(() => {
-
-        axios.get(API.V1 + V1.PROGRAMS.GET, {
-            params:{
-                filterBy:(route.params.filterBy),
-                value:(route.params.filterByValue)  
-            }
-        }).then((response) => {
-            setPrograms(response.data) ; 
-        }).catch((error) => {
-            console.warn(error.message) ; 
-        }) ; 
-
-    },[]) ; 
-
-    useEffect(() => {
-        
+    React.useLayoutEffect(() => {
         if(route.params.title) {
             navigation.setOptions({
                 title:`${route.params.title}`
             }) ; 
         }
 
-    }, [route])
+        _getPrograms(route.params,setPrograms) ; 
 
+    },[]) ; 
 
     return(
         <FlatList 

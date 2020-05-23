@@ -1,9 +1,8 @@
 import React ,{useState} from 'react' ; 
 import {StyleSheet,View, Alert,Text} from 'react-native' ; 
-
 import { Button,Icon } from 'native-base' ; 
-
-import { globals, colorCodes,text,colors} from '../Styles/globals.js' ; 
+import { WorkoutContext } from '../../Contexts/index' ;
+import { globals, colorCodes,text,colors} from '../../../../Styles/globals.js' ; 
 
 export default function SetController({disabled = false,
                                    warningText = "",
@@ -11,11 +10,21 @@ export default function SetController({disabled = false,
                                    end = () => {},
                                    pause = () => {},
                                    play = () => {},
-                                   values = {} 
+                                   values = {},
+                                   isCurrentSet = false
                                  }) {
+
+    const state = React.useContext(WorkoutContext) ; 
 
     var [started,updateStart] = useState(false) ;
     var [paused,updatePause] = useState(false) ;
+    
+    React.useEffect(() => {
+        if(isCurrentSet) {
+            updateStart(state.current.set.started) ; 
+            updatePause(state.current.set.paused) ;
+        }
+    },[])
 
     function stopwatchNotStarted() {
         updateStart(!started) ; 
@@ -61,7 +70,7 @@ export default function SetController({disabled = false,
                             text.center
                         ]}
                     >
-                        {started ? `Started At` : paused ? `Paused At` : ``}
+                        {started ? paused ? `Paused At` : `Started At` : ``}
                     </Text>
                     <Text
                         style={[

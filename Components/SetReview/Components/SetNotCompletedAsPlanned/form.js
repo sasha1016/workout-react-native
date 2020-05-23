@@ -1,7 +1,6 @@
 import React from 'react'  ;
 
 import CustomListItem from '../../../ListItem2' ; 
-import { Toast } from 'native-base' ; 
 
 import {globals,colorCodes,colors,text} from '../../../../Styles/globals' ; 
 
@@ -15,17 +14,16 @@ export default function Form({state,reducers}) {
     const addRepToSetBreakdown = (count) => {
         reducers.updateSetReview({
                         ...state.setReview,
-                        setBreakdown:[...state.setReview.setBreakdown,{reps:count,id:Math.floor(Math.random() * 100000)}]
+                        setBreakdown:[...state.setReview.setBreakdown,count]
                     }) ; 
         reducers.updateTotalSetBreakdown( state.totalSetBreakdown - count ) ; 
     }
 
 
-    const deleteSet = (set) => {
-        reducers.updateTotalSetBreakdown(state.totalSetBreakdown + set.reps) ; 
-        reducers.updateSetReview({...state.setReview, setBreakdown:state.setReview.setBreakdown.filter((item) => {
-            return (item.id !== set.id)
-        })}) ; 
+    const deleteSet = (set,toDeleteIndex) => {
+        reducers.updateTotalSetBreakdown(state.totalSetBreakdown + set) ; 
+        let setBreakdownAfterDeletion = state.setReview.setBreakdown.filter((_,index) => {return index !== toDeleteIndex})
+        reducers.updateSetReview({...state.setReview, setBreakdown:setBreakdownAfterDeletion}) ; 
     }
 
     const SetBreakDownForm = () => {
@@ -72,8 +70,8 @@ export default function Form({state,reducers}) {
                 ListEmptyComponent={<Text style={[globals.h6,colors.colorGrey,{letterSpacing:0},text.center]}>Set Breakdown is empty</Text>}
                 renderItem={({item,index}) =>  <CustomListItem 
                                                     title={`Set ${(index+1)}`}
-                                                    desc={[`${item.reps} Reps`]}
-                                                    onIconPress={() => deleteSet(item)}
+                                                    desc={[`${item} Reps`]}
+                                                    onIconPress={() => deleteSet(item,index)}
                                                     icon="trash-2"
                                                     mode="NAV"
                                                 />}

@@ -65,7 +65,7 @@ const Set = ({review}) => {
                 title="Completed as planned"
                 desc={[(completedAsPlanned ? `Yes` : `No`)]}
             />
-            {
+            {/* {
                 !completedAsPlanned ? 
                     <CustomListItem
                         mode="INFO"
@@ -74,7 +74,8 @@ const Set = ({review}) => {
                     />
                 : 
                     null 
-            }
+            } */}
+            {console.warn(review.setBreakdown)}
         </React.Fragment>
     )
 }

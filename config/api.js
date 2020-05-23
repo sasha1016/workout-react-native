@@ -1,5 +1,5 @@
 export const API = {
-    V1:"http://192.168.0.103:3000/", 
+    V1:"http://192.168.0.105:3000/", 
 }
 
 // exp://192.168.43.85:19000
@@ -20,19 +20,19 @@ export const V1 = {
                 GET:"user/routines/day/"
             }
         },
-        REVIEWS:{
-            SET:{
-                ADD:"user/reviews/set/add",
-            }
-        }
+        ADD:"user/add",
+        DELETE:"user/delete",
     }, 
     PROGRAMS:{
         GET:"programs/get/", 
         ADD:"programs/add/"
     },
+    REVIEWS:{
+        ADD:`reviews/add`
+    },
 }
 
 export const TEST = {
-    USER:"5e97f7e4ed90401a58eca3ea"
+    USER:"5ec654c39de8f4189047bcfb"
 }
 

@@ -82,13 +82,13 @@ export default function Home({navigation,route}) {
                                         <CustomListItem
                                             title={program.program.name} 
                                             desc={[`${program.toComplete.length} Exercises`]}
-                                            icon={completed ? "check" : (skipped ? "skip-forward" : "chevron-right")}
-                                            iconStyle={completed ? {color:colorCodes.success} : null}
+                                            icon={completed ? "check" : (skipped ? "x" : "chevron-right")}
+                                            iconStyle={completed ? {color:colorCodes.success} : skipped ? {color:colorCodes.danger} : null}
                                             mode="NAV"
                                             key={program.program._id}
                                             onPress={() => ( goToProgram(program) )}
                                         />
-                                    )
+                                    ) 
                                 })
                         }
 

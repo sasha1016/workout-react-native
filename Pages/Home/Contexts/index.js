@@ -1,6 +1,7 @@
 import React,{createContext,useState} from 'react' ;
 import moment from 'moment' ;
-
+import {API,V1,TEST} from '../../../config/api'
+const axios = require('axios') ; 
 const day = moment().format("dddd").toLowerCase() ; 
 const date = moment().format() ; 
 
@@ -21,8 +22,9 @@ const INITIAL_WORKOUT_STATE = {
         timeStarted:0,
     },
     date:date,
-
-}
+    ended:false,
+    endedAt:null,
+}   
 
 const INITIAL_STATES = {
     CURRENT:{
@@ -36,11 +38,14 @@ const INITIAL_STATES = {
         SET:{
             _id:null,
             completed:false,
-            reviewSubmitted:false,
             endedAt:null,
+            reviewSubmitted:false,
+            timeTaken:0,
             startedAt:null,
             started:false,  
             paused:false,
+            pausedAt:null,
+            pausedTime:0,
         }, 
         EXERCISE:{
             started:false,
@@ -83,6 +88,21 @@ const INITIAL_STATES = {
     }
 }
 
+
+const uploadReviews = (reviews) => {
+    axios.post(API.V1+V1.REVIEWS.ADD, {
+        reviews:reviews,
+        user:TEST.USER
+    }).then((response) => {
+        console.warn(response.data) ; 
+    }).catch((error) => {
+        console.warn(error) ; 
+    })
+}
+
+
+
+
 export const WorkoutContext = createContext({}); 
 
 export function WorkoutContextProvider(props) {
@@ -103,15 +123,19 @@ export function WorkoutContextProvider(props) {
     const [exercisesSkipped,setExercisesSkipped] = useState([]) ; 
     const [programsSkipped,setProgramsSkipped] = useState([]) ; 
 
-
+    const [allSetsAttempted,setAllSetsAttempted] = useState(false) ; 
 
 
     React.useEffect(() => {
         var sets = [] ; 
+        var setsAttempted = [] ; 
         routineForTheDay.sets.map((set) => {
-            (set.completed ? sets.push(set._id) : false)
+            (set.completed ? sets.push(set._id) : false) ; 
+            (set.completed || set.skipped ? setsAttempted.push(set._id) : false)
         });   
-        setSetsCompleted([...sets])
+        setSetsCompleted([...sets])  ; 
+
+        setAllSetsAttempted(routineForTheDay.sets.length === setsAttempted.length) ; 
     },[routineForTheDay.sets]); 
 
     React.useEffect(() => {
@@ -120,6 +144,7 @@ export function WorkoutContextProvider(props) {
             (exercise.completed ? exercises.push(exercise._id) : false)
         });   
         setExercisesCompleted([...exercises]); 
+
     },[routineForTheDay.exercises]); 
 
     React.useEffect(() => {
@@ -142,30 +167,28 @@ export function WorkoutContextProvider(props) {
             PROGRAMS:{
                 review:{
                     timeTaken:0,
-                    skipped:false,
-                    date:date
                 },
                 completed:false,
                 exercisesRemaining:0,
-                skipped:false
+                skipped:false,
+                date:date
             },
             EXERCISES:{
                 review:{
                     timeTaken:0,
-                    skipped:false,
-                    date:date
                 },
                 completed:false,
                 skipped:false,
-                setsRemaining:0
+                setsRemaining:0,
+                date:date
             },
             SETS:{
                 review:{
-                    date:null,
                     timeTaken:0,
                     technique:0,
                     rating:0
                 },
+                date:date,
                 completed:false,
                 skipped:false,
             }
@@ -183,18 +206,6 @@ export function WorkoutContextProvider(props) {
             programs = [...programs, {_id:program._id,...TO_ADD.PROGRAMS}] ; 
         });
         setRoutineForTheDay({sets,exercises,programs}) ; 
-    }
-
-    const findAndReplaceInRoutine = (property,toFind,replace,where) => {
-        var list ; 
-
-        var copy = list ; 
-
-        routineForTheDay[where].map((item,index) => {
-            item[property] == toFind ? copy[index] = replace : null ; 
-        }) ; 
-        
-        setRoutineForTheDay({[where]:copy,...routineForTheDay})
     }
 
 
@@ -280,6 +291,12 @@ export function WorkoutContextProvider(props) {
         (!currentExercise.started ? _startExercise(exerciseID,programID,startedAt) : null)
     }
 
+    const finishSet = () => {
+        let timeTaken = Math.ceil( ( (new Date).getTime() - (currentSet.startedAt) / 1000) - (currentSet.pausedTime) ) ; 
+ 
+        setCurrentSet({...currentSet,timeTaken,completed:true}) ; 
+    }
+
     const endSet = (id,review) => {
         var sets = [...routineForTheDay.sets];
 
@@ -300,6 +317,16 @@ export function WorkoutContextProvider(props) {
 
     }
 
+    const pauseSet = () => {
+        let pausedAt = (new Date).getTime() ; 
+        setCurrentSet({...currentSet,pausedAt,paused:true}) ; 
+    }
+
+    const playSet = () => {
+        let pausedTime = Math.ceil( ( (new Date).getTime() - (currentSet.pausedAt) / 1000) ) ;  ; 
+        setCurrentSet({...currentSet,pausedAt:null,paused:false,pausedTime:pausedTime}) ; 
+    }
+
     const skip = (aspect,id,reasons) => {
         var key = `_id` ;
         var sets = [...routineForTheDay.sets] ; 
@@ -308,41 +335,110 @@ export function WorkoutContextProvider(props) {
 
         aspect = aspect.toUpperCase() ; 
 
-        var programsSkipped = [...programsSkipped] ; 
-        var exercisesSkipped = [...exercisesSkipped] ; 
-        var setsSkipped = [...setsSkipped] ; 
+        var programsSkippedCopy = programsSkipped ; 
+        var exercisesSkippedCopy = exercisesSkipped; 
+        var setsSkippedCopy = setsSkipped; 
 
         switch(aspect) {
             case "PROGRAM":
                 programs.map((program,index) => {
-                    if(program[key] === id) {
+                    if(program[key] === id && !program.skipped && !program.completed ) {
                         programs[index] = {...program, skipped:true,reasons} ; 
-                        programsSkipped.push(program._id) ; 
+                        programsSkippedCopy.push(program._id) ; 
                     } 
                 }) ;
-                setProgramsSkipped(programsSkipped);
+                setProgramsSkipped(programsSkippedCopy);
                 key = `program_id` ; 
             case "EXERCISE":
                 exercises.map((exercise,index) => {
-                    if(exercise[key] === id) {
+                    if(exercise[key] === id && !exercise.skipped && !exercise.completed) {
                         exercises[index] = {...exercise, skipped:true,reasons} ; 
-                        exercisesSkipped.push(exercise._id) ; 
+                        exercisesSkippedCopy.push(exercise._id) ; 
                     } 
                 }) ;
-                setExercisesSkipped(exercisesSkipped) ; 
+                setExercisesSkipped(exercisesSkippedCopy) ; 
                 key = (key === `_id` ? `exercise_id` : key);
             default:
                 sets.map((set,index) => {
-                    if(set[key] === id) {
+                    if(set[key] === id && !set.skipped && !set.completed) {
                         sets[index] = {...set, skipped:true,reasons} ; 
-                        setsSkipped.push(set._id) ; 
+                        setsSkippedCopy.push(set._id) ; 
                     } 
                 }) ;
-                setSetsSkipped(setsSkipped) ;  
+                setSetsSkipped(setsSkippedCopy) ;  
                 break  ;
         }
         setRoutineForTheDay({sets,exercises,programs}) ; 
 
+    }
+
+    const _skipAll = (reasons,callback) => {
+        routineForTheDay.programs.map((program) => {
+            program.completed === false ? skip("PROGRAM",program._id,reasons) : false ; 
+        })
+
+        callback() ; 
+    }
+
+    
+    function _createReviewsToPost(aspect) {
+
+        const aspectsRemaining = {'EXERCISE':'setsRemaining','PROGRAM':'exercisesRemaining'} ; 
+        let aspectsChildren = aspectsRemaining[aspect];
+
+        let aspectReviews = routineForTheDay[`${aspect.toLowerCase()}s`].map((item) => {
+            
+            let toReturn = {aspect:`${aspect}`, [`${aspect.toLowerCase()}ID`]:item._id,date:item.date}  
+            let skipped = item.skipped, review = item.review ; 
+            var remaining ; 
+
+            if(aspect === `EXERCISE`) {
+                currentExercise._id === item._id ? remaining = currentExercise[aspectsChildren] : item[aspectsChildren] ; 
+            } else if (aspect === `PROGRAM`) {
+                currentProgram._id === item._id ? remaining = currentProgram[aspectsChildren] : item[aspectsChildren] ; 
+            }
+
+            if(skipped) {
+                toReturn = {
+                    ...toReturn,
+                    review:{skipped,reasons:item.reasons}
+                }; 
+                aspect === `SET` ? null : toReturn.review[aspectsChildren] = remaining 
+            } else {
+                toReturn = {
+                    ...toReturn,
+                    review
+                }
+            }
+            delete toReturn["completed"] ; 
+            return (toReturn) ; 
+        })  ; 
+
+        return aspectReviews ; 
+
+    }
+
+    React.useEffect(() => {
+        if(workout.ended) {
+            let programReviews = _createReviewsToPost(`PROGRAM`) ; 
+            let setReviews = _createReviewsToPost(`SET`);
+            let exerciseReviews = _createReviewsToPost(`EXERCISE`) ; 
+
+            uploadReviews([...exerciseReviews,...programReviews,...setReviews]) ; 
+        }
+    },[workout.ended]) ; 
+
+    const _endWorkout = () => {
+        setWorkout({...workout,ended:true,endedAt:(new Date).getTime()})            
+    }
+
+    const handleEndWorkout = (reasons) => {
+        
+        if(allSetsAttempted) {
+            _endWorkout() ; 
+        } else {
+            _skipAll(reasons,_endWorkout) ; 
+        }
     }
 
 
@@ -351,7 +447,8 @@ export function WorkoutContextProvider(props) {
         routineForTheDay,
         reducers:{
             workout:{
-                set:setWorkout
+                set:setWorkout,
+                end:handleEndWorkout,
             }, 
             routineTracker:{
                 set:createRoutineTracker,
@@ -360,7 +457,10 @@ export function WorkoutContextProvider(props) {
             current:{
                 set:{
                     start:startSet,
+                    finish:finishSet,
                     end:endSet, 
+                    pause:pauseSet,
+                    play:playSet
                 }
             }
         }, 
@@ -372,13 +472,20 @@ export function WorkoutContextProvider(props) {
         completed:{
             sets:setsCompleted,
             exercises:exercisesCompleted,
-            programs:programsCompleted
+            programs:programsCompleted,
         },
         skipped:{
             programs:programsSkipped,
             exercises:exercisesSkipped,
             sets:setsSkipped
+        }, 
+        information:{
+            workout:{
+                mutable:(workout.started^workout.ended)
+            },
+            allSetsAttempted
         }
+        
     } ; 
 
 

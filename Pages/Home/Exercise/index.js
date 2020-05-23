@@ -1,22 +1,18 @@
 import React,{useContext} from 'react' ; 
 import { 
-    View,
-    Text 
+    View
 } from 'react-native' ; 
 
-import  {globals,colorCodes,text,colors} from '../../../Styles/globals.js';
+import  {globals,colorCodes} from '../../../Styles/globals.js';
 import  CustomListItem from '../../../Components/ListItem2';
 
 import {WorkoutContext} from '../Contexts/index' ; 
 
 import ActionBar from '../Components/ActionBar' ; 
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
-
-import {Title} from 'react-native-paper' ; 
-
 import ReasonForSkipping from '../Components/SkippingReasonForm';
 
 import Review from "../Components/Reviews"
+import SkipButton from '../Components/SkipButton'  ; 
 
 
 export default function Exercise({navigation,route}) {
@@ -30,12 +26,8 @@ export default function Exercise({navigation,route}) {
         navigation.setOptions({
             title:route.params.exercise.name,
             headerRight:() => (
-                                !exerciseCompleted ?
-                                    <TouchableWithoutFeedback onPress={() => setIntentToSkip(!intentToSkip)}>
-                                        <Title style={[text.bold,text.h4,colors.colorSecondary,{paddingRight:20}]}>
-                                            Skip
-                                        </Title>
-                                    </TouchableWithoutFeedback>
+                                !exerciseCompleted && state.information.workout.mutable ?
+                                    <SkipButton onPress={() => setIntentToSkip(!intentToSkip)} />
                                 : 
                                     null
                             )
@@ -50,9 +42,20 @@ export default function Exercise({navigation,route}) {
         state.reducers.routineTracker.skip(`exercise`,route.params.exercise._id,reasons) ; 
     }
 
+    
+
 
     let review = exerciseCompleted ? state.routineForTheDay.exercises.filter((exercise) => {return exercise._id === route.params.exercise._id})[0].review : [] ;
-
+    let oneRepMaxes = route.params.program.userProgram.oneRepMaxes ; 
+    let exercise1RM = oneRepMaxes.filter((exercise) => {return exercise.name === route.params.exercise.name})[0].oneRM ; 
+    
+    function calculateSetWeight(set) {
+        if(set.weightIncrement !== undefined) {
+            return (`${parseFloat(exercise1RM + set.weightIncrement)} kg`) ; 
+        } else {
+            return ( exercise1RM ? `${Math.floor(exercise1RM * (parseInt(set.percentage)/100))} kg`: `${set.percentage}% Intensity`) ; 
+        }
+    }
 
     return (
         <React.Fragment>
@@ -60,7 +63,7 @@ export default function Exercise({navigation,route}) {
             <View style={[globals.flex,globals.listContainer]}>
                     {
                             route.params.exercise.sets.map((set,index) => {
-                                let weight = ( route.params.exercise.oneRM ? `${Math.floor(route.params.exercise.oneRM * (parseInt(set.percentage)/100))} kg`: `${set.percentage}% Intensity`) ; 
+                                let weight = calculateSetWeight(set) ; 
                                 let completed = state.completed.sets.includes(set._id) ; 
                                 let skipped = state.skipped.sets.includes(set._id) ; 
                                 return (

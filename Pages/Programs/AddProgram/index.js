@@ -1,45 +1,31 @@
-import React,{useState,useEffect} from 'react'  ;
-
+import React,{useState} from 'react'  ;
 import {globals,colorCodes,colors,text} from '../../../Styles/globals' ; 
-import {capitalize} from '../../../Utilities' ; 
-
-import {MUSCLE_GROUPS} from '../../../Constants' ; 
 import {API,V1} from '../../../config/api' ;
-
-import Header from '../../../Components/ListHeader' ; 
+import Divider from '../../../Components/Divider' ; 
 import CustomListItem from '../../../Components/ListItem2' ;
-
-import {View,ScrollView,StyleSheet} from 'react-native' ; 
+import {View,ScrollView,StyleSheet,Alert} from 'react-native' ; 
 import {Button,Text} from 'native-base' ; 
 import {Chip} from 'react-native-paper' ; 
-
-
 import Day from './Components/Day' ; 
-
 import { Name,Duration,PickAccessoryLift,PickMainLift,PickLift,PickFrequency,Type,WeightFactor } from './FormItems' 
 
 const axios = require('axios') ; 
 
-const input = StyleSheet.create({
-    label:{
-        padding:5,
-    }
-}) ; 
+const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'] ; 
 
 
-const AddProgramForm = ({visible,toggler}) => {
-
-    const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'] ; 
+const AddProgramForm = ({navigation}) => {
 
     var [values,setValues] = useState({
-        name:'',
-        duration:0,
-        type:false,
-        lift:false,
-        weightFactor:false,
-        frequency:0,
+        name:null,
+        duration:null,
+        type:null,
+        lift:null,
+        weightFactor:null,
+        frequency:null,
         days:[],
         preferredDays:[] , //Array of names of all selected days
+        uniqueLifts:[]
     }) ; 
 
 
@@ -60,65 +46,41 @@ const AddProgramForm = ({visible,toggler}) => {
 
     const [currentDayToggled,setCurrentDayToggled] = React.useState(null) ; 
 
-
-
-    const onSetAdd = (set,day,lift) => {
-
-        var updatedDayToPush = values.days.filter((dayObj) => {return dayObj.name === day})[0]  ;
-
-        if (updatedDayToPush.toComplete.length !== 0) {
-            var addedFlag = false ; 
-
-            updatedDayToPush.toComplete.map((liftObj,index) => {
-                if(liftObj.name === lift.trim()) { // lift exists  
-                    addedFlag = true ; 
-                    updatedDayToPush.toComplete[index].sets.push(set) ; 
-                } 
-            }) ; 
-
-            if(!addedFlag) {
-                updatedDayToPush.toComplete.push({name:lift.trim(),sets:[set]})
-            }
-
-        } else {
-            updatedDayToPush.toComplete.push({name:lift.trim(),sets:[set]})
-        }
-            
-        const dayRemovedFromValues = values.days.filter((dayObj) => {return dayObj.name !== day}) ; 
-
-        setValues({...values,days:[...dayRemovedFromValues,updatedDayToPush]}) ; 
-
-    }
-
     const addProgram = () => {
-        axios.post(API.V1 + V1.PROGRAMS.ADD, {
+        var message = null ; 
+        axios.post(API.V1+ V1.PROGRAMS.ADD, {
             ...values
         }).then(() => {
-            toggler(!visible) ; 
-        }).catch((error) => {
-            console.warn(error) ; 
-        })
+            message = `Program Added`
+        }).catch(() => {
+            message = `Program couldn't be added. Try again later.` ;
+            message = `${error.data.message}` ; 
+        }) ; 
+        
+        Alert.alert(`Success`,message) ;  
+        window.setTimeout(() => navigation.goBack(), 1000) ;
     } ; 
 
     const dayToggler = (day) => {
         setCurrentDayToggled((day === false ? null : day)) ; 
     }
 
-    const addLiftsToDay = (toComplete,nameOfTheDay) => {
-        let days = values.days ; 
+    const addLiftsToDay = (toComplete,nameOfTheDay,uniqueLiftsOfTheDay) => {
+        let days = values.days ;
+        let uniqueLiftsToAdd = uniqueLiftsOfTheDay.filter((lift) => {return !values.uniqueLifts.includes(lift)} ) ;
+
         days.map((d,index) => {
             if (d.name === nameOfTheDay) {
                 days[index] = {...d,toComplete}
             }
         }) ; 
-
-        setValues({...values,days});
+        setValues({...values,days,uniqueLifts:[...values.uniqueLifts,...uniqueLiftsToAdd]});
     }
 
     function _renderDays() {
         return (
             <React.Fragment>
-                <Header title="Days"/>
+                <Divider title="Days"/>
                 {
                     values.days.map((day) => {
                         return (
@@ -126,6 +88,7 @@ const AddProgramForm = ({visible,toggler}) => {
                                 title={day.name}
                                 desc={[`Click to add lifts`]}
                                 mode="NAV"
+                                key={`${day.name}`}
                                 onPress={() => dayToggler(day.name)}
                             />
                         )
@@ -136,6 +99,29 @@ const AddProgramForm = ({visible,toggler}) => {
     }
 
     const Chips = () => {
+
+        function allValuesSet() {
+
+            let toReturn = {value:true,message:`You have't entered a Program `}
+
+            if(values.name === null || values.name === "") {
+                toReturn.value = false ; toReturn.message += "Name"
+            } else if(!values.duration) {
+                toReturn.value = false ; toReturn.message += "Duration"
+            } else if(!values.lift) {
+                toReturn.value = false ; toReturn.message = `You have't set a Lift type`
+            } else if(!values.frequency) {
+                toReturn.value = false ; toReturn.message += "Frequency"
+            } else if(!values.type) {
+                toReturn.value = false ; toReturn.message += `Type`
+            } else if(!values.weightFactor) {
+                toReturn.value = false ; toReturn.message += `Weight Factor`
+            } else {
+                toReturn.message = null ; 
+            }
+
+            return toReturn; 
+        }
 
 
         function _unSelectChip(day) {
@@ -158,17 +144,27 @@ const AddProgramForm = ({visible,toggler}) => {
             }
         }
 
+        function _alert(moreChipsCanBeSelected,valuesSet) {
+            let message = `` ; 
+            if (!valuesSet.value) {
+                message = valuesSet.message ; 
+            } else if(!moreChipsCanBeSelected) {
+                message =  `The number of days cannot exceed the frequency of the workout`
+            } 
+            Alert.alert(`Warning`,message) ; 
+        }
+
 
         return(
             days.map((day) => {
                 let chipSelected = values.preferredDays.includes(day); 
                 let moreChipsCanBeSelected = values.preferredDays.length <= values.frequency - 1 ;
-                let enabled = moreChipsCanBeSelected || chipSelected;
+                let valuesSet = allValuesSet() ; 
+                let enabled = moreChipsCanBeSelected || chipSelected && valuesSet.value;
 
                 return (
                     <Chip 
                         mode="outlined"
-                        disabled={enabled ? false : true}
                         style={[
                             styles.chip,
                             {backgroundColor:( chipSelected ? colorCodes.primary : "transparent")}
@@ -180,7 +176,7 @@ const AddProgramForm = ({visible,toggler}) => {
                         ]}
                         selected={chipSelected}
                         selectedColor={colorCodes.secondary}
-                        onPress={() => _selectChip(day,chipSelected)}
+                        onPress={() => (enabled ? _selectChip(day,chipSelected) : _alert(moreChipsCanBeSelected,valuesSet))}
                         key={`key-${day}`}
                     >
                         {`${day}`}
@@ -248,14 +244,14 @@ const AddProgramForm = ({visible,toggler}) => {
 
 
 
-export default function AddProgram() {
+export default function AddProgram({navigation}) {
 
 
     return (
     
             <ScrollView>
                 <View style={[globals.rootContainer]}>
-                    <AddProgramForm/>
+                    <AddProgramForm navigation={navigation}/>
                 </View>
             </ScrollView>
         

@@ -9,7 +9,8 @@ import {
     List,
     Item,
     Label,
-    Input
+    Input,
+    Button
 } from 'native-base' ;
 
 import {
@@ -24,7 +25,7 @@ import CustomListItem from '../../../Components/ListItem2.js';
 import Day from './Components/Day' ; 
 import {capitalize} from '../../../Utilities' ; 
 
-import Divider from 'react-native-divider';
+import Divider from '../../../Components/Divider';
 
 const axios = require('axios') ;
 const moment = require('moment') ; 
@@ -33,29 +34,56 @@ import {API,V1,TEST} from '../../../config/api'
 
 import NavButton from '../../../Components/NavButton.js';
 
+const OneRepMaxInput = ({onChange1RM,name}) => {
+    return(
+        <Item inlineLabel >
+            <Label style={[globals.h5,colors.colorPrimary,text.bold,{padding:5}]}>{`${name}    `}</Label>
+            <Input 
+                keyboardType="numeric"
+                style={[globals.h5,colors.colorPrimary]} 
+                onChangeText={(oneRM) => onChange1RM(oneRM)}
+                placeholder={`Enter 1RM`}
+            />
+        </Item>
+    )
+}
+
 export default function ProgramInformation({navigation,route}) {
 
-    const [oneRM,setOneRm] = useState(0) ; 
+    const [oneRepMaxes,setOneRepMaxes] = useState([]) ; 
+    const [formDisabled,setFormDisabled] = useState(true) ; 
 
-    const program = {
-        user:TEST.USER,
-        program:route.params.program._id, 
-        commenced:moment().format('L LT'), 
-        oneRM
-    } ; 
 
     const addProgramToUserPrograms = () => {
 
-        axios.post(API.V1 + V1.USER.PROGRAMS.ADD,{...program})
+        
+        const program = {
+            user:TEST.USER,
+            program:route.params.program._id, 
+            commenced:moment().format('L LT'), 
+            oneRepMaxes:oneRepMaxes
+        } ; 
 
-        .then(() => {
+        axios.post(API.V1 + V1.USER.PROGRAMS.ADD,{
+            ...program
+        }).then(() => {
             navigation.push('Programs',{programStarted:true})
         }).catch((error) => {
             console.warn(error.response.data.message)
         })
+
     }
 
     const switchProgram = () => { 
+        
+        const program = {
+            user:TEST.USER,
+            program:route.params.program._id, 
+            commenced:moment().format('L LT'), 
+            oneRepMaxes:oneRepMaxes
+        } ; 
+
+        
         axios.post(API.V1 + V1.USER.PROGRAMS.SWITCH, {
             userProgramToSwitch:route.params.userProgramToSwitch, // id of document in user programs 
             newProgram:program,
@@ -65,14 +93,35 @@ export default function ProgramInformation({navigation,route}) {
             navigation.push('Programs',{programStarted:true,program:newProgram})
         }).catch((error) => {
             console.warn(error) ;
-        })
+        }) 
     }
 
-    useEffect(() => {
+    function _setOneRepMaxesToInitialState() {
+        let oneRepMaxes = [] ;
+        program.uniqueLifts.map((lift) => {
+            oneRepMaxes.push({name:lift,oneRM:null}) ; 
+        }) ;
+        setOneRepMaxes(oneRepMaxes) ; 
+    }
+
+    function setOneRepMax(liftName,oneRM) {
+        let oneRepMaxesCopy = oneRepMaxes ; 
+        let oneRepMaxesNotSetYet = false ; 
+        oneRepMaxesCopy.map((l,index) => {
+            l.name === liftName ? 
+                oneRepMaxesCopy[index] = {...l,oneRM} 
+            : 
+                (l.oneRM === null ? oneRepMaxesNotSetYet = true : null) 
+        }) ; 
+        setFormDisabled(oneRepMaxesNotSetYet) ; 
+        setOneRepMaxes(oneRepMaxes) ; 
+    }
+
+    React.useLayoutEffect(() => {
         navigation.setOptions({
             title:route.params.program.name
         }) ; 
-
+        _setOneRepMaxesToInitialState(); 
     },[]) ; 
     
     const toDisplay = [
@@ -84,7 +133,10 @@ export default function ProgramInformation({navigation,route}) {
         {key:"liftName",title:"Lift",display:(value) => `${(value)}`},
     ] ; 
 
-    const days = route.params.program.days ;
+    const program = route.params.program ; 
+    const days = program.days ;
+
+    let intentToSwitch = route.params.programSwitch ; 
 
     return(
         <ScrollView style={{padding:20,paddingTop:0}}>
@@ -92,10 +144,10 @@ export default function ProgramInformation({navigation,route}) {
                 {
                     (
                         toDisplay.map((item,index) => 
-                            route.params.program[item.key] !== undefined ? 
+                            program[item.key] !== undefined ? 
                                 <CustomListItem 
                                     title={item.title} 
-                                    desc={[item.display(route.params.program[item.key])]} 
+                                    desc={[item.display(program[item.key])]} 
                                     key={`key-${index}`}
                                 />
                             : null
@@ -103,9 +155,7 @@ export default function ProgramInformation({navigation,route}) {
                     )
                 }
             </List>
-            <Divider style={{marginTop:20,marginBottom:20}} borderColor={colorCodes.grey} orientation="center">
-                <Text style={[text.uppercase,globals.h8,colors.colorNeutral]}>Schedule  </Text>   
-            </Divider>
+            <Divider title="Schedule"/>
             <List>
                 {
                     days.map((day) => {
@@ -113,33 +163,41 @@ export default function ProgramInformation({navigation,route}) {
                     })
                 }
             </List>
-            <Divider style={{marginTop:20,marginBottom:20}} borderColor={colorCodes.grey} orientation="center">
-                <Text style={[text.uppercase,globals.h8,colors.colorNeutral]}>Your 1 Rep Max  </Text>   
-            </Divider>
+            <Divider title="One Rep Maxes" />
             <View>
-                <Item inlineLabel >
-                    <Label style={[globals.h5,colors.colorPrimaryLighter,{padding:5}]}>1 Rep Max</Label>
-                    <Input 
-                        keyboardType="numeric"
-                        style={[globals.h5,colors.colorPrimary]} 
-                        onChangeText={(oneRM) => setOneRm(oneRM)}
-                    />
-                </Item>
+                {
+                    program.uniqueLifts.map((liftName) => 
+                        <OneRepMaxInput name={liftName} onChange1RM={(oneRM => setOneRepMax(liftName,oneRM))}/> 
+                    )
+                }
             </View>
-            <NavButton 
-                transparent 
-                icon={false} 
-                disabled={oneRM === 0}
-                title={route.params.programSwitch ? "Switch" : "Start"}
-                buttonTextStyle={route.params.programSwitch ? colors.colorWarning : colors.colorSuccess}
-                containerStyle={{paddingTop:20,paddingBottom:20, opacity:(oneRM === 0?0.3:1)}}
+
+            <Button
+                full
+                style={[
+                    (intentToSwitch ? colors.bgWarning : colors.bgSuccess ),
+                    {
+                        width:"100%",
+                        marginTop:30,
+                        marginBottom:30
+                    }
+                ]}
+                disabled={formDisabled} 
                 onPress={() => {
-                    route.params.programSwitch ?
+                    intentToSwitch ?
                         Alert.alert("Confirm Program Switch",`Are you sure you want to switch your ${capitalize(route.params.program.liftName || route.params.program.muscleGroup)} program to ${route.params.program.name}? All progress from your current program will be lost.`,[{text:"Cancel",style:"cancel"},{text:"Switch",onPress:() => {switchProgram()} }])
                     :
                         addProgramToUserPrograms() 
-                }}
-            />
+                }}                
+            >
+                <Text style={[
+                    text.uppercase,
+                    (intentToSwitch ? colors.colorPrimary : colors.colorGrey),
+                    text.bold
+                ]}>
+                    {intentToSwitch ? "Switch" : "Start"}
+                </Text>
+            </Button>
         </ScrollView>
     )
 

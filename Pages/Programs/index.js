@@ -25,11 +25,11 @@ export default function Programs({navigation}) {
         navigation.push('UserProgramInformation',{userProgram}) ; 
     }
 
-    function viewPrograms(filterBy,filterByValue) {
-        navigation.push('ViewPrograms',{filterBy,filterByValue}) ;
+    function viewPrograms(filterBy,filterByValue,exclude) {
+        navigation.push('ViewPrograms',{filterBy,filterByValue,exclude}) ;
     }
 
-    useEffect(() => {
+    React.useEffect(() => {
 
         axios.get(API.V1 + V1.USER.PROGRAMS.GET, {
             params:{
@@ -48,13 +48,12 @@ export default function Programs({navigation}) {
             headerRight:() => <IconButton icon="plus" color={colorCodes.secondary} onPress={ () => navigation.push('AddProgram')}/>
         }) ;
 
-    },[]) ; 
+    },[navigation]) ; 
 
     const [addProgram,setAddProgram] = useState(false) ; 
 
     return (
         <View>
-            {/* <AddProgram visible={addProgram} toggler={setAddProgram} /> */}
             <ScrollView>
                 <View style={[{flex:1,marginTop:10},globals.rootContainer]}>
                     <List itemDivider={false}>

@@ -1,58 +1,65 @@
 import React,{useState} from 'react'  ;
-
-import { Button, Item, Radio, Label } from 'native-base' ; 
-
-import {globals,colorCodes,colors,text} from '../../Styles/globals' ; 
+import { 
+    RadioButtons, 
+    RadioButton
+} from '../../Pages/Programs/AddProgram/FormComponents/RadioButtons'
+import {globals,colors} from '../../Styles/globals' ; 
 import SliderInput from './Components/SliderInput' ; 
 import SetNotCompletedAsPlanned from './Components/SetNotCompletedAsPlanned/' ; 
+import {
+    View,
+    Text
+} from 'react-native' ; 
 
-import {View,Text,StyleSheet,Alert} from 'react-native' ; 
+import BlockButton from '../BlockButton' ;
 
 
-export default function({repsInSet = 0,onSetReviewSubmitted = () => {}}) {
+const SliderInputFormElement = ({value,title,onUpdate}) => {
+    return(
+        <View>
+            <SliderInput sliderValue={value} title={title} onUpdate={ (val) => onUpdate(val)} />
+        </View>
+    )
+}
+
+
+export default function SetReview({repsInSet = 0,onSetReviewSubmitted = () => {}}) {
 
         var [totalSetBreakdown,updateTotalSetBreakdown] = useState(repsInSet) ;
 
         var [setReview,updateSetReview] = useState({
             completedAsPlanned:true,
-            setBreakdown:[],    
+            setBreakdown:[], 
+            setBreakdownCompleted:false,   
             technique:0,
             rating:0,
         }) ; 
 
         var buttonDisabled = !(setReview.technique !== 0 && setReview.rating !== 0 && (!setReview.completedAsPlanned ? setReview.setBreakdown.length !== 0 : true)) ; 
-
         var reducers = {updateSetReview,updateTotalSetBreakdown} ; 
-
         var state = {setReview,totalSetBreakdown,repsInSet}; 
 
         return (
-            <View style={[globals.rootContainer]}>
+            <View style={[globals.rootContainer,{marginBottom:0}]}>
 
                 <View>
                     <Text style={[globals.h5,colors.colorPrimary]}>
                         Did you finish the set as per the plan? 
                     </Text>
-                    <View style={[globals.flex,globals.flexRow,globals.paddingTop]}>
-                        <Item inlineLabel style={[globals.flex,{borderBottomWidth:0,justifyContent:'space-between',marginRight:8}]}>
-                            <Label style={[globals.h6,colors.colorPrimary,input.label]}>Yes</Label>
-                            <Radio 
-                                color={colorCodes.primaryLighter} 
-                                selectedColor={colorCodes.primary} 
-                                selected={setReview.completedAsPlanned}
-                                onPress={() => updateSetReview({...setReview,completedAsPlanned:!setReview.completedAsPlanned})}
-                            />
-                        </Item>
-                        <Item inlineLabel  style={[globals.flex,{borderBottomWidth:0,justifyContent:'space-between',marginLeft:8}]}>
-                            <Label style={[globals.h6,colors.colorPrimary,input.label]}>No</Label>
-                            <Radio 
-                                color={colorCodes.primaryLighter} 
-                                selectedColor={colorCodes.primary} 
-                                selected={!setReview.completedAsPlanned}
-                                onPress={() => updateSetReview({...setReview,completedAsPlanned:!setReview.completedAsPlanned})}
-                            />
-                        </Item>
-                    </View>
+                    <RadioButtons>
+                        <RadioButton 
+                            onSelected={() => updateSetReview({...setReview,completedAsPlanned:!setReview.completedAsPlanned})}
+                            selected={setReview.completedAsPlanned}
+                        >
+                            <RadioButton.Label>Yes</RadioButton.Label>
+                        </RadioButton>
+                        <RadioButton 
+                            onSelected={() => updateSetReview({...setReview,completedAsPlanned:!setReview.completedAsPlanned})}
+                            selected={!setReview.completedAsPlanned}
+                        >
+                            <RadioButton.Label>No</RadioButton.Label>
+                        </RadioButton>
+                    </RadioButtons>
 
                     {
                         !setReview.completedAsPlanned ? 
@@ -62,51 +69,26 @@ export default function({repsInSet = 0,onSetReviewSubmitted = () => {}}) {
                     }
 
                 </View>
-                <View >
 
-                    <SliderInput sliderValue={setReview.rating} title="How was the set?" onUpdate={ (val) => updateSetReview({...setReview,rating:val})} />
+                <SliderInputFormElement 
+                    value={setReview.rating} 
+                    title="How was the set?"
+                    onUpdate={(value) => updateSetReview({...setReview,rating:value})}
+                />
+                <SliderInputFormElement 
+                    value={setReview.technique} 
+                    title="How was your technique?"
+                    onUpdate={(value) => updateSetReview({...setReview,technique:value})}
+                />
 
-                </View>
-                <View style={globals.paddingTop}>
-
-                    <SliderInput sliderValue={setReview.technique} title="How was your technique?" onUpdate={ (val) => updateSetReview({...setReview,technique:val})} />
-  
-                </View>   
-                <View style={[{paddingTop:30},globals.flex]}>
-                    <Button
-                        disabled={buttonDisabled}
-                        small
-                        transparent
-                        width={100}
-                        style={[
-                            globals.flex,
-
-                            {opacity:(!buttonDisabled ? 1 : 0.4
-                             ),justifyContent:'center',alignSelf:'flex-end',padding:15,borderWidth:1,borderColor:colorCodes.primaryLighter,position:'relative',borderRadius:5}
-                        ]}
-                        onPress={() => onSetReviewSubmitted(setReview)}
-                    >
-                        <Text style={[text.h5, text.center,text.bold,text.uppercase,colors.colorPrimary]}>Submit </Text>
-                    </Button>    
-                </View>   
+                <BlockButton 
+                    disabled={buttonDisabled}
+                    title="Submit" 
+                    onPress={() => onSetReviewSubmitted(setReview)}
+                    bottom={0}
+                />
+                
             </View>
         ) ; 
 
 }
-
-
-
-const styles = StyleSheet.create({
-    toggleButton:{
-        flex:1
-    },
-    sliderValue:{
-        flex:.2
-    }
-})
-
-const input = StyleSheet.create({
-    label:{
-        padding:5,
-    }
-}) ; 

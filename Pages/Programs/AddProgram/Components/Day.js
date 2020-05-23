@@ -7,10 +7,10 @@ import AddLiftDialog from './AddLiftDialog';
 import {COMPOUNDS,globals,colors,colorCodes} from '../../../../Styles/globals' ; 
 import {Item,Label,Input} from 'native-base' ;
 
-const SetInput = ({handleBlur = () => {},label,handleChange,value,noBorder = false}) => {
+const SetInput = ({handleBlur = () => {},label,handleChange,value}) => {
     return(
         <Item 
-            fixedLabel 
+            inlineLabel 
             style={[
                 {height:40,width:"100%",borderColor:('transparent')}
             ]}
@@ -46,7 +46,7 @@ const AddSetForm = ({onSubmit,percentage = true,lift}) => {
     const [set,setSet] = React.useState(INITIAL_STATE_SET);
 
     function handleBlur() {
-        if(set.reps !== null && (set.percentage !== null || set.increment)) {
+        if(set.reps !== null && (set.percentage !== null || set.weightIncrement)) {
             onSubmit(set,lift) ;
             setSet(INITIAL_STATE_SET) ; 
         } 
@@ -72,8 +72,8 @@ const AddSetForm = ({onSubmit,percentage = true,lift}) => {
                 :
                     <SetInput 
                         label="Increment"
-                        handleChange={(increment) => setSet({...set,increment})}
-                        value={set.increment}
+                        handleChange={(weightIncrement) => setSet({...set,weightIncrement})}
+                        value={set.weightIncrement}
                         handleBlur={handleBlur}
                     />
             }
@@ -96,11 +96,12 @@ export default function Day({visible,toggler,nameOfTheDay,program,addLiftsToDay}
             let dayHasLifts = day.length !== 0 ? true : false ; 
 
             dayHasLifts ? setToComplete(day[0].toComplete) : false ;
+            setLifts([]) ; 
         }
     },[visible]) ; 
 
     function _onClose() {
-        addLiftsToDay(toComplete,nameOfTheDay) ; 
+        addLiftsToDay(toComplete,nameOfTheDay,lifts) ; 
     }
 
     function _reRender() {
@@ -132,7 +133,10 @@ export default function Day({visible,toggler,nameOfTheDay,program,addLiftsToDay}
         let toCompleteCopy = toComplete ; 
 
         toCompleteCopy.map((l,index) => {
-            l.name === lift.name ? toCompleteCopy[index] = {...l,sets:[...l.sets,set]} : false 
+            if(l.name === lift.name){
+                set.percentage === null ? delete set["percentage"] : false ; 
+                toCompleteCopy[index] = {...l,sets:[...l.sets,set]}
+            } 
         }) ; 
 
         setToComplete(toCompleteCopy) ; 
@@ -158,9 +162,10 @@ export default function Day({visible,toggler,nameOfTheDay,program,addLiftsToDay}
                     <Text style={[...COMPOUNDS.tidbit]}>It's empty. Add a Set below.</Text>
                 :
                     sets.map((set,index) => {
+                        let setDescription = (set.percentage ? `${set.percentage}% of 1RM` : `1RM + ${weightIncrement} kg`)
                         return (<CustomListItem
                             title={`Set ${index +1}`}
-                            desc={[`${set.reps} Reps`]}
+                            desc={[`${set.reps} Reps at ${setDescription}`]}
                             icon="trash-2"
                             mode="NAV"
                             onIconPress={() => _deleteSet(set,lift)}

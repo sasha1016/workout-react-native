@@ -31,22 +31,32 @@ import {
 
 
 
-export default function CustomModal(props) {
+export default function CustomModal({visible,title,buttons,children,toggler,onClose = () => {}, scrollable = true}) {
 
     return (
-        <Modal visible={props.visible} style={{position:'relative'}} animationType="slide">
+        <Modal visible={visible} style={{position:'relative'}} animationType="slide">
             <Appbar style={[{top:0,left:0,height:65,width:"100%",position:"absolute"},colors.bgPrimary]}>
-                <Appbar.Action icon="close" color={colorCodes.secondary} onPress={() => {props.onClose() ;props.toggler(!props.visible); }}/>
-                <Title style={[HEADER_TITLE_STYLE,{textTransform:'capitalize'}]}>{props.title}</Title>
+                <Appbar.Action icon="close" color={colorCodes.secondary} onPress={() => {onClose() ;toggler(!visible); }}/>
+                <Title style={[HEADER_TITLE_STYLE,{textTransform:'capitalize'}]}>{title}</Title>
             </Appbar>
-            <ScrollView>
-                <View style={[{top:65,padding:20,paddingBottom:(props.buttons.length !== 0 ? 75 + 55 : 65)}]}>
-                    {props.children}
-                </View>
-            </ScrollView>
+            {
+                scrollable ?
+                    <ScrollView style={[{top:65}]}>
+                        <View style={[{padding:20,paddingBottom:(buttons.length !== 0 ? 75 + 55 : 65)}]}>
+                            {children}
+                        </View>
+                    </ScrollView>
+                : 
+                    <View style={[{top:65}]}>
+                        <View style={[{padding:20,paddingTop:5,paddingBottom:(buttons.length !== 0 ? 75 + 55 : 65)}]}>
+                            {children}
+                        </View>
+                    </View>
+            }
+
             <FooterTab style={footer.container}>
                 {
-                    props.buttons.map((button,index) => {
+                    buttons.map((button,index) => {
                         return <Button 
                             transparent
                             onPress={() => button.onPress()}

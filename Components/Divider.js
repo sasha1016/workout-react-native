@@ -8,11 +8,11 @@ import  {
     colorCodes
 } from '../Styles/globals';
 
-export default function CustomDivider({title,top = 0 ,bottom = 0}) {
+export default function CustomDivider({title,top = 0 ,bottom = 0,border}) {
     return(
-        <Divider borderColor={colorCodes.grey} orientation="center" style={{marginBottom:0,paddingBottom:0,height:0}}>
+        <Divider borderColor={border ||colorCodes.grey} orientation="center" style={{marginBottom:0,paddingBottom:0,height:0}}>
             <Text style={[text.uppercase,globals.h8,colors.colorNeutral]}>
-                {`${title}  `}
+                {`${title} `}
             </Text>   
         </Divider>
     )
