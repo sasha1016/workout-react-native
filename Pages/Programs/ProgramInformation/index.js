@@ -16,23 +16,20 @@ import {
 import {
     globals,
     text,
-    colorCodes, 
-    colors
+    colors,
+    colorCodes
 } from '../../../Styles/globals' ; 
-
 import CustomListItem from '../../../Components/ListItem2.js';
-
-import Day from './Components/Day' ; 
+import RenderUserProgramSchedule from '../Components/RenderUserProgramSchedule' ; 
 import {capitalize} from '../../../Utilities' ; 
-
+import {API,V1,TEST} from '../../../config/api'
 import Divider from '../../../Components/Divider';
+import BlockButton from '../../../Components/BlockButton'
 
 const axios = require('axios') ;
 const moment = require('moment') ; 
 
-import {API,V1,TEST} from '../../../config/api'
 
-import NavButton from '../../../Components/NavButton.js';
 
 const OneRepMaxInput = ({onChange1RM,name}) => {
     return(
@@ -51,12 +48,27 @@ const OneRepMaxInput = ({onChange1RM,name}) => {
 export default function ProgramInformation({navigation,route}) {
 
     const [oneRepMaxes,setOneRepMaxes] = useState([]) ; 
-    const [formDisabled,setFormDisabled] = useState(true) ; 
+    const [allOneRepMaxesSet,setAllOneRepMaxesSet] = useState(true) ; 
+    
+    const program = route.params.program ; 
+    const intentToSwitch = route.params.programSwitch ; 
 
+
+    function _onButtonPress() {
+        intentToSwitch ?
+            Alert.alert(
+                `Confirm Program Switch`,
+                `Are you sure you want to switch your ${capitalize(route.params.program.liftName || route.params.program.muscleGroup)} program to ${route.params.program.name}? All progress from your current program will be lost.`,
+                [
+                    {text:"Cancel",style:"cancel"},
+                    {text:"Switch",onPress:() => {switchProgram()} }
+                ]
+            )
+        :
+            addProgramToUserPrograms() 
+    }
 
     const addProgramToUserPrograms = () => {
-
-        
         const program = {
             user:TEST.USER,
             program:route.params.program._id, 
@@ -80,7 +92,7 @@ export default function ProgramInformation({navigation,route}) {
             user:TEST.USER,
             program:route.params.program._id, 
             commenced:moment().format('L LT'), 
-            oneRepMaxes:oneRepMaxes
+            oneRepMaxes:oneRepMaxes,
         } ; 
 
         
@@ -89,8 +101,8 @@ export default function ProgramInformation({navigation,route}) {
             newProgram:program,
             user:TEST.USER
         })
-        .then(() => {
-            navigation.push('Programs',{programStarted:true,program:newProgram})
+        .then((response) => {
+            navigation.push('Programs',{programStarted:true,program:response.data.newProgram})
         }).catch((error) => {
             console.warn(error) ;
         }) 
@@ -104,17 +116,16 @@ export default function ProgramInformation({navigation,route}) {
         setOneRepMaxes(oneRepMaxes) ; 
     }
 
+
     function setOneRepMax(liftName,oneRM) {
         let oneRepMaxesCopy = oneRepMaxes ; 
-        let oneRepMaxesNotSetYet = false ; 
-        oneRepMaxesCopy.map((l,index) => {
+        oneRepMaxesCopy.forEach((l,index) => {
             l.name === liftName ? 
-                oneRepMaxesCopy[index] = {...l,oneRM} 
+                oneRepMaxesCopy[index] = {name:liftName,oneRM}
             : 
-                (l.oneRM === null ? oneRepMaxesNotSetYet = true : null) 
+                null
         }) ; 
-        setFormDisabled(oneRepMaxesNotSetYet) ; 
-        setOneRepMaxes(oneRepMaxes) ; 
+        setOneRepMaxes(oneRepMaxesCopy) ; 
     }
 
     React.useLayoutEffect(() => {
@@ -122,7 +133,7 @@ export default function ProgramInformation({navigation,route}) {
             title:route.params.program.name
         }) ; 
         _setOneRepMaxesToInitialState(); 
-    },[]) ; 
+    },[navigation]) ; 
     
     const toDisplay = [
         {key:"name",title:"Name",display:(value) => `${value}`},
@@ -132,11 +143,6 @@ export default function ProgramInformation({navigation,route}) {
         {key:"frequency",title:"Frequency",display:(value) => `${value} x week`},
         {key:"liftName",title:"Lift",display:(value) => `${(value)}`},
     ] ; 
-
-    const program = route.params.program ; 
-    const days = program.days ;
-
-    let intentToSwitch = route.params.programSwitch ; 
 
     return(
         <ScrollView style={{padding:20,paddingTop:0}}>
@@ -155,13 +161,12 @@ export default function ProgramInformation({navigation,route}) {
                     )
                 }
             </List>
-            <Divider title="Schedule"/>
             <List>
-                {
-                    days.map((day) => {
-                        return <Day day={day}/>
-                    })
-                }
+                <RenderUserProgramSchedule 
+                    duration={program.duration} 
+                    days={program.days} 
+                    preferredDays={program.preferredDays}
+                />
             </List>
             <Divider title="One Rep Maxes" />
             <View>
@@ -172,32 +177,14 @@ export default function ProgramInformation({navigation,route}) {
                 }
             </View>
 
-            <Button
-                full
-                style={[
-                    (intentToSwitch ? colors.bgWarning : colors.bgSuccess ),
-                    {
-                        width:"100%",
-                        marginTop:30,
-                        marginBottom:30
-                    }
-                ]}
-                disabled={formDisabled} 
-                onPress={() => {
-                    intentToSwitch ?
-                        Alert.alert("Confirm Program Switch",`Are you sure you want to switch your ${capitalize(route.params.program.liftName || route.params.program.muscleGroup)} program to ${route.params.program.name}? All progress from your current program will be lost.`,[{text:"Cancel",style:"cancel"},{text:"Switch",onPress:() => {switchProgram()} }])
-                    :
-                        addProgramToUserPrograms() 
-                }}                
-            >
-                <Text style={[
-                    text.uppercase,
-                    (intentToSwitch ? colors.colorPrimary : colors.colorGrey),
-                    text.bold
-                ]}>
-                    {intentToSwitch ? "Switch" : "Start"}
-                </Text>
-            </Button>
+            <BlockButton
+                title={intentToSwitch ? "Switch" : "Start"}
+                onPress={() => _onButtonPress()}
+                top={30}
+                bottom={30}
+                color={intentToSwitch ? colorCodes.primary : colorCodes.grey}
+                background={intentToSwitch ? colorCodes.warning : colorCodes.success}
+            />
         </ScrollView>
     )
 

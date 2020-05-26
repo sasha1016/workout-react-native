@@ -30,7 +30,7 @@ export default function BlockButton({
             }}
             onPress={() => onPress()}
         >
-            <Text style={[text.h5, text.center,text.bold,text.uppercase,colors.colorPrimaryLighter]}>
+            <Text style={[text.h5, text.center,text.bold,text.uppercase,{color:color}]}>
                 {` ${title}    `} 
             </Text>
         </Button>

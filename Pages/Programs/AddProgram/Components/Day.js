@@ -83,7 +83,7 @@ const AddSetForm = ({onSubmit,percentage = true,lift}) => {
 }
 
 
-export default function Day({visible,toggler,nameOfTheDay,program,addLiftsToDay}) {
+export default function Day({visible,toggler,dayDetails,program,addLiftsToDay}) {
 
     const [toComplete,setToComplete] = React.useState([]); 
     const [lifts,setLifts] = React.useState([]) ; // unique lifts in the day 
@@ -92,16 +92,15 @@ export default function Day({visible,toggler,nameOfTheDay,program,addLiftsToDay}
 
     React.useLayoutEffect(() => {
         if(visible) {
-            let day = (program.days.filter((d) => { return d.name === nameOfTheDay})) ; 
+            let day = (program.days.filter((d) => { return d.name === dayDetails.name && d.week === dayDetails.week})) ; 
             let dayHasLifts = day.length !== 0 ? true : false ; 
-
-            dayHasLifts ? setToComplete(day[0].toComplete) : false ;
+            dayHasLifts ? setToComplete(day[0].toComplete) : false; 
             setLifts([]) ; 
         }
     },[visible]) ; 
 
     function _onClose() {
-        addLiftsToDay(toComplete,nameOfTheDay,lifts) ; 
+        addLiftsToDay(toComplete,dayDetails,lifts) ; 
     }
 
     function _reRender() {
@@ -162,22 +161,24 @@ export default function Day({visible,toggler,nameOfTheDay,program,addLiftsToDay}
                     <Text style={[...COMPOUNDS.tidbit]}>It's empty. Add a Set below.</Text>
                 :
                     sets.map((set,index) => {
-                        let setDescription = (set.percentage ? `${set.percentage}% of 1RM` : `1RM + ${weightIncrement} kg`)
-                        return (<CustomListItem
-                            title={`Set ${index +1}`}
-                            desc={[`${set.reps} Reps at ${setDescription}`]}
-                            icon="trash-2"
-                            mode="NAV"
-                            onIconPress={() => _deleteSet(set,lift)}
-                            key={`${index}-lift`}
-                        />)
+                        let setDescription = (set.percentage ? `${set.percentage}% of 1RM` : `1RM + ${set.weightIncrement} kg`)
+                        return (
+                            <CustomListItem
+                                title={`Set ${index +1}`}
+                                desc={[`${set.reps} Reps at ${setDescription}`]}
+                                icon="trash-2"
+                                mode="NAV"
+                                onIconPress={() => _deleteSet(set,lift)}
+                                key={`${index}-lift`}
+                            />
+                        )
                     })   
         ) ;  
 
     }
-    function _renderLift(lift) {
+    function _renderLift(lift,index) {
         return (
-            <View style={{marginBottom:20}}>
+            <View style={{marginBottom:20}} key={`lift-${index}`}>
                 <Header title={lift.name || ""} icon="trash-2" onIconPress={() => _deleteLift(lift)}/>
                 {
                    _renderSets(lift.sets,lift)  
@@ -200,16 +201,16 @@ export default function Day({visible,toggler,nameOfTheDay,program,addLiftsToDay}
         }
     ] ; 
 
-
+    var title = (dayDetails === null ? `` : `${dayDetails.name}, Week ${dayDetails.week + 1}`);
     return (
         <React.Fragment>
-            <Modal title={nameOfTheDay} buttons={buttons} visible={visible} toggler={toggler} onClose={_onClose}>
+            <Modal title={title} buttons={buttons} visible={visible} toggler={toggler} onClose={_onClose}>
                 <View>
                     {
                         toComplete.length === 0 ? 
                             <Text style={[...COMPOUNDS.tidbit,{paddingTop:0}]}>It's empty. Add a Lift</Text>
                         :
-                            toComplete.map((lift) => _renderLift(lift))
+                            toComplete.map((lift,index) => _renderLift(lift,index))
                     }
                 </View>
             </Modal>

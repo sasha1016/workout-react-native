@@ -16,8 +16,6 @@ function _getPrograms(routeParams,callback) {
 
     routeParams.exclude ? params.exclude = routeParams.exclude : null
 
-    console.warn(params) ; 
-
     axios.get(API.V1 + V1.PROGRAMS.GET, {
         params
     }).then((response) => {

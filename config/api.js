@@ -9,7 +9,10 @@ export const V1 = {
         PROGRAMS:{
             GET:"user/programs/get/",
             ADD:"user/programs/add/",
-            SWITCH:"user/programs/switch/"
+            SWITCH:"user/programs/switch/",
+            UPDATE:{
+                CURRENT_WEEK:"user/programs/update/currentweek"
+            }
         },
         ROUTINES:{
             GET:"user/routines/get",

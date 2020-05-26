@@ -31,7 +31,7 @@ import {
 
 
 
-export default function CustomModal({visible,title,buttons,children,toggler,onClose = () => {}, scrollable = true}) {
+export default function CustomModal({visible,title,buttons=[],children,toggler,onClose = () => {}, scrollable = true}) {
 
     return (
         <Modal visible={visible} style={{position:'relative'}} animationType="slide">

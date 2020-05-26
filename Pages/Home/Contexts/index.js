@@ -2,7 +2,7 @@ import React,{createContext,useState} from 'react' ;
 import moment from 'moment' ;
 import {API,V1,TEST} from '../../../config/api'
 const axios = require('axios') ; 
-const day = moment().format("dddd").toLowerCase() ; 
+const TODAY = moment().format("dddd").toLowerCase() ; 
 const date = moment().format() ; 
 
 
@@ -10,7 +10,7 @@ const INITIAL_WORKOUT_STATE = {
     skipped:false,
     started:false,
     timeStarted:null,
-    day:day,
+    day:TODAY,
     paused:{
         status:false,
         total:0,
@@ -94,7 +94,6 @@ const uploadReviews = (reviews) => {
         reviews:reviews,
         user:TEST.USER
     }).then((response) => {
-        console.warn(response.data) ; 
     }).catch((error) => {
         console.warn(error) ; 
     })
@@ -111,7 +110,6 @@ export function WorkoutContextProvider(props) {
     const [currentProgram,setCurrentProgram] = useState(INITIAL_STATES.CURRENT.PROGRAM) ; 
     const [currentExercise,setCurrentExercise] = useState(INITIAL_STATES.CURRENT.EXERCISE) ; 
     const [currentSet,setCurrentSet] = useState(INITIAL_STATES.CURRENT.SET) ; 
-
 
     const [routineForTheDay,setRoutineForTheDay] = useState(INITIAL_STATES.ROUTINE_FOR_THE_DAY) ; 
 
@@ -194,18 +192,47 @@ export function WorkoutContextProvider(props) {
             }
         }
 
-        dayRoutine.map((program) => {
-            program.toComplete.map((exercise) => {
+        dayRoutine.forEach((element) => {
+            var programDaySelected = element.userProgram.daysSelectedOfTheProgram.filter((day) => {
+                return (day.userDaySelected === TODAY)
+            })[0].programDaySelected ; 
+            
+            let day = element.program.days.filter((day) => {
+                return (programDaySelected === day.name && element.userProgram.currentWeek === day.week)
+            }) ; 
+            
+            day = day.length !== 0 ? day[0] : []  ; 
+            
+            var program = element.program ; 
+
+            day.toComplete.map((exercise) => {
                 exercise.sets.map((set) => {
-                    sets = [...sets, {...TO_ADD.SETS,_id:set._id,exercise_id:exercise._id,program_id:program._id}] ; 
+                    sets = [...sets, {
+                        ...TO_ADD.SETS,
+                        _id:set._id,
+                        exercise_id:exercise._id,
+                        program_id:program._id,
+                        routineElementID:element._id,
+                    }] ; 
                 }) ;
                 TO_ADD.EXERCISES.setsRemaining = exercise.sets.length ; 
-                exercises = [...exercises, {_id:exercise._id,program_id:program._id,...TO_ADD.EXERCISES}] ;
+                exercises = [...exercises, {
+                    _id:exercise._id,
+                    program_id:program._id,
+                    routineElementID:element._id,
+                    ...TO_ADD.EXERCISES
+                }] ;
             }) ; 
-            TO_ADD.PROGRAMS.exercisesRemaining = program.toComplete.length ; 
-            programs = [...programs, {_id:program._id,...TO_ADD.PROGRAMS}] ; 
+            TO_ADD.PROGRAMS.exercisesRemaining = day.toComplete.length ; 
+            programs = [...programs, {
+               _id:program._id,
+               userProgramID:element.userProgram._id,
+               lastDayOfWeek:day.lastDayOfWeek,
+               routineElementID:element._id,
+               ...TO_ADD.PROGRAMS
+            }] ; 
         });
-        setRoutineForTheDay({sets,exercises,programs}) ; 
+        setRoutineForTheDay({sets,exercises,programs}) ;
     }
 
 
@@ -220,14 +247,30 @@ export function WorkoutContextProvider(props) {
         }) ;
     }
 
+    function _updateUserProgramCurrentWeek(userProgramID) {
+        axios.post(API.V1+V1.USER.PROGRAMS.UPDATE.CURRENT_WEEK,{
+            id:userProgramID,
+            user:TEST.USER,
+        }).then(() => {
+            return true
+        }).catch((error) => {
+            throw new Error(error.response.message)
+        })
+    }
+
     const _endProgram = (programID,exercises,sets) => {
         let timeTaken = Math.ceil(((new Date).getTime() - currentProgram.startedAt) / 1000) ; 
 
         let programs = [...routineForTheDay.programs] ; 
 
-        programs.map((program,index) => {
-            program._id === programID ? programs[index] = {...program,review:{timeTaken},completed:true,exercisesRemaining:0} : false
+        programs.forEach((program,index) => {
+            if(program._id === programID) {
+                programs[index] = {...program,review:{timeTaken},completed:true,exercisesRemaining:0} ; 
+                if (program.lastDayOfWeek === true) _updateUserProgramCurrentWeek(program.userProgramID) ; 
+            }
         }) ; 
+
+
 
         setCurrentProgram(INITIAL_STATES.CURRENT.PROGRAM) ;
         setRoutineForTheDay({programs,exercises,sets});
@@ -292,8 +335,7 @@ export function WorkoutContextProvider(props) {
     }
 
     const finishSet = () => {
-        let timeTaken = Math.ceil( ( (new Date).getTime() - (currentSet.startedAt) / 1000) - (currentSet.pausedTime) ) ; 
- 
+        let timeTaken = Math.ceil( ((new Date).getTime() - currentSet.startedAt) / 1000) - (currentSet.pausedTime); 
         setCurrentSet({...currentSet,timeTaken,completed:true}) ; 
     }
 
@@ -323,7 +365,7 @@ export function WorkoutContextProvider(props) {
     }
 
     const playSet = () => {
-        let pausedTime = Math.ceil( ( (new Date).getTime() - (currentSet.pausedAt) / 1000) ) ;  ; 
+        let pausedTime = Math.ceil( ( (new Date).getTime() - (currentSet.pausedAt) ) / 1000 ) ;  ; 
         setCurrentSet({...currentSet,pausedAt:null,paused:false,pausedTime:pausedTime}) ; 
     }
 
@@ -388,8 +430,8 @@ export function WorkoutContextProvider(props) {
 
         let aspectReviews = routineForTheDay[`${aspect.toLowerCase()}s`].map((item) => {
             
-            let toReturn = {aspect:`${aspect}`, [`${aspect.toLowerCase()}ID`]:item._id,date:item.date}  
-            let skipped = item.skipped, review = item.review ; 
+            let review = {aspect:`${aspect}`, [`${aspect.toLowerCase()}ID`]:item._id,date:item.date}  
+            let skipped = item.skipped, itemReview = item.review ; 
             var remaining ; 
 
             if(aspect === `EXERCISE`) {
@@ -399,19 +441,19 @@ export function WorkoutContextProvider(props) {
             }
 
             if(skipped) {
-                toReturn = {
-                    ...toReturn,
+                review = {
+                    ...review,
                     review:{skipped,reasons:item.reasons}
                 }; 
-                aspect === `SET` ? null : toReturn.review[aspectsChildren] = remaining 
+                aspect === `SET` ? null : review.review[aspectsChildren] = remaining 
             } else {
-                toReturn = {
-                    ...toReturn,
-                    review
+                review = {
+                    ...review,
+                    itemReview
                 }
             }
-            delete toReturn["completed"] ; 
-            return (toReturn) ; 
+            delete review["completed"] ; 
+            return (review) ; 
         })  ; 
 
         return aspectReviews ; 

@@ -11,6 +11,7 @@ import {V1,API, TEST} from '../../../config/api' ;
 
 import {RoutineContext} from '../Contexts/index.js' ; 
 
+const moment = require('moment') ;
 
 const axios = require('axios') ; 
 
@@ -22,7 +23,7 @@ export default function Day({navigation,route}) {
     const [dayRoutine,setDayRoutine] = useState([]) ; 
     
     const goToProgram = (routine) => {
-        navigation.push('Program',{routine})
+        //navigation.push('Program',{routine})
     }
 
     const onDeleteIntent = () => {
@@ -46,7 +47,8 @@ export default function Day({navigation,route}) {
                 setDayRoutine(newDayRoutine) ; 
                 var newRoutines = routines.data ; 
                 newRoutines[day] = newDayRoutine ; 
-                routines.set(newRoutines) ; 
+                routines.set(newRoutines) ;
+                setDeleteIntent(false) ;  
             }).catch((error) => {
                 console.warn(error)
             }) 
@@ -70,7 +72,7 @@ export default function Day({navigation,route}) {
             populate:"program,userProgram"
         }).then((response) => {
             routines.set(response.data) ;  
-            setDayRoutine(response.data[route.params.day]) ; 
+            setDayRoutine(response.data[route.params.day]) ;  
         }).catch((error) => {
             console.warn(error.response.data.message,"Filure") ; 
         })
@@ -101,12 +103,15 @@ export default function Day({navigation,route}) {
                         <Text style={[globals.h5,text.center,colors.colorNeutral,{paddingTop:15}]}>It's currently empty. Add one by clicking the + icon.</Text>
                     :
                         dayRoutine.map((routine,index) => { 
+                            let daySelectedOfTheProgram = routine.userProgram.daysSelectedOfTheProgram.filter((day) => {
+                                return (day.userDaySelected === route.params.day)
+                            })[0].programDaySelected ; 
                             return (
                                 <CustomListItem
                                     mode="NAV"
                                     title={routine.program.name}
-                                    icon={deleteIntent ? "trash-2" : "chevron-right"}
-                                    onPress={() => {deleteIntent ? false : goToProgram(routine)}}
+                                    desc={[daySelectedOfTheProgram]}
+                                    icon={deleteIntent ? "trash-2" : null}
                                     key={`key-${index}`} 
                                     onIconPress={() => {deleteIntent ? deleteProgram(routine._id,route.params.day,routine.program.name,routine.userProgram._id) : false}}
                                 />

@@ -1,29 +1,15 @@
 import React, {useContext,useState} from 'react' ; 
-import { View, Text, ScrollView} from 'react-native' ; 
-import  {
-    globals,
-    text,
-    colors,
-    colorCodes
-} from '../../../Styles/globals.js';
+import { View, ScrollView} from 'react-native' ; 
+import { globals } from '../../../Styles/globals.js';
 import CustomListItem from '../../../Components/ListItem2' ; 
 import { WorkoutContext } from '../Contexts/index' ;
 import Divider from '../../../Components/Divider.js' ; 
 import SetReview from '../../../Components/SetReview/SetReview' ; 
-import {
-    API,
-    V1,
-    TEST
-} from '../../../config/api' ; 
 import ReasonForSkipping from '../Components/SkippingReasonForm';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
-import {Title} from 'react-native-paper' ; 
 import Review from "../Components/Reviews" ; 
 import SetController from "./Components/SetController.js" ; 
 import {displayTime} from '../../../Utilities/index.js'
-
-const axios = require('axios') ; 
-
+import SkipButton from '../Components/SkipButton'  ; 
 import Skipped from "./Components/Skipped.js";
 
 
@@ -79,18 +65,15 @@ export default function Set({navigation,route}) {
 
     const onSkipped = (reasons) => {
         state.reducers.routineTracker.skip(`set`,route.params.set._id,reasons) ; 
+        navigation.navigate('Exercise') ; 
     }
 
     React.useLayoutEffect(() => {
         navigation.setOptions({
             title:`Set ${route.params.setNo} of ${route.params.totalSets}`,
             headerRight:() =>   (
-                                    !setCompleted && !skipped ? 
-                                        <TouchableWithoutFeedback onPress={() => setIntentToSkip(!intentToSkip)}>
-                                            <Title style={[text.bold,text.h4,colors.colorSecondary,{paddingRight:20}]}>
-                                                Skip
-                                            </Title>
-                                        </TouchableWithoutFeedback>
+                                    !setCompleted && state.information.workout.mutable && !skipped ?
+                                        <SkipButton onPress={() => setIntentToSkip(!intentToSkip)} />
                                     : 
                                         null
                                 )
@@ -98,13 +81,7 @@ export default function Set({navigation,route}) {
 
     }) ; 
 
-    const setStart = () => {
-        // let startTime = (new Date).getTime() ; 
-        // updateSetDetails({
-        //     ...setDetails,
-        //     timeTaken:startTime,
-        //     started:true,
-        // }) ; 
+    const setStart = () => { 
 
         state.reducers.current.set.start(route.params.set._id,route.params.exercise._id,route.params.program._id) ;
 
@@ -112,18 +89,6 @@ export default function Set({navigation,route}) {
 
     const setComplete = () => {
         state.reducers.current.set.finish() ;
-    }
-
-    
-    const postSetReview = (review,setId,callback) => {
-        axios.post(API.V1,V1.USER.ROUTINES.SET.ADD, {
-            user:TEST.USER,
-            day:state.workout.day,
-            review,
-            id:setId
-        }).then(() => {
-            callback(); 
-        })
     }
 
     const onSetReviewSubmitted = (review) => {

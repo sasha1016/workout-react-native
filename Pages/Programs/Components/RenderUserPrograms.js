@@ -159,10 +159,6 @@ export default function RenderUserPrograms({userPrograms,viewUserProgramInformat
 
     },[userPrograms]) ; 
 
-    React.useEffect(() => {
-        console.warn(mainLifts,accessories)  
-    },[mainLifts,accessories])
-
     return (  
             sorted ?                  
                 <React.Fragment>
@@ -185,7 +181,7 @@ export default function RenderUserPrograms({userPrograms,viewUserProgramInformat
                     </View>
 
                     <View>
-                        <Header title="Accessory Lifts" key="accessorty_lifts_header" onIconPress={() => onStartNewProgramIntent("lift","access",liftsUserHasSubscribedTo)}/>
+                        <Header title="Accessory Lifts" key="accessorty_lifts_header" onIconPress={() => onStartNewProgramIntent("lift","accessory",liftsUserHasSubscribedTo)}/>
                         {
                             accessories.length === 0 ? 
                                 <Text style={[globals.h5,text.center,colors.colorNeutral,globals.paddingTop]}>No Accessory Lift programs started</Text>

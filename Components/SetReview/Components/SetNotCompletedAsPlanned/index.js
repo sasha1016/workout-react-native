@@ -1,11 +1,8 @@
 import React,{useState} from 'react'  ;
-
 import {Appbar,Title} from 'react-native-paper' ; 
 import {Alert} from 'react-native' ; 
-
 import {globals,colors,text} from '../../../../Styles/globals' ; 
 import Form from './form' ; 
-
 import {Modal,View} from 'react-native' ; 
 import BlockButton from '../../../BlockButton';
 

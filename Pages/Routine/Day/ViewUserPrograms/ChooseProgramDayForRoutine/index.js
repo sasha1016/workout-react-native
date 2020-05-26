@@ -1,9 +1,7 @@
 import React,{useEffect,useState} from 'react' ; 
 import { FlatList,View } from 'react-native' ; 
+import CustomListItem from '../../../../../Components/ListItem2' ; 
 
-import { colors } from '../../../../../Styles/globals' ; 
-
-import Day from '../../../../../Pages/Programs/ProgramInformation/Components/Day.js' ; 
 
 export default function ViewPrograms({navigation,route}) {
 
@@ -15,7 +13,7 @@ export default function ViewPrograms({navigation,route}) {
     }, [navigation]) ; 
 
 
-    const onProgramAdded = (day,programID,userProgramID,toComplete) => {
+    const onProgramAdded = (day,programID,userProgramID) => {
         navigation.navigate(
             "Day",
             {
@@ -23,36 +21,36 @@ export default function ViewPrograms({navigation,route}) {
                 toAdd:{
                     program:programID,
                     userProgram:userProgramID,
-                    toComplete
                 },
-                daySelectedOfTheProgram:day.name
+                daySelectedOfTheProgram:day
             }
         ) ; 
-        //console.warn(toComplete) ; 
     }
 
     let userProgram = route.params.userProgram ;
     let program = route.params.program ;
+    
+    var daysSkipped = 0 ;  
+    
 
     return(
         <FlatList 
-           data={route.params.program.days} 
-            renderItem={({item}) => {
-                    let dayHasBeenSelected = userProgram.daysSelectedOfTheProgram.filter(selected => {return selected.programDaySelected === item.name}).length
-                    let toCompleteOfTheDay = program.days.filter((day) => {return day.name== item.name})[0].toComplete ; 
-                    return (
-                        !dayHasBeenSelected ? 
-                            <Day 
-                                day={item} 
-                                headerButton={true} 
-                                headerButtonTextStyle={[colors.colorSuccess]} 
-                                headerButtonText="Add " 
-                                headerButtonType="TEXT"
-                                onHeaderButtonPress={() => onProgramAdded(item,program._id,userProgram._id,toCompleteOfTheDay) }
-                            />
-                        :
-                            null
-                    )
+           data={route.params.program.preferredDays} 
+            renderItem={({item,index}) => {
+                    let dayHasBeenSelected = userProgram.daysSelectedOfTheProgram.filter(selected => {return selected.programDaySelected === item}).length ; 
+                    if(!dayHasBeenSelected) {
+                        return(
+                            <CustomListItem 
+                                title={item}
+                                mode="NAV" 
+                                icon={index - daysSkipped === 0 ? "plus" : null }
+                                onIconPress={() => index - daysSkipped === 0? onProgramAdded(item,program._id,userProgram._id) : console.warn(index - daysSkipped) }
+                            />     
+                        )
+                    } else {
+                        daysSkipped += 1 ; 
+                        return null ; 
+                    }
             }}
             keyExtractor={(_,index) => `key-${index}`}
             contentContainerStyle={{padding:20,paddingTop:5}}

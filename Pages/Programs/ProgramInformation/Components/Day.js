@@ -10,8 +10,13 @@ export default function Day({day, headerButton = false, headerButtonType = "ICON
     const exercises = day.toComplete ; 
 
     const sets = (sets) => {
-        var arr = [] ; 
-        sets.map(set => arr =[...arr,`${set.reps} Reps at ${set.percentage || set.weightFactor}% of 1RM`] ) ; 
+        let arr = sets.map((set) => {
+            if(set.percentage !== undefined) {
+                return `${set.reps} Reps at ${set.percentage || set.weightFactor}% of 1RM`
+            } else {
+                return `${set.reps} Reps at 1RM + ${set.weightIncrement} kg` ; 
+            }
+        }) ; 
         return arr ; 
     }
 

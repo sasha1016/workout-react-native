@@ -50,8 +50,6 @@ export default function Programs({navigation}) {
 
     },[navigation]) ; 
 
-    const [addProgram,setAddProgram] = useState(false) ; 
-
     return (
         <View>
             <ScrollView>
@@ -66,25 +64,3 @@ export default function Programs({navigation}) {
  
 
 }
-
-
-const styles = StyleSheet.create({
-    info:{
-        flex:1,
-        flexDirection:'column',
-        justifyContent:'center',
-        alignItems:'stretch'
-    }
-})
-
-const listItem = StyleSheet.create({
-    container:{
-        paddingBottom:0,
-        paddingLeft:5,
-    },
-    child:{
-        flexDirection:'row',    
-        justifyContent:'flex-start'
-    }
-})
-

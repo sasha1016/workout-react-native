@@ -11,7 +11,7 @@ import { Name,Duration,PickAccessoryLift,PickMainLift,PickLift,PickFrequency,Typ
 
 const axios = require('axios') ; 
 
-const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'] ; 
+const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'] ; 
 
 
 const AddProgramForm = ({navigation}) => {
@@ -44,20 +44,41 @@ const AddProgramForm = ({navigation}) => {
         }
     }) ; 
 
-    const [currentDayToggled,setCurrentDayToggled] = React.useState(null) ; 
+    var WEEKS = [...Array(parseInt(values.duration || 0)).keys()] ; 
+
+    const [currentDayToggled,setCurrentDayToggled] = React.useState(null) ;
+    
+    function addLastDayOfWeekFlag() {
+        let preferredDays = values.preferredDays ; 
+        let days = values.days ; 
+        let lastDay = preferredDays[preferredDays.length - 1] ; 
+
+        days = days.map((day) => {
+            return {
+                ...day,
+                lastDayOfWeek:(day.name === lastDay ? true : false)
+            }
+        })
+        return ({...values,days}) ; 
+    }
 
     const addProgram = () => {
-        var message = null ; 
+        var message = null , title = null ; 
+
+        var values = addLastDayOfWeekFlag(); 
+
         axios.post(API.V1+ V1.PROGRAMS.ADD, {
             ...values
         }).then(() => {
-            message = `Program Added`
-        }).catch(() => {
-            message = `Program couldn't be added. Try again later.` ;
-            message = `${error.data.message}` ; 
+            message = `Program Added` ; 
+            title = `Success` ;
+            Alert.alert(title,message) ;  
+        }).catch((error) => {
+            message = `${error.response.message}` ;
+            title = `Error` ;  
+            Alert.alert(title,message) ;  
         }) ; 
         
-        Alert.alert(`Success`,message) ;  
         window.setTimeout(() => navigation.goBack(), 1000) ;
     } ; 
 
@@ -65,12 +86,12 @@ const AddProgramForm = ({navigation}) => {
         setCurrentDayToggled((day === false ? null : day)) ; 
     }
 
-    const addLiftsToDay = (toComplete,nameOfTheDay,uniqueLiftsOfTheDay) => {
+    const addLiftsToDay = (toComplete,dayDetails,uniqueLiftsOfTheDay) => {
         let days = values.days ;
         let uniqueLiftsToAdd = uniqueLiftsOfTheDay.filter((lift) => {return !values.uniqueLifts.includes(lift)} ) ;
 
         days.map((d,index) => {
-            if (d.name === nameOfTheDay) {
+            if (d.name === dayDetails.name && d.week === dayDetails.week) {
                 days[index] = {...d,toComplete}
             }
         }) ; 
@@ -80,20 +101,28 @@ const AddProgramForm = ({navigation}) => {
     function _renderDays() {
         return (
             <React.Fragment>
-                <Divider title="Days"/>
                 {
-                    values.days.map((day) => {
-                        return (
-                            <CustomListItem 
-                                title={day.name}
-                                desc={[`Click to add lifts`]}
-                                mode="NAV"
-                                key={`${day.name}`}
-                                onPress={() => dayToggler(day.name)}
-                            />
+                    WEEKS.map((_,index) => {
+                        return(
+                            <View key={`week-${index}`}>
+                                <Divider title={`Week ${index+1}`} key={`divider-${index}`}/>
+                                {
+                                    values.preferredDays.map((day) => {
+                                        return (
+                                            <CustomListItem 
+                                                title={day}
+                                                desc={[`Click to add lifts`]}
+                                                mode="NAV"
+                                                key={`${day}`}
+                                                onPress={() => dayToggler({name:day,week:index})}
+                                            />
+                                        )
+                                    })
+                                }
+                            </View>
                         )
                     })
-                }
+                } 
             </React.Fragment>
         )
     }
@@ -130,13 +159,27 @@ const AddProgramForm = ({navigation}) => {
             setValues({...values,days:newDays,preferredDays:newSelected}) ;             
         }
 
-        function _selectChip(day,chipSelected) {
+        function sortWeekdays(day) {
+            let daysCopy = [...values.preferredDays,day] ; 
+            let sorted = daysCopy.map((d) => days.indexOf(d)).sort() ;
+            return (sorted.map((index) => days[index])) ; 
+        }
+
+        function _selectChip(day,chipSelected,enabled) {
             if(!chipSelected) { 
+                let preferredDays = sortWeekdays(day) ; 
+                let daysToAdd = WEEKS.map((_,index) => {
+                    return {
+                        name:day,
+                        toComplete:[],
+                        week:index
+                    }
+                }) ;  
                 setValues(
                     {
                         ...values,
-                        preferredDays:[...values.preferredDays,day],
-                        days:[...values.days,{name:day,toComplete:[]}]
+                        preferredDays:preferredDays,
+                        days:[...values.days,...daysToAdd]
                     }
                 ) ; 
             } else {
@@ -153,6 +196,7 @@ const AddProgramForm = ({navigation}) => {
             } 
             Alert.alert(`Warning`,message) ; 
         }
+
 
 
         return(
@@ -176,7 +220,7 @@ const AddProgramForm = ({navigation}) => {
                         ]}
                         selected={chipSelected}
                         selectedColor={colorCodes.secondary}
-                        onPress={() => (enabled ? _selectChip(day,chipSelected) : _alert(moreChipsCanBeSelected,valuesSet))}
+                        onPress={() => (enabled ? _selectChip(day,chipSelected,enabled) : _alert(moreChipsCanBeSelected,valuesSet))}
                         key={`key-${day}`}
                     >
                         {`${day}`}
@@ -191,7 +235,7 @@ const AddProgramForm = ({navigation}) => {
             <Day 
                 visible={currentDayToggled ? true : false} 
                 toggler={dayToggler} 
-                nameOfTheDay={currentDayToggled} 
+                dayDetails={currentDayToggled} 
                 program={values}
                 addLiftsToDay={addLiftsToDay}
             />

@@ -12,8 +12,6 @@ const moment = require('moment') ;
 
 export default function UserProgramInformation({navigation,route}) {
 
-    const [program,setProgram] = useState({}) ; 
-
     useEffect(() => {
         navigation.setOptions({
             title:route.params.userProgram.program.name
@@ -44,6 +42,7 @@ export default function UserProgramInformation({navigation,route}) {
         //{title:"Commenced",key:"commenced",value:(value) => {return `${moment(value,"L TS").fromNow()}`}},
         {title:"Duration",key:"duration",value:(value) => {return `${value} weeks`}},
         {title:"Frequency",key:"frequency",value:(value) => {return `${value} x week`}},
+        {title:"Current Week of Program",key:"currentWeek",value:(value) => {return `Week ${value + 1}`}},
         //{title:"Workouts Completed",key:"workoutsCompleted",value:(value,total) => {return `${value} of ${total}`}}
     ] ; 
 
@@ -66,13 +65,16 @@ export default function UserProgramInformation({navigation,route}) {
                         )
                     )
                 }
-                {
-                    <CustomListItem 
-                        title="Commenced"
-                        desc={[`${moment(route.params.userProgram.commenced,"L TS").fromNow()}`]} 
-                        key={`key-commenced`}
-                    />                    
-                }
+                <CustomListItem 
+                    title="Commenced"
+                    desc={[`${moment(route.params.userProgram.commenced,"L TS").fromNow()}`]} 
+                    key={`key-commenced`}
+                />   
+                <CustomListItem 
+                    title="Current Week"
+                    desc={[`Week ${route.params.userProgram.currentWeek + 1}`]} 
+                    key={`key-current-week`}
+                />        
             </List>
         </ScrollView>
     )

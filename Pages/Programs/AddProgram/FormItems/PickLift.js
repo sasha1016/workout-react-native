@@ -17,7 +17,7 @@ export default function PickLift({onPickLift,lift}) {
             >
                 <Picker.Item label="Lift" value={false}/>
                 <Picker.Item label="Main Lift" value="main"/>
-                <Picker.Item label="Accessory" value="access"/>
+                <Picker.Item label="Accessory" value="accessory"/>
             </Picker>
         </Item>
     )

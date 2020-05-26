@@ -41,8 +41,17 @@ const Exercise = ({review}) => {
     )
 }
 
+function generateDescription(setBreakdown) {
+    if(setBreakdown === undefined) {
+        return []
+    } else {
+        return setBreakdown.map((reps) => {return (`1 set of ${reps} reps`)})
+    }
+}
+
 const Set = ({review}) => {
     let completedAsPlanned = review.completedAsPlanned ; 
+    let setBreakdownDescription = generateDescription(review.setBreakdown) ; 
     return(
         <React.Fragment>
             <CustomListItem
@@ -65,17 +74,16 @@ const Set = ({review}) => {
                 title="Completed as planned"
                 desc={[(completedAsPlanned ? `Yes` : `No`)]}
             />
-            {/* {
+            {
                 !completedAsPlanned ? 
                     <CustomListItem
                         mode="INFO"
-                        title="Completed As Planned"
-                        desc={[review.setBreakdown.map((reps) => {return (`1 set of ${reps} reps`)})]}
+                        title="Set Breakdown"
+                        desc={setBreakdownDescription}
                     />
                 : 
                     null 
-            } */}
-            {console.warn(review.setBreakdown)}
+            } 
         </React.Fragment>
     )
 }
