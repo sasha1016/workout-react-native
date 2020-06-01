@@ -25,7 +25,14 @@ export const V1 = {
         },
         ADD:"user/add",
         DELETE:"user/delete",
+        GET:{
+            DETAILS:"user/self/get/details"
+        }
     }, 
+    AUTH:{
+        SIGNUP:"auth/signup",
+        GET_TOKEN:"auth/getToken"
+    },
     PROGRAMS:{
         GET:"programs/get/", 
         ADD:"programs/add/"

@@ -1,10 +1,13 @@
 import React from 'react' ; 
-
-import RootDrawer from '../Navigators/Drawer/index.js'
+import Providers from './Contexts' ; 
+import Main from './Main'
 
 function Layout() {
+
     return (
-        <RootDrawer/>
+        <Providers>
+            <Main/>
+        </Providers>
     ) 
 }
 export default Layout ; 

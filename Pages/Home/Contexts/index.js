@@ -192,16 +192,18 @@ export function WorkoutContextProvider(props) {
             }
         }
 
-        dayRoutine.forEach((element) => {
+     dayRoutine.forEach((element) => {
             var programDaySelected = element.userProgram.daysSelectedOfTheProgram.filter((day) => {
                 return (day.userDaySelected === TODAY)
-            })[0].programDaySelected ; 
+            }) ; 
+            
+            programDaySelected = programDaySelected.length !== 0 ? programDaySelected[0].programDaySelected : `` ; 
             
             let day = element.program.days.filter((day) => {
                 return (programDaySelected === day.name && element.userProgram.currentWeek === day.week)
             }) ; 
             
-            day = day.length !== 0 ? day[0] : []  ; 
+            day = day.length !== 0 ? day[0] : {toComplete:[]}  ; 
             
             var program = element.program ; 
 

@@ -73,6 +73,7 @@ function RoutineStack({navigation}) {
 
 
 
+
                     
             </Stack.Navigator>
         </RoutineProvider>

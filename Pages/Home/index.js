@@ -1,8 +1,7 @@
-import React, {Fragment,useContext,useState} from 'react' ; 
+import React, {useContext,useState} from 'react' ; 
 import { 
     View,
     ScrollView,
-    StyleSheet ,
     Text
 } from 'react-native' ;
 
@@ -14,8 +13,6 @@ import {WorkoutContext} from './Contexts/index' ;
 import ActionBar from './Components/ActionBar' ; 
 
 import {API,V1,TEST} from '../../config/api' ; 
-
-import Review from "./Components/Reviews";
 
 const axios = require('axios') ; 
 
@@ -57,16 +54,21 @@ export default function Home({navigation,route}) {
         var dayRoutineMuted = dayRoutine.map((element) => {
             let programDaySelected = element.userProgram.daysSelectedOfTheProgram.filter((day) => {
                 return (day.userDaySelected === DAY)
-            })[0].programDaySelected ; 
+            }) ; 
 
-            let toCompleteForTheDay = element.program.days.filter((day) => {
+            programDaySelected = programDaySelected.length !== 0 ? programDaySelected[0].programDaySelected : `` ; 
+
+            let day = element.program.days.filter((day) => {
                 return (programDaySelected === day.name && element.userProgram.currentWeek === day.week)
-            })[0].toComplete ;
+            }) ;
+
+            let toCompleteForTheDay = day.length !== 0 ? day[0].toComplete : {toComplete:[]}  ; 
 
             element.toComplete = toCompleteForTheDay ; 
             return element ; 
         })
         setDayRoutine(dayRoutineMuted) ; 
+        
 
     }
 
