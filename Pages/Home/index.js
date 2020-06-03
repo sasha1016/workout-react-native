@@ -4,47 +4,25 @@ import {
     ScrollView,
     Text
 } from 'react-native' ;
-
 import  {colors,globals,text,colorCodes} from '../../Styles/globals.js';
 import  CustomListItem from '../../Components/ListItem2';
-
 import {WorkoutContext} from './Contexts/index' ; 
-
 import ActionBar from './Components/ActionBar' ; 
-
 import {API,V1,TEST} from '../../config/api' ; 
-
-const axios = require('axios') ; 
-
+import {Routine} from '../../Classes' ; 
 import moment from 'moment' ;
+import { UserContext } from '../../Layout/Contexts/user.js';
 
 const DAY = moment().format("dddd").toLowerCase() ; 
-
-
-function getWorkoutForTheDay(callback) {
-    axios.get(`${API.V1}${V1.USER.ROUTINES.GET}`, {
-        params:{
-            user:TEST.USER, 
-            day:DAY,
-            populate:"program,userProgram"
-        }
-    }).then((response) => {
-        callback(response.data); 
-    }).catch((error) => {
-        console.warn(error) ; 
-    })
-}
-
-
 const EMPTY_ROUTINE = [] ; 
 
 
 export default function Home({navigation,route}) {
-
-
     const state = useContext(WorkoutContext) ; 
-
     const [dayRoutine,setDayRoutine] = useState(EMPTY_ROUTINE) ;
+    const user = React.useContext(UserContext) ; 
+    var routine = new Routine(user.data.uid) ; 
+    routine = routine.chooseDay(DAY) ; 
 
     function goToProgram(program) {
         navigation.navigate('Program',{program})
@@ -74,11 +52,15 @@ export default function Home({navigation,route}) {
 
     React.useLayoutEffect(() => {
 
-        getWorkoutForTheDay((response) => {
-            response = response[0] ; 
-            state.reducers.routineTracker.set(response[DAY]) ; 
-            Object.keys((response[DAY])).length !== 0 ? _setDayRoutine(response[DAY]) : false  ; 
+        routine.get() 
+        .then((routine) => {
+            state.reducers.routineTracker.set(routine[DAY]) ; 
+            Object.keys((routine[DAY])).length !== 0 ? _setDayRoutine(routine[DAY]) : false  ; 
         })
+        .catch((error) => {
+            console.warn(error) ; 
+        })
+
 
     },[route]) ; 
 

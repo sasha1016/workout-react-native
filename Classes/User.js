@@ -8,24 +8,29 @@ import AsyncStorage from '@react-native-community/async-storage'
 
 const axios = require('axios') ; 
 
+var authToken ; 
+
+SecureStore.getItemAsync('authToken')
+.then((token) => {
+    authToken = token ; 
+})
+.catch(() => {
+    authToken = null ; 
+})
+
 class User {
 
-    static _getAuthToken(uid) {
+    static _getAuthToken() {
         return new Promise((resolve,reject) => {
-            axios.post(API.V1 + V1.AUTH.GET_TOKEN,{
-                uid
-            })
-            .then((response) => {
-                resolve(response.data.token) ; 
+            firebase.auth().currentUser.getIdToken(true)
+            .then((token) => {
+                console.warn(token) ; 
+                resolve(token) ; 
             })
             .catch((error) => {
-                reject(error) ;
+                reject(error.message) ; 
             })
         })
-    }
-
-    static logout() {
-
     }
 
 
@@ -62,7 +67,6 @@ class User {
     
     static async logout() {
         await SecureStore.deleteItemAsync('authToken') ;
-        await SecureStore.deleteItemAsync('uid') ;
         await AsyncStorage.setItem('@USER_UID','') ;
         await AsyncStorage.removeItem('@USER_FNAME') ;
         await AsyncStorage.removeItem('@USER_LNAME') ; 
@@ -75,9 +79,14 @@ class User {
 
             var credentials = {} ; 
 
-            axios.get(API.V1+ V1.USER.GET.DETAILS,{
-                params:{uid}
-            })
+            axios({
+                method:'get',
+                params:{uid},
+                url:API.V1+ V1.USER.GET.DETAILS,
+                headers:{
+                    'Authorization':authToken
+                }
+            })           
             .then((response) => {
                 let record = response.data; 
                 
@@ -87,9 +96,8 @@ class User {
                 credentials = {...credentials,email,emailVerified,uid,disabled} ; 
             })
             .then(async () => {
-                let token = await this._getAuthToken(credentials.uid) ; 
+                let token = await this._getAuthToken() ; 
                 await SecureStore.setItemAsync('authToken', token) ;
-                await SecureStore.setItemAsync('uid', uid) ;
                 await AsyncStorage.setItem('@USER_UID',credentials.uid) ;
                 await AsyncStorage.setItem('@USER_FNAME',credentials.firstName) ;
                 await AsyncStorage.setItem('@USER_LNAME',credentials.lastName) ; 
@@ -97,7 +105,7 @@ class User {
                 resolve(credentials) ; 
             })
             .catch((error) => {
-                reject(error) ; 
+                reject(error.response.data.message) ; 
             })
         })
         

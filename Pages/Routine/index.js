@@ -1,37 +1,28 @@
-import React,{useEffect,useContext} from 'react' ; 
+import React,{useContext} from 'react' ; 
 import { List } from 'native-base' ; 
-
 import CustomListItem from '../../Components/ListItem2' ; 
+import { RoutineContext } from './Contexts/index.js' ; 
+import { UserContext } from '../../Layout/Contexts';
+import { Routine } from '../../Classes';
+import { DAYS } from '../../Constants' ; 
 
-import {API,V1,TEST} from '../../config/api' ; 
-
-import {RoutineContext} from './Contexts/index.js' ; 
-
-const axios = require('axios') ; 
-
-
-export default function Routine({navigation}) {
-
+export default function RoutineScreen({navigation}) {
     const routines = useContext(RoutineContext) ; 
-
+    const user = useContext(UserContext) ; 
+    const routine = new Routine(user.data.uid) ; 
 
     function goToDay(day) {
         navigation.push('Day',{day}) ;
     }
 
-
-    const days = ['sunday','monday','tuesday','wednesday','thursday','friday','saturday'] ; 
-
-    useEffect(() => {
-        axios.get(API.V1 + V1.USER.ROUTINES.GET, {
-            params:{
-                user:TEST.USER,
-                populate:"program,userProgram"
-            }
-        }).then((response) => { 
-            routines.set(response.data) ;
-        }).catch((error) => {
-            console.warn(error.data.message,"failuer") ; 
+    React.useLayoutEffect(() => {
+        routine.get()
+        .then((routine) => {
+            console.warn(routine) ; 
+            routines.set(routine) ;
+        })
+        .catch((error) => {
+            console.warn(error) ; 
         })
     },[]) ; 
 
@@ -40,7 +31,7 @@ export default function Routine({navigation}) {
             {
                 routines.data !== [] ? 
                     Object.keys(routines.data).map((day) => {
-                        if(days.includes(day)) {
+                        if(DAYS.includes(day)) {
                             return (<CustomListItem 
                                 title={day}
                                 mode="NAV"

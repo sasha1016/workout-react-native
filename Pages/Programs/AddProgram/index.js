@@ -3,13 +3,12 @@ import {globals,colorCodes,colors,text} from '../../../Styles/globals' ;
 import {API,V1} from '../../../config/api' ;
 import Divider from '../../../Components/Divider' ; 
 import CustomListItem from '../../../Components/ListItem2' ;
-import {View,ScrollView,StyleSheet,Alert} from 'react-native' ; 
+import {View,ScrollView,StyleSheet,Alert, ToastAndroid} from 'react-native' ; 
 import {Button,Text} from 'native-base' ; 
 import {Chip} from 'react-native-paper' ; 
 import Day from './Components/Day' ; 
 import { Name,Duration,PickAccessoryLift,PickMainLift,PickLift,PickFrequency,Type,WeightFactor } from './FormItems' 
-
-const axios = require('axios') ; 
+import Program from '../../../Classes/Program'
 
 const days = ['monday','tuesday','wednesday','thursday','friday','saturday','sunday'] ; 
 
@@ -63,23 +62,18 @@ const AddProgramForm = ({navigation}) => {
     }
 
     const addProgram = () => {
-        var message = null , title = null ; 
 
         var values = addLastDayOfWeekFlag(); 
 
-        axios.post(API.V1+ V1.PROGRAMS.ADD, {
-            ...values
-        }).then(() => {
-            message = `Program Added` ; 
-            title = `Success` ;
-            Alert.alert(title,message) ;  
-        }).catch((error) => {
-            message = `${error.response.message}` ;
-            title = `Error` ;  
-            Alert.alert(title,message) ;  
-        }) ; 
-        
-        window.setTimeout(() => navigation.goBack(), 1000) ;
+        let program = new Program(values) ;
+        program.add()
+        .then(() => {
+            ToastAndroid.showWithGravity(`Program added successfully`,ToastAndroid.SHORT,ToastAndroid.BOTTOM)
+            navigation.goBack()
+        })
+        .catch((error) => {
+            ToastAndroid.showWithGravity(`${error}`,ToastAndroid.SHORT,ToastAndroid.BOTTOM)
+        })
     } ; 
 
     const dayToggler = (day) => {

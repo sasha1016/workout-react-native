@@ -22,9 +22,10 @@ import {
 import CustomListItem from '../../../Components/ListItem2.js';
 import RenderUserProgramSchedule from '../Components/RenderUserProgramSchedule' ; 
 import {capitalize} from '../../../Utilities' ; 
-import {API,V1,TEST} from '../../../config/api'
 import Divider from '../../../Components/Divider';
 import BlockButton from '../../../Components/BlockButton'
+import UserProgram from '../../../Classes/UserProgram';
+import { UserContext } from '../../../Layout/Contexts' ;
 
 const axios = require('axios') ;
 const moment = require('moment') ; 
@@ -48,7 +49,8 @@ const OneRepMaxInput = ({onChange1RM,name}) => {
 export default function ProgramInformation({navigation,route}) {
 
     const [oneRepMaxes,setOneRepMaxes] = useState([]) ; 
-    const [allOneRepMaxesSet,setAllOneRepMaxesSet] = useState(true) ; 
+
+    const user = React.useContext(UserContext) ; 
     
     const program = route.params.program ; 
     const intentToSwitch = route.params.programSwitch ; 
@@ -69,43 +71,27 @@ export default function ProgramInformation({navigation,route}) {
     }
 
     const addProgramToUserPrograms = () => {
-        const program = {
-            user:TEST.USER,
-            program:route.params.program._id, 
-            commenced:moment().format('L LT'), 
-            oneRepMaxes:oneRepMaxes
-        } ; 
-
-        axios.post(API.V1 + V1.USER.PROGRAMS.ADD,{
-            ...program
-        }).then(() => {
+        let userProgram = new UserProgram(user.data.uid,program._id,oneRepMaxes) ;
+        userProgram.start() 
+        .then(() => {
             navigation.push('Programs',{programStarted:true})
-        }).catch((error) => {
-            console.warn(error.response.data.message)
         })
-
+        .catch((error) => {
+            console.warn(error.response.data.message) ; 
+        })
     }
 
     const switchProgram = () => { 
-        
-        const program = {
-            user:TEST.USER,
-            program:route.params.program._id, 
-            commenced:moment().format('L LT'), 
-            oneRepMaxes:oneRepMaxes,
-        } ; 
+        let userProgram = new UserProgram(user.data.uid,program._id,oneRepMaxes) ; 
+        let fromProgram = route.params.userProgramToSwitch ;
 
-        
-        axios.post(API.V1 + V1.USER.PROGRAMS.SWITCH, {
-            userProgramToSwitch:route.params.userProgramToSwitch, // id of document in user programs 
-            newProgram:program,
-            user:TEST.USER
-        })
+        userProgram.switch(fromProgram)
         .then((response) => {
             navigation.push('Programs',{programStarted:true,program:response.data.newProgram})
-        }).catch((error) => {
-            console.warn(error) ;
-        }) 
+        })
+        .catch((error) => {
+            console.warn(error.message) ;
+        })
     }
 
     function _setOneRepMaxesToInitialState() {

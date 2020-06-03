@@ -1,29 +1,11 @@
-import React,{useEffect,useState} from 'react' ; 
+import React,{useState} from 'react' ; 
 import { FlatList} from 'react-native' ; 
 
 import {globals,colorCodes,colors,text} from '../../../Styles/globals' ; 
 
-const axios = require('axios') ; 
-
-import {API,V1} from '../../../config/api' ; 
 import ListItem from '../../../Components/ListItem2.js';
+import Program from '../../../Classes/Program';
 
-function _getPrograms(routeParams,callback) {
-    let params = {
-        filterBy:(routeParams.filterBy),
-        value:(routeParams.filterByValue)  
-    }
-
-    routeParams.exclude ? params.exclude = routeParams.exclude : null
-
-    axios.get(API.V1 + V1.PROGRAMS.GET, {
-        params
-    }).then((response) => {
-        callback(response.data) ; 
-    }).catch((error) => {
-        console.warn(error.message) ; 
-    }) ; 
-}
 
 export default function ViewPrograms({navigation,route}) {
 
@@ -36,7 +18,29 @@ export default function ViewPrograms({navigation,route}) {
             }) ; 
         }
 
-        _getPrograms(route.params,setPrograms) ; 
+        let filterBy = route.params.filterBy ; 
+        let filterByValue = route.params.filterByValue ; 
+        let exclude = route.params.exclude ; 
+
+        if(filterBy) {
+            Program.getFiltered(filterBy,filterByValue,exclude)
+            .then((programs) => {
+                setPrograms(programs) ; 
+            })
+            .catch((error) => {
+                console.warn(error) ; 
+            })
+        } else {
+            Program.getAll()
+            .then((programs) => {
+                setPrograms(programs) ; 
+            })
+            .catch((error) => {
+                console.warn(error) ; 
+            })
+        }
+
+
 
     },[]) ; 
 

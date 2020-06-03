@@ -39,11 +39,9 @@ export default function UserProgramInformation({navigation,route}) {
         {title:"Type",key:"lift",value:(value) => {return `${(value === "main" ? "Main Lift" : "Accessory Lift")}`}},
         {title:"Muscle Group",key:"muscleGroup",value:(value) => {return `${value}`}},
         {title:"Lift",key:"liftName",value:(value) => {return `${value}`}},
-        //{title:"Commenced",key:"commenced",value:(value) => {return `${moment(value,"L TS").fromNow()}`}},
         {title:"Duration",key:"duration",value:(value) => {return `${value} weeks`}},
         {title:"Frequency",key:"frequency",value:(value) => {return `${value} x week`}},
         {title:"Current Week of Program",key:"currentWeek",value:(value) => {return `Week ${value + 1}`}},
-        //{title:"Workouts Completed",key:"workoutsCompleted",value:(value,total) => {return `${value} of ${total}`}}
     ] ; 
 
     return(

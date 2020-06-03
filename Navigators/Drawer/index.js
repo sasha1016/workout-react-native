@@ -1,14 +1,12 @@
 import React from 'react' ;
 import { 
     createDrawerNavigator,
-    DrawerItemList,
     DrawerContentScrollView,
     DrawerItem
 } from '@react-navigation/drawer' ; 
 import { View,Text,StyleSheet,Image } from 'react-native'  ;
 import { NavigationContainer } from '@react-navigation/native' ; 
 import { globals,text,colorCodes,colors } from '../../Styles/globals' ; 
-import AsyncStorage from '@react-native-community/async-storage'
  
 import HomeStack from '../Stack/HomeNew.js'; 
 import RoutineStack from '../Stack/Routine.js'
@@ -77,7 +75,7 @@ function DrawerContent(props) {
 
     const _logOut = async () => {
         await User.logout() ; 
-        user.set({uid:null})
+        user.set({uid:false})
     }
 
     return(

@@ -18,7 +18,7 @@ export default function ViewPrograms({navigation,route}) {
             "Day",
             {
                 intentToAdd:true,
-                toAdd:{
+                routineElementToAdd:{
                     program:programID,
                     userProgram:userProgramID,
                 },

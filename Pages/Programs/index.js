@@ -15,11 +15,14 @@ import {
     API,
     V1
 } from '../../config/api' ; 
+import UserProgram from '../../Classes/UserProgram';
+import { UserContext } from '../../Layout/Contexts';
 
 
 export default function Programs({navigation}) {
 
     var [programs,setPrograms] = useState([]);
+    const user = React.useContext(UserContext) ; 
 
     function viewUserProgram(userProgram) {
         navigation.push('UserProgramInformation',{userProgram}) ; 
@@ -29,26 +32,28 @@ export default function Programs({navigation}) {
         navigation.push('ViewPrograms',{filterBy,filterByValue,exclude}) ;
     }
 
-    React.useEffect(() => {
-
-        axios.get(API.V1 + V1.USER.PROGRAMS.GET, {
-            params:{
-                user:`${TEST.USER}`,
-                populate:"program"
-            }
-        })
-        .then((response) => {
-            setPrograms(response.data) ;  
-        })
+    function getPrograms() {
+        let userProgram = new UserProgram(user.data.uid) ;
+        userProgram.getAll()
+        .then((programs) => {
+            setPrograms(programs) ; 
+        }) 
         .catch((error) => {
-            console.warn(error)
-        })  ; 
+            console.warn(error.message) ; 
+        })
+    }
 
+
+    function setHeaderButton() {
         navigation.setOptions({
             headerRight:() => <IconButton icon="plus" color={colorCodes.secondary} onPress={ () => navigation.push('AddProgram')}/>
         }) ;
+    }
 
-    },[navigation]) ; 
+    React.useLayoutEffect(() => {
+        getPrograms() ; 
+        setHeaderButton() ; 
+    },[])
 
     return (
         <View>

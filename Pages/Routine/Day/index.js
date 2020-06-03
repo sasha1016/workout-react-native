@@ -1,30 +1,24 @@
-import React,{useEffect, useState, useContext, useRef} from 'react' ; 
+import React,{ useEffect, useState, useContext } from 'react' ; 
 import { View,Alert,Text } from 'react-native' ; 
-
 import {globals, colors,text} from '../../../Styles/globals' ; 
 import CustomListItem from '../../../Components/ListItem2' ; 
 import {capitalize} from '../../../Utilities' ; 
-
 import ActionsBar from './Components/ActionsBar.js' ; 
-
-import {V1,API, TEST} from '../../../config/api' ; 
-
 import {RoutineContext} from '../Contexts/index.js' ; 
+import { Routine } from '../../../Classes' ; 
+import { UserContext } from '../../../Layout/Contexts/user' ; 
 
-const moment = require('moment') ;
-
-const axios = require('axios') ; 
 
 export default function Day({navigation,route}) {
 
     const routines = useContext(RoutineContext) ; 
+    const user = React.useContext(UserContext) ; 
+
+    var routine = new Routine(user.data.uid) ; 
+    routine.chooseDay(route.params.day) ; 
 
     const [deleteIntent,setDeleteIntent] = useState(false) ; 
     const [dayRoutine,setDayRoutine] = useState([]) ; 
-    
-    const goToProgram = (routine) => {
-        //navigation.push('Program',{routine})
-    }
 
     const onDeleteIntent = () => {
         setDeleteIntent(!deleteIntent) ; 
@@ -34,53 +28,49 @@ export default function Day({navigation,route}) {
         navigation.navigate('ViewUserPrograms',{dayRoutine,day:route.params.day}) ; 
     }
 
-    const deleteProgram = (id,day,programName,userProgramID) => {
+    const deleteElementFromRoutine = (routineElementID,day,programName,userProgramID) => {
 
-        const apiCall = () => {
-            axios.post(API.V1 + V1.USER.ROUTINES.DELETE, {
-                user:TEST.USER, 
-                day:day,
-                routineId:id,
-                userProgramID
-            }).then(() => {
+        function _deleteElementFromRoutine() {
+            routine.delete(routineElementID,userProgramID)
+            .then(() => {
                 var newDayRoutine = routines.data[day].filter((program) => {return (program._id === id ? false : true)}  ) ; 
                 setDayRoutine(newDayRoutine) ; 
                 var newRoutines = routines.data ; 
                 newRoutines[day] = newDayRoutine ; 
                 routines.set(newRoutines) ;
                 setDeleteIntent(false) ;  
-            }).catch((error) => {
+            })
+            .catch((error) => {
                 console.warn(error)
-            }) 
-        } 
+            })
+        }
 
         Alert.alert(
             'Warning',
             `Are you sure you want to delete ${capitalize(programName)} from your routine?`, 
             [
-                {text:"Cancel",style:"cancel"},{text:"Delete",onPress:() => {apiCall()} }
+                {text:"Cancel",style:"cancel"},
+                {text:"Delete",onPress:() => {_deleteElementFromRoutine()} }
             ]
         ) ; 
     }
 
-    const addProgram = (toAdd,daySelectedOfTheProgram) => {
-        axios.post(API.V1 + V1.USER.ROUTINES.ADD, {
-            user:TEST.USER,
-            day:route.params.day,
-            toAdd, 
-            daySelectedOfTheProgram,
-            populate:"program,userProgram"
-        }).then((response) => {
-            routines.set(response.data) ;  
-            setDayRoutine(response.data[route.params.day]) ;  
-        }).catch((error) => {
-            console.warn(error.response.data.message,"Filure") ; 
+    const addElementToRoutine = (routineElementToAdd,daySelectedOfTheProgram) => {
+        routine.add(routineElementToAdd,daySelectedOfTheProgram)
+        .then((routine) => {
+            routines.set(routine) ;
+            setDayRoutine(routine[route.params.day]) ; 
+        })
+        .catch((error) => {
+            console.warn(error) ; 
         })
     }
 
     useEffect(() => {
-        
-        route.params.intentToAdd !== undefined ? addProgram(route.params.toAdd,route.params.daySelectedOfTheProgram) : false; 
+         
+        if(route.params.intentToAdd !== undefined) {
+            addElementToRoutine(route.params.routineElementToAdd,route.params.daySelectedOfTheProgram) ; 
+        } 
 
         setDayRoutine(routines.data[route.params.day])
 
@@ -102,18 +92,18 @@ export default function Day({navigation,route}) {
                     dayRoutine.length === 0 ? 
                         <Text style={[globals.h5,text.center,colors.colorNeutral,{paddingTop:15}]}>It's currently empty. Add one by clicking the + icon.</Text>
                     :
-                        dayRoutine.map((routine,index) => { 
-                            let daySelectedOfTheProgram = routine.userProgram.daysSelectedOfTheProgram.filter((day) => {
+                        dayRoutine.map((element,index) => { 
+                            let daySelectedOfTheProgram = element.userProgram.daysSelectedOfTheProgram.filter((day) => {
                                 return (day.userDaySelected === route.params.day)
                             })[0].programDaySelected ; 
                             return (
                                 <CustomListItem
                                     mode="NAV"
-                                    title={routine.program.name}
+                                    title={element.program.name}
                                     desc={[daySelectedOfTheProgram]}
                                     icon={deleteIntent ? "trash-2" : null}
                                     key={`key-${index}`} 
-                                    onIconPress={() => {deleteIntent ? deleteProgram(routine._id,route.params.day,routine.program.name,routine.userProgram._id) : false}}
+                                    onIconPress={() => {deleteIntent ? deleteElementFromRoutine(element._id,route.params.day,element.program.name,element.userProgram._id) : false}}
                                 />
                             ) ;
                         }) 
