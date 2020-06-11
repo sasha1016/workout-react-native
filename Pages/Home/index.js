@@ -8,7 +8,6 @@ import  {colors,globals,text,colorCodes} from '../../Styles/globals.js';
 import  CustomListItem from '../../Components/ListItem2';
 import {WorkoutContext} from './Contexts/index' ; 
 import ActionBar from './Components/ActionBar' ; 
-import {API,V1,TEST} from '../../config/api' ; 
 import {Routine} from '../../Classes' ; 
 import moment from 'moment' ;
 import { UserContext } from '../../Layout/Contexts/user.js';

@@ -15,23 +15,30 @@ export default function Main() {
 
         firebase.auth().onAuthStateChanged((user) => {
             if(user) {
-                if(userContext.data.uid === user.uid) return null ;  
+                if(userContext.data.uid === user.uid) {
+                    !loggedIn ? setLoggedIn(true) : null ; 
+                    return null ;
+                }
                 AsyncStorage.getItem('@USER_UID')
                 .then((uid) => { 
                     if(uid !== '' && uid !== null) {
+                        console.warn(uid) ; 
                         return User.initiailize(uid);  
                     }
                     else {
-                        setLoggedIn(false) ; 
                         return Promise.reject() ; 
                     }
                 })
                 .then((credentials) => {
                     userContext.set({...credentials})
                     setLoggedIn(true) ; 
-                })                
+                }) 
+                .catch((error) => {
+                    console.warn(error) ; 
+                    setLoggedIn(false) ; 
+                })               
             } else {
-                !loggedIn ? setLoggedIn(true) : null ; 
+                setLoggedIn(false) ; 
             }
         })
 

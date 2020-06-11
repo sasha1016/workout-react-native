@@ -96,7 +96,7 @@ export default function ProgramInformation({navigation,route}) {
 
     function _setOneRepMaxesToInitialState() {
         let oneRepMaxes = [] ;
-        program.uniqueLifts.map((lift) => {
+        program.uniqueLifts.forEach((lift) => {
             oneRepMaxes.push({name:lift,oneRM:null}) ; 
         }) ;
         setOneRepMaxes(oneRepMaxes) ; 

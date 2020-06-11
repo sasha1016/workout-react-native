@@ -19,33 +19,36 @@ SecureStore.getItemAsync('authToken')
 
 class UserProgram {
 
-    constructor(uid,program,oneRepMaxes) {
+    constructor(uid,program = null,oneRepMaxes = null) {
         this.uid = uid ; 
     
-        if(program !== undefined) this.programID = program ; 
+        if(program !== null) this.programID = program ; 
 
-        if(oneRepMaxes !== undefined) {
+        if(oneRepMaxes !== null) {
             this.oneRepMaxes = oneRepMaxes;
             this.commenced = moment().format('L LT') ; 
-        }
+        } 
     }
 
     start() {
 
         return new Promise((resolve,reject) => {
 
-            const program = {
+            var program = {
                 program:this.programID, 
                 commenced:this.commenced,
                 oneRepMaxes:this.oneRepMaxes
             } ; 
 
+            console.warn(program) ; 
+
             axios({
                 method:'post',
-                body:{...program},
+                data:program,
                 url:API.V1 + V1.USER.PROGRAMS.ADD,
                 headers:{
-                    'Authorization':authToken
+                    'Authorization':authToken,
+                    'Content-Type':'application/json'
                 }
             })
             .then(() => {
@@ -69,7 +72,7 @@ class UserProgram {
 
             axios({
                 method:'post',
-                body:{
+                data:{
                     programFrom:from, 
                     programTo:program,
                 },
@@ -107,8 +110,26 @@ class UserProgram {
         })
     }
 
-    end() {
-
+    end(id) {
+        if(id === undefined) {
+            throw new Error(`ID of the program needs to be set before it can be ended`)
+        }
+        return new Promise((resolve,reject) => {
+            axios({
+                method:'post',
+                data:{id:id},
+                url:API.V1 + V1.USER.PROGRAMS.END,
+                headers:{
+                    'Authorization':authToken
+                }
+            })
+            .then(() => {
+                resolve() ; 
+            })
+            .catch((error) => {
+                reject(error.response.data.message) ; 
+            })
+        })
     }
 
 }

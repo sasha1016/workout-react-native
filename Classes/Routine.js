@@ -54,7 +54,7 @@ class Routine {
 
             axios({
                 method:'post',
-                body:{
+                data:{
                     day:this.day,
                     toAdd:routineEementToAdd, 
                     daySelectedOfTheProgram,
@@ -78,7 +78,7 @@ class Routine {
         return new Promise((resolve,reject) => {
             axios({
                 method:'post',
-                body:{
+                data:{
                     day:this.day,
                     routineElementID,
                     userProgramID

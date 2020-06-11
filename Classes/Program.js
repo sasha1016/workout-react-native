@@ -47,7 +47,7 @@ class Program {
 
             axios({
                 method:'post',
-                body:{...program},
+                data:{...program},
                 url:API.V1 + V1.PROGRAMS.ADD,
                 headers:{
                     'Authorization':authToken

@@ -9,6 +9,7 @@ export const V1 = {
         PROGRAMS:{
             GET:"user/programs/get/",
             ADD:"user/programs/add/",
+            END:"user/programs/end",
             SWITCH:"user/programs/switch/",
             UPDATE:{
                 CURRENT_WEEK:"user/programs/update/currentweek"

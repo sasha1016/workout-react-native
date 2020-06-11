@@ -137,7 +137,7 @@ const Header = (props) => {
 
 // }
 
-export default function RenderUserPrograms({userPrograms,viewUserProgramInformation,onStartNewProgramIntent}) {
+export default function RenderUserPrograms({userPrograms,viewUserProgramInformation,onStartNewProgramIntent,intentToEnd,onEndProgram}) {
     const [accessories,setAccessories] = React.useState([]) ; 
     const [mainLifts,setMainLifts] = React.useState([]) ; 
     var [sorted,setSorted] = React.useState(1) ; 
@@ -175,6 +175,9 @@ export default function RenderUserPrograms({userPrograms,viewUserProgramInformat
                                         onPress={() => viewUserProgramInformation(userProgram)} 
                                         key={userProgram.program._id} 
                                         mode="NAV"
+                                        iconStyle={[intentToEnd ? colors.colorDanger : colors.colorPrimaryLighter]}
+                                        icon={intentToEnd ? 'trash' : 'chevron-right'}
+                                        onIconPress={() => intentToEnd ? onEndProgram(userProgram) : viewUserProgramInformation(userProgram)}
                                     />
                                 )
                         }
@@ -187,7 +190,16 @@ export default function RenderUserPrograms({userPrograms,viewUserProgramInformat
                                 <Text style={[globals.h5,text.center,colors.colorNeutral,globals.paddingTop]}>No Accessory Lift programs started</Text>
                             :
                                 accessories.map((userProgram) => 
-                                    <CustomListItem title={userProgram.program.muscleGroup} desc={[userProgram.programName || userProgram.program.name]} onPress={() => viewUserProgramInformation(userProgram)} key={userProgram.programId || userProgram.program._id} mode="NAV"/>
+                                    <CustomListItem 
+                                        title={userProgram.program.muscleGroup} 
+                                        desc={[userProgram.programName || userProgram.program.name]} 
+                                        onPress={() => viewUserProgramInformation(userProgram)} 
+                                        key={userProgram.programId || userProgram.program._id} 
+                                        mode="NAV"
+                                        icon={intentToEnd ? 'trash' : 'chevron-right'}
+                                        iconStyle={[intentToEnd ? colors.colorDanger : colors.colorPrimaryLighter]}
+                                        onIconPress={() => intentToEnd ? onEndProgram(userProgram) : viewUserProgramInformation(userProgram)}
+                                    />
                                 )
                         }
                     </View>

@@ -8,30 +8,59 @@ import AsyncStorage from '@react-native-community/async-storage'
 
 const axios = require('axios') ; 
 
-var authToken ; 
-
-SecureStore.getItemAsync('authToken')
-.then((token) => {
-    authToken = token ; 
-})
-.catch(() => {
-    authToken = null ; 
-})
-
 class User {
 
     static _getAuthToken() {
         return new Promise((resolve,reject) => {
-            firebase.auth().currentUser.getIdToken(true)
+            var auth = {} ; 
+
+            SecureStore.getItemAsync('authToken')
             .then((token) => {
-                console.warn(token) ; 
-                resolve(token) ; 
+                if(token === null) return Promise.reject() ; 
+                auth.token = token ; 
+                return Promise.resolve() ;  
+            })
+            .then(() => {
+                return SecureStore.getItemAsync('authTokenExpiration') ; 
+            })
+            .then((expirationTime) => {
+                // expirationTime doesn't exist. 
+                // Should never happen but if it does 
+                // Promise is rejected locally and execution 
+                // goes to line 4x
+                if(expirationTime === null) return Promise.reject() ; 
+                // if expirationTime is past, reject Promise
+                // locally.line 4x gets executed
+                if(Date.parse(expirationTime).toString() < (new Date).toString()) return Promise.reject() 
+                auth.expirationTime = expirationTime ; 
+                // Got expTime and token, all good, no need to query 
+                // firebase. go to line 4x
+                return Promise.resolve() ; 
+            })
+            .then(() => {
+                // All good, resolve promise. 
+                resolve(auth)
+            })
+            .catch(() => { 
+                // execution comes here when the token 
+                // doesn't exist / token has expired / the token
+                // doesnt have an expiry. Makescall to fbauth
+                return firebase.auth().currentUser.getIdTokenResult(true) ; 
+            })
+            .then((result) => {
+                auth.token = result.token ; 
+                auth.expirationTime = result.expirationTime ;
+                console.warn(auth) ;  
+                resolve(auth)
             })
             .catch((error) => {
+                console.warn(error) ; 
                 reject(error.message) ; 
             })
         })
+
     }
+
 
 
     static signup(credentials) {
@@ -40,14 +69,11 @@ class User {
             axios.post(API.V1 + V1.AUTH.SIGNUP, {
                 ...credentials
             })
-            .then((response) => {
-                return this.initiailize(response.data.uid) ; 
-            })
-            .then((credentials) => {
-                resolve(credentials) ; 
+            .then(() => {
+                resolve() ; 
             })
             .catch((error) => {
-                reject(error.response) ; 
+                reject(error.response.data || error.message) ; 
             })
         })
     }
@@ -67,6 +93,7 @@ class User {
     
     static async logout() {
         await SecureStore.deleteItemAsync('authToken') ;
+        await SecureStore.deleteItemAsync('authTokenExpiration') ;
         await AsyncStorage.setItem('@USER_UID','') ;
         await AsyncStorage.removeItem('@USER_FNAME') ;
         await AsyncStorage.removeItem('@USER_LNAME') ; 
@@ -75,18 +102,25 @@ class User {
 
     static initiailize(uid) {
 
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
 
             var credentials = {} ; 
 
-            axios({
-                method:'get',
-                params:{uid},
-                url:API.V1+ V1.USER.GET.DETAILS,
-                headers:{
-                    'Authorization':authToken
-                }
-            })           
+            var authToken, authTokenExpiration; 
+
+            this._getAuthToken()
+            .then((result) => {
+                authToken = result.token ; 
+                authTokenExpiration = result.expirationTime ; 
+                return  axios({
+                            method:'get',
+                            params:{uid},
+                            url:API.V1 + V1.USER.GET.DETAILS,
+                            headers:{
+                                'Authorization':authToken
+                            }
+                        })
+            })
             .then((response) => {
                 let record = response.data; 
                 
@@ -96,8 +130,8 @@ class User {
                 credentials = {...credentials,email,emailVerified,uid,disabled} ; 
             })
             .then(async () => {
-                let token = await this._getAuthToken() ; 
-                await SecureStore.setItemAsync('authToken', token) ;
+                await SecureStore.setItemAsync('authToken', authToken) ;
+                await SecureStore.setItemAsync('authTokenExpiration', authTokenExpiration) ;
                 await AsyncStorage.setItem('@USER_UID',credentials.uid) ;
                 await AsyncStorage.setItem('@USER_FNAME',credentials.firstName) ;
                 await AsyncStorage.setItem('@USER_LNAME',credentials.lastName) ; 
